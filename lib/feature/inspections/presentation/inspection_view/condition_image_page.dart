@@ -1,0 +1,655 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:bot_toast/bot_toast.dart';
+import 'package:camera/camera.dart';
+import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
+import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
+import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
+import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.dart';
+import 'package:ferrisfwt/product/extensions/context_extensions.dart';
+import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/condition_image/inspection_condition_image_post_model.dart';
+import 'package:ferrisfwt/product/state/container/product_state_items.dart';
+import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
+import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
+import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
+import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
+import 'package:ferrisfwt/product/widget/spacer/dynamic_horizontal_spacer.dart';
+import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:permission_handler/permission_handler.dart';
+
+class ConditionImagePage extends StatefulWidget {
+  final int jobInspectionId;
+  const ConditionImagePage({super.key, required this.jobInspectionId});
+
+  @override
+  State<ConditionImagePage> createState() => _ConditionImagePageState();
+}
+
+class _ConditionImagePageState extends State<ConditionImagePage> {
+  HiveStorageManager? _hiveStorageManager;
+  List<File> _imageFiles = [];
+  List<ConditionImageResponseModel> _deletedImages = [];
+  static const int maxImages = 12;
+  String? filePath;
+
+  Future<void> compressImage(File image) async {
+    final documentPath = (await getApplicationDocumentsDirectory()).path;
+    final newFile =
+        await image.copy('$documentPath/${path.basename(image.path)}');
+    File compressedImage = await _resizeImage(newFile);
+    setState(() {
+      _imageFiles.add(compressedImage);
+    });
+  }
+
+  Future<void> _getImageFromCamera(InspectionsState state) async {
+    PermissionStatus permissionStatus = await Permission.camera.status;
+    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+      final result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Camera Permission'),
+            content: const Text(
+                'This app needs camera access to take pictures. Please allow camera access in settings.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  context.read<CubitPermissions>().requestCamera();
+                  final permissionStatus = await Permission.camera.status;
+                  if (permissionStatus.isDenied ||
+                      permissionStatus.isPermanentlyDenied) {
+                    await openAppSettings();
+                  }
+                  context.pop();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (result != true) {
+        return;
+      }
+    }
+    final currentUploadedImages = _imageFiles.length +
+        state.conditionImageResponse.length -
+        _deletedImages.length;
+    final remainingImages = maxImages - currentUploadedImages;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraPageCondition(
+          limit: remainingImages,
+          onCapture: (File image) async {
+            if (_imageFiles.length < 12) {
+              await compressImage(image);
+            } else {
+              BotToast.showText(text: 'You can only select 12 images in total');
+            }
+          },
+          capturedImages: _imageFiles,
+        ),
+      ),
+    );
+
+    if (result != null && result is List<File>) {
+      setState(() {
+        _imageFiles = result;
+      });
+    }
+
+    permissionStatus = await Permission.camera.status;
+    if (!permissionStatus.isGranted) {
+      BotToast.showText(text: 'Camera access denied');
+      return;
+    }
+    if (remainingImages <= 0) {
+      BotToast.showText(text: 'You cannot add more than $maxImages images');
+      return;
+    }
+  }
+
+  Future<void> _getImagesFromGallery(InspectionsState state) async {
+    final picker = ImagePicker();
+    final pickedFiles = await picker.pickMultiImage();
+    if (pickedFiles != null) {
+      for (var pickedFile in pickedFiles) {
+        File file = File(pickedFile.path);
+        if (_imageFiles.length < 12) {
+          await compressImage(file);
+        } else {
+          BotToast.showText(text: 'You can only select 12 images in total');
+          break;
+        }
+      }
+    } else {
+      BotToast.showText(text: 'No images selected');
+    }
+  }
+
+  Future<File> _resizeImage(File imageFile) async {
+    Uint8List? imageBytes = await FlutterImageCompress.compressWithFile(
+      imageFile.path,
+      minWidth: 800,
+      minHeight: 600,
+      quality: 90,
+    );
+
+    if (imageBytes == null) {
+      throw Exception("Compression failed");
+    }
+
+    String fName = path.basenameWithoutExtension(imageFile.path);
+
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    String compressedImagePath = '$appDocPath/$fName.jpg';
+    await File(compressedImagePath).writeAsBytes(imageBytes);
+    return File(compressedImagePath);
+  }
+
+  @override
+  void initState() {
+    context
+        .read<InspectionsBloc>()
+        .add(SetGetConditionImages(widget.jobInspectionId));
+    _hiveStorageManager = ProductStateItems.hiveStorageManager;
+    setFilePath();
+    super.initState();
+  }
+
+  Future<void> setFilePath() async {
+    final documentPath = (await getApplicationDocumentsDirectory()).path;
+
+    setState(() {
+      filePath = documentPath;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.cancel_outlined,
+              color: context.theme.colorScheme.primary, size: 24),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: context.theme.colorScheme.background,
+        title: Text('Condition Images', style: context.textTheme.titleSmall),
+      ),
+      body: BlocConsumer<InspectionsBloc, InspectionsState>(
+        listener: (context, state) {
+          if (state.status == ViewStatus.failure) {
+            BotToast.showText(text: state.failure.toString());
+            print(state.failure.toString());
+          }
+          if (state.status == ViewStatus.success) {
+            context
+                .read<InspectionsBloc>()
+                .add(SetGetConditionImages(widget.jobInspectionId));
+          }
+        },
+        builder: (context, state) {
+          if (state.status == ViewStatus.loading || filePath == null) {
+            _imageFiles.clear();
+            return const Center(child: LoadingProgress());
+          }
+          final bool isSigned = ProductStateItems.hiveDatabaseManager
+                      .getUserModel()!
+                      .inspectionsSign !=
+                  null &&
+              ProductStateItems.hiveDatabaseManager
+                  .getUserModel()!
+                  .inspectionsSign!
+                  .contains(widget.jobInspectionId);
+          return Padding(
+            padding: context.paddingAllDefault,
+            child: Column(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Add Images",
+                      style: context.textTheme.bodyLarge?.copyWith(
+                          color: context.theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    const VerticalSpace.small(),
+                    InkWell(
+                      child: Image.asset(
+                        width: context.width,
+                        "assets/images/fr_upload_image12.png",
+                      ),
+                      onTap: () {
+                        _showImagePickerDialog(context, state);
+                      },
+                    ),
+                    const VerticalSpace.xSmall(),
+                    if (_imageFiles.isNotEmpty)
+                      SizedBox(
+                        height: context.dynamicHeight(0.15),
+                        child: ListView.separated(
+                          padding: EdgeInsets.zero,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const HorizontalSpace.xSmall(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _imageFiles.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    _imageFiles[index],
+                                    fit: BoxFit.cover,
+                                    height: context.dynamicHeight(0.15),
+                                    width: context.dynamicWidth(0.35),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -5,
+                                  right: -5,
+                                  child: IconButton(
+                                    icon: Icon(Icons.cancel_outlined,
+                                        color: context.theme.colorScheme.error),
+                                    onPressed: () {
+                                      setState(() {
+                                        _imageFiles.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    SizedBox(
+                      height: context.defaultValue,
+                    ),
+                    if (_hiveStorageManager!
+                        .getConditionImages(widget.jobInspectionId)
+                        .isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Images",
+                            style: context.textTheme.titleMedium?.copyWith(
+                                color: context.theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          const VerticalSpace.xSmall(),
+                          SizedBox(
+                            height: context.dynamicHeight(0.15),
+                            child: ListView.separated(
+                              padding: EdgeInsets.zero,
+                              separatorBuilder:
+                                  (BuildContext context, int index) =>
+                                      const HorizontalSpace.xSmall(),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _hiveStorageManager!
+                                  .getConditionImages(widget.jobInspectionId)
+                                  .length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final pathImage = _hiveStorageManager!
+                                    .getConditionImages(
+                                        widget.jobInspectionId)[index]
+                                    .image
+                                    .path;
+                                int documentsIndex =
+                                    pathImage.indexOf("Documents/");
+                                String result = pathImage.substring(
+                                    documentsIndex + "Documents/".length);
+                                final path = filePath.toString() + '/' + result;
+                                print('path: $path');
+                                return Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.file(
+                                        File(path),
+                                        fit: BoxFit.cover,
+                                        height: context.dynamicHeight(0.15),
+                                        width: context.dynamicWidth(0.35),
+                                      ),
+                                    ),
+                                    isSigned
+                                        ? const SizedBox()
+                                        : Positioned(
+                                            top: -5,
+                                            right: -5,
+                                            child: IconButton(
+                                              icon: Icon(Icons.cancel_outlined,
+                                                  color: context
+                                                      .theme.colorScheme.error),
+                                              onPressed: () async {
+                                                final deletedImage = state
+                                                        .conditionImageResponse[
+                                                    index];
+                                                setState(() {
+                                                  _deletedImages
+                                                      .add(deletedImage);
+                                                });
+                                                context
+                                                    .read<InspectionsBloc>()
+                                                    .add(DeleteConditionImage(
+                                                        deletedImage.id,
+                                                        widget.jobInspectionId,
+                                                        index));
+                                              },
+                                            ),
+                                          ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+                const VerticalSpace.large(),
+                if (!isSigned)
+                  CustomAppButton(
+                    text: "Save",
+                    ontap: () {
+                      final totalImagesCount = _imageFiles.length +
+                          state.conditionImageResponse.length -
+                          _deletedImages.length;
+                      if (totalImagesCount > maxImages) {
+                        BotToast.showText(
+                            text: "Please select up to $maxImages images");
+                        return;
+                      }
+                      for (var imageFile in _imageFiles) {
+                        context.read<InspectionsBloc>().add(PostConditionImages(
+                              isAsync: false,
+                              jobInspectionId: widget.jobInspectionId,
+                              data: InspectionConditionImagePostModel(
+                                jobInspectionId: widget.jobInspectionId,
+                                image: imageFile,
+                              ),
+                            ));
+                      }
+                      setState(() {
+                        _deletedImages.clear();
+                        _imageFiles.clear();
+                      });
+                      context.pop();
+                      showTopSnackBarFr(context,
+                          message: 'Condition images added successfully');
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showImagePickerDialog(
+      BuildContext context, InspectionsState state) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: context.theme.colorScheme.surface,
+            ),
+            width: context.dynamicWidth(0.98),
+            height: context.dynamicHeight(0.38),
+            child: Padding(
+              padding: context.paddingAllDefault,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    'Select an image picker method',
+                    style: context.textTheme.headlineMedium?.copyWith(
+                        color: context.theme.colorScheme.primary, fontSize: 20),
+                  ),
+                  Column(
+                    children: [
+                      CustomGreyAppButton(
+                        textColor: context.theme.colorScheme.primary,
+                        text: "Open Camera",
+                        containerColor: context.theme.colorScheme.surface,
+                        ontap: () async {
+                          await _getImageFromCamera(state);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const VerticalSpace.xxSmall(),
+                      CustomGreyAppButton(
+                        textColor: context.theme.colorScheme.primary,
+                        text: "Pick From Gallery",
+                        containerColor: context.theme.colorScheme.surface,
+                        ontap: () async {
+                          await _getImagesFromGallery(state);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: context.textTheme.bodyLarge
+                          ?.copyWith(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class CameraPageCondition extends StatefulWidget {
+  final Function(File) onCapture;
+  final int limit;
+  final List<File> capturedImages;
+
+  const CameraPageCondition(
+      {Key? key,
+      required this.onCapture,
+      required this.limit,
+      required this.capturedImages})
+      : super(key: key);
+
+  @override
+  _CameraPageConditionState createState() => _CameraPageConditionState();
+}
+
+class _CameraPageConditionState extends State<CameraPageCondition> {
+  late CameraController _cameraController;
+  late Future<void> _initializeControllerFuture;
+  late List<File> _capturedImages;
+
+  Future<void> initializeCamera() async {
+    final cameras = await availableCameras();
+    final camera = cameras.first;
+
+    _cameraController = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+
+    await _cameraController.initialize();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllerFuture = initializeCamera();
+    _capturedImages = List.from(widget.capturedImages);
+  }
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _captureImage() async {
+    try {
+      await _initializeControllerFuture;
+      final XFile image = await _cameraController.takePicture();
+      final File file = File(image.path);
+      widget.onCapture(file);
+      setState(() {
+        _capturedImages.add(file);
+      });
+    } catch (e) {
+      BotToast.showText(text: 'Error capturing image: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Camera'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pop(context, _capturedImages);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done),
+            onPressed: () {
+              Navigator.pop(context, _capturedImages);
+            },
+          ),
+        ],
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                Container(
+                  height: context.height,
+                  child: CameraPreview(_cameraController),
+                ),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        onTap: _captureImage,
+                        child: const CircleAvatar(
+                          radius: 30,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                      const VerticalSpace.xSmall(),
+                      if (_capturedImages.isNotEmpty)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: context.theme.colorScheme.primaryContainer
+                                .withOpacity(0.2),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(10),
+                            ),
+                          ),
+                          width: context.width,
+                          height: 140,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.dynamicWidth(0.05),
+                              vertical: context.dynamicHeight(0.02),
+                            ),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _capturedImages.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: context.dynamicWidth(0.020)),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.file(
+                                          _capturedImages[index],
+                                        ),
+                                      ),
+                                      Positioned(
+                                          top: -12,
+                                          right: -10,
+                                          child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _capturedImages
+                                                      .removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                Icons.cancel_outlined,
+                                                color: Colors.red,
+                                              )))
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+    );
+  }
+}

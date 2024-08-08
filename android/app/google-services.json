@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117688106294",
+    "project_id": "ferris-app",
+    "storage_bucket": "ferris-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117688106294:android:a1c531d7fb1842a62f4797",
+        "android_client_info": {
+          "package_name": "com.ferrisdemo.ferrisfwt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdfnbO3ob_imMeSBf7ekdqnpEgJoM6LBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
