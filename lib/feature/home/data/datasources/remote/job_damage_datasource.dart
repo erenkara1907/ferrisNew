@@ -44,6 +44,7 @@ final class JobDamageRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageCategories.value}/$inspectionId",
+        // ServicePath.damageCategories.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':
@@ -84,6 +85,7 @@ final class JobDamageRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageFailures.value}/$inspectionId?issueId=$issueId",
+        // ServicePath.damageFailures.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':
@@ -120,6 +122,7 @@ final class JobDamageRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageIssues.value}/$inspectionId?partId=$partId",
+        // ServicePath.damageIssues.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':
@@ -158,6 +161,7 @@ final class JobDamageRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageParts.value}/$inspectionId?categoryId=$categoryId",
+        // ServicePath.damageParts.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':
@@ -194,6 +198,7 @@ final class JobDamageRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageRepairs.value}/$inspectionId?failureId=$failureId",
+        // ServicePath.damageRepairs.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':

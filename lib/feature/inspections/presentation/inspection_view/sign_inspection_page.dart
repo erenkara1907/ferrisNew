@@ -603,7 +603,10 @@ class InspectionDamagesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = state.damageResponse.fold(
-        0, (previousValue, element) => previousValue + element.price!.toInt());
+        0,
+        (previousValue, element) =>
+            previousValue +
+            (element.price != null ? element.price!.toInt() : 0));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,21 +667,26 @@ class InspectionDamagesWidget extends StatelessWidget {
                     ),
                   const VerticalSpace.small(),
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: context.theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: context.paddingAllDefault,
-                          child: Text("Total: £${total.toStringAsFixed(2)}",
-                              style: context.textTheme.bodyMedium?.copyWith(
-                                  color: context.theme.colorScheme.surface)),
-                        ),
-                      ),
-                    ),
+                    total != 0
+                        ? Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    context.theme.colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: context.paddingAllDefault,
+                                child: Text(
+                                  "Total: £${total.toStringAsFixed(2)}",
+                                  style: context.textTheme.bodyMedium?.copyWith(
+                                      color: context.theme.colorScheme.surface),
+                                ),
+                              ),
+                            ),
+                          )
+                        : const Center(),
                   ]),
                   Padding(
                     padding: context.paddingAllDefault,

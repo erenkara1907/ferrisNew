@@ -22,15 +22,15 @@ class JobInspectionResponseModelItem extends Equatable {
   @HiveField(2)
   final JobInspectionType? typeId;
   @HiveField(3)
-  final int? reportSigned;
+  final dynamic reportSigned;
   @HiveField(4)
   final int? conditionImagesAdded;
   @HiveField(5)
   final String? reportNumber;
   @HiveField(6)
-  final int? paymentMade;
+  final dynamic paymentMade;
   @HiveField(7)
-  final int? checklistComplete;
+  final dynamic checklistComplete;
   @HiveField(8)
   final JobInspectionAbortTypeItem? abortType;
   @HiveField(9)

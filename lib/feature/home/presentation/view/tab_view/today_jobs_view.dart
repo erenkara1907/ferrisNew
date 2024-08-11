@@ -117,7 +117,6 @@ class _TodayJobsViewState extends State<TodayJobsView> {
                 padding: EdgeInsets.zero,
                 itemCount: sortedJobs.length,
                 itemBuilder: (BuildContext context, int index) {
-                  //TODO AAAA
                   return CustomCard(
                     onChanged: (value) async {
                       if (value == true) {

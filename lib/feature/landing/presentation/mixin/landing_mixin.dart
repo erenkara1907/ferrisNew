@@ -46,11 +46,11 @@ mixin LandingMixin on BaseMixin<LandingPage> {
     context.read<HomeBloc>().add(const GetJobHistory());
     context.read<StopJobBloc>().add(const GetJobStopsCategories());
     context.read<JobExpenseBloc>().add(const GetExpenseCategories());
-    // context.read<JobDamageBloc>().add(const GetDamageCategories());
-    // context.read<JobDamageBloc>().add(const GetDamageIssues());
-    // context.read<JobDamageBloc>().add(const GetDamageFailures());
-    // context.read<JobDamageBloc>().add(const GetDamageParts());
-    // context.read<JobDamageBloc>().add(const GetDamageRepairs());
+    // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
+    // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageParts(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageRepairs(1, 1));
     context.read<StopJobBloc>().add(const SetJobStop());
 
     context.read<AuthBloc>().add(const GetUserEvent());

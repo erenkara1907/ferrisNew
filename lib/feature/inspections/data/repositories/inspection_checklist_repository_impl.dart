@@ -17,6 +17,7 @@ final class JobInspectionsCheckListRepositoryImpl
 
   final JobInspectionsCheckListRemoteDataSource _dataSource;
 
+  @override
   Future<Either<Failure, List<ChecklistResponseModelItem>>> getChecklists({
     required int? inspectionId,
   }) async {
@@ -35,6 +36,7 @@ final class JobInspectionsCheckListRepositoryImpl
     }
   }
 
+  @override
   Future<Either<Failure, String>> postChecklist({
     required InspectionChecklistPostModel data,
   }) async {
@@ -53,6 +55,7 @@ final class JobInspectionsCheckListRepositoryImpl
     }
   }
 
+  @override
   Future<Either<Failure, ChecklistUpdateResponseModel>> patchChecklist({
     required InspectionChecklistPostModel data,
     required int checklistId,

@@ -241,6 +241,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
   Future<void> _postJobInspectionsCheckList(
       PostJobInspectionsCheckList event, Emitter<InspectionsState> emit) async {
+    print("GİRDİ CHECK 1 ${event.isUpdate}");
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await hasNetwork();
     if (result) {
@@ -250,15 +251,21 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
           data: event.data,
         );
 
+        print(
+            "GİRDİ CHECK 2 ${event.data} - ${event.checklistId} update ${event.isUpdate}");
+
         result.fold(
           (failure) {
+            print("GİRDİ CHECK 3");
             emit(state.copyWith(status: ViewStatus.failure, failure: failure));
           },
           (data) {
+            print("GİRDİ CHECK 4");
             _hiveStorageManager.setItemCheckList(event.data);
             emit(state.copyWith(
               status: ViewStatus.success,
             ));
+            print("GİRDİ CHECK 5 $data");
           },
         );
         return;
@@ -266,7 +273,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       final result = await _ucGetJobInspectionsCheckList.postChecklist(
         data: event.data,
       );
-
       result.fold(
         (failure) {
           emit(state.copyWith(status: ViewStatus.failure, failure: failure));

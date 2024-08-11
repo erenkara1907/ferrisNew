@@ -80,6 +80,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
   Future<TrackingCoordinatesResponseModelItem> getTrackingCoordinate({
     required int id,
   }) async {
+    print("GİRDİ 1");
     try {
       final response = await _networkClient.get(
         "${ServicePath.jobTrackings.value}/$id",
@@ -89,6 +90,8 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
               'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
+
+      print("GİRDİ 1 ${response.data}");
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
@@ -99,13 +102,20 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       final productData = response.data["data"];
       return TrackingCoordinatesResponseModelItem.fromMap(productData);
     } on DioException catch (e) {
+      print("HATA : ${e.message}");
+      print("DioException Detayları: ");
+      print("Response Data: ${e.response?.data}");
+      print("Response Data 2: ${e.response?.data["data"]}");
+      print("Request Path: ${e.requestOptions.path}");
+      print("Error Type: ${e.type}");
+      print("Error: ${e.error}");
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       print('Error: $e, StackTrace: $stackTrace');

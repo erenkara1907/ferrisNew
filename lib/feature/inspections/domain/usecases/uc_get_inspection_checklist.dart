@@ -34,6 +34,7 @@ final class UCGetJobInspectionsCheckList {
     required InspectionChecklistPostModel data,
     required int checklistId,
   }) {
+    print("PATCH UC");
     return _repository.patchChecklist(
       data: data,
       checklistId: checklistId,

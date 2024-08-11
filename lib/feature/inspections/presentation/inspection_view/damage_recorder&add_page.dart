@@ -331,7 +331,9 @@ class DamageCardWidget extends StatelessWidget {
                           color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
-                      text: '£${damageResponse.price}0',
+                      text: damageResponse.price != null
+                          ? '£${damageResponse.price}0'
+                          : "-",
                       style: context.textTheme.bodyMedium
                           ?.copyWith(color: Colors.white),
                     )

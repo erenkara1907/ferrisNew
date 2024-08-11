@@ -62,6 +62,7 @@ final class JobRemoteDataSourceImpl
     String? date,
     String? status,
   }) async {
+    print("GİRDİ GET JOB");
     try {
       final response = await _networkClient.get(ServicePath.job.value,
           queryParameters: {
@@ -75,7 +76,7 @@ final class JobRemoteDataSourceImpl
                   'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
             },
           ));
-
+      print("GİRDİ GET JOB ${response.data["data"]}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
@@ -148,6 +149,7 @@ final class JobRemoteDataSourceImpl
               'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
+
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -163,7 +165,6 @@ final class JobRemoteDataSourceImpl
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      //TODO TOAST MESSAGE
       final context = ProductStateItems
           .appRouter.router.routerDelegate.navigatorKey.currentContext;
       if (context != null) {

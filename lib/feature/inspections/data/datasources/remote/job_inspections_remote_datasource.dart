@@ -53,6 +53,8 @@ class JobInspectionsRemoteDataSourceImpl
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
+
+      print("Access Token : ${response.data['newAccessToken']}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);

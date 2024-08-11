@@ -65,13 +65,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _onGetJobs(GetJobs event, Emitter<HomeState> emit) async {
+    print("GİRDİ JOB");
     emit(state.copyWith(status: ViewStatus.loading, jobs: []));
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
     if (id == null || id == "") {
       final result = await _ucGetJob.getJob(
-          date:
-              "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}");
+        date:
+            "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}",
+      );
       result.fold(
           (failure) => emit(
               state.copyWith(status: ViewStatus.failure, failure: failure)),
@@ -125,13 +127,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final result = await _ucGetJob.startJob(
         data: StartJobPostModel(startDate: event.jobShowModel.startDate ?? 0),
         jobId: event.jobShowModel.id);
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) async {
+    result.fold((failure) {
+      emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+    }, (data) async {
       _hiveDatabaseManager.saveJob(event.jobShowModel.id.toString(),
           event.jobShowModel.startDate.toString());
-
       _hiveStorageManager.setJobWorkingOn(event.jobShowModel);
       emit(state.copyWith(
         status: ViewStatus.success,

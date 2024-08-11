@@ -45,6 +45,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<List<ChecklistResponseModelItem>> getChecklists({
     required int? inspectionId,
   }) async {
+    print("inspection ıd : $inspectionId");
     try {
       final response = await _networkClient.get(
         ServicePath.jobInspectionsCheckList.value,
@@ -53,6 +54,8 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         },
         options: Options(headers: headers),
       );
+
+      print("CHECK LIST : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -80,12 +83,15 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<String> postChecklist({
     required InspectionChecklistPostModel data,
   }) async {
+    print("POST DATA : girdi");
     try {
       final response = await _networkClient.post(
         ServicePath.jobInspectionsCheckList.value,
         options: Options(headers: headers),
         data: data.toMap(),
       );
+
+      print("POST DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -114,7 +120,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         options: Options(headers: headers),
         data: data.toMap(),
       );
-      print(response.data);
+
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
