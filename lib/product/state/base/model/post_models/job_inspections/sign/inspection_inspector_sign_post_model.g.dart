@@ -1,4 +1,9 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'inspection_inspector_sign_post_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
 // **************************************************************************
 
 class InspectionInspectorSignPostModelAdapter

@@ -67,99 +67,96 @@ class _FinishJobPageState extends State<FinishJobPage> {
   }
 
   Future<void> checkInternetConnection() async {
-    final _userHiveOperation = ProductStateItems.hiveStorageManager;
-    final _userHiveDatabase = ProductStateItems.hiveDatabaseManager;
+    final userHiveOperation = ProductStateItems.hiveStorageManager;
+    final userHiveDatabase = ProductStateItems.hiveDatabaseManager;
     if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
         false) return;
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
-      final result = await _userHiveOperation.getJobExpenseAsync();
-      print('result: $result');
+      final result = await userHiveOperation.getJobExpenseAsync();
+      // print('result: $result');
 
-      final resultStop = await _userHiveOperation.getJobStopAsync();
+      final resultStop = await userHiveOperation.getJobStopAsync();
 
-      print('resultStop: $resultStop');
+      // print('resultStop: $resultStop');
 
-      final resultJobUpdate = await _userHiveOperation.getJobUpdate();
+      final resultJobUpdate = await userHiveOperation.getJobUpdate();
 
-      print('resultJobUpdate: $resultJobUpdate');
+      // print('resultJobUpdate: $resultJobUpdate');
 
-      final resultPatch = await _userHiveOperation.getJobExpensePatchAsync();
+      final resultPatch = await userHiveOperation.getJobExpensePatchAsync();
 
-      print('resultPatch: $resultPatch');
+      // print('resultPatch: $resultPatch');
 
-      if (result != [] && result != null && result.isNotEmpty && result != {}) {
+      if (result != [] && result.isNotEmpty && result != {}) {
         for (var item in result) {
           context.read<JobExpenseBloc>().add(PostExpense(item!, true));
           await Future.delayed(const Duration(seconds: 5));
         }
         await Future.delayed(const Duration(seconds: 5));
 
-        _userHiveOperation.deleteJobExpenseAsync();
+        userHiveOperation.deleteJobExpenseAsync();
       }
       if (resultPatch.isNotEmpty &&
           resultPatch != {} &&
           resultPatch != [] &&
-          resultPatch != null &&
-          _userHiveDatabase.getUserModel() != null) {
+          userHiveDatabase.getUserModel() != null) {
         for (var item in resultPatch) {
           context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
           await Future.delayed(const Duration(seconds: 5));
         }
-        _userHiveOperation.deleteJobExpensePatchAsync();
+        userHiveOperation.deleteJobExpensePatchAsync();
       }
 
       if (resultStop != [] &&
-          resultStop != null &&
           resultStop.isNotEmpty &&
           resultStop != {} &&
-          _userHiveDatabase.getUserModel() != null) {
+          userHiveDatabase.getUserModel() != null) {
         for (var item in resultStop) {
           context.read<StopJobBloc>().add(PostJobStops(
               isAsync: true,
               jobId: int.parse(
-                  _userHiveDatabase.getUserModel()!.currentJobId ?? ""),
+                  userHiveDatabase.getUserModel()!.currentJobId ?? ""),
               data: item!));
           await Future.delayed(const Duration(seconds: 2));
         }
-        _userHiveOperation.deleteJobStopAsync();
+        userHiveOperation.deleteJobStopAsync();
       }
 
-      if (resultJobUpdate != null &&
-          resultJobUpdate.isNotEmpty &&
+      if (resultJobUpdate.isNotEmpty &&
           resultJobUpdate != {} &&
           resultJobUpdate != [] &&
-          _userHiveDatabase.getUserModel() != null) {
+          userHiveDatabase.getUserModel() != null) {
         for (var item in resultJobUpdate) {
           context.read<HomeBloc>().add(UpdateJob(
-              _userHiveDatabase.getUserModel()!.currentJobId ?? "",
+              userHiveDatabase.getUserModel()!.currentJobId ?? "",
               item!,
               true));
           await Future.delayed(const Duration(seconds: 2));
         }
 
-        _userHiveOperation.deleteJobUpdates();
+        userHiveOperation.deleteJobUpdates();
       }
       final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager
               .getUserModel()
               ?.inspectionsJobId ??
           [];
 
-      print('jobInspectionsId: $jobInspectionsId');
+      // print('jobInspectionsId: $jobInspectionsId');
 
       for (var id in jobInspectionsId) {
         try {
           final resultInspection =
-              await _userHiveOperation.getChecklistPostModel(id);
-          print('resultInspectionChekList: $resultInspection');
-          if (resultInspection != null && resultInspection.isNotEmpty) {
+              await userHiveOperation.getChecklistPostModel(id);
+          // print('resultInspectionChekList: $resultInspection');
+          if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
               context
                   .read<InspectionsBloc>()
                   .add(PostJobInspectionsCheckList(item!, true, false, null));
               await Future.delayed(const Duration(seconds: 2));
             });
-            await _userHiveOperation.deleteChecklistPostModel(id);
+            await userHiveOperation.deleteChecklistPostModel(id);
           }
 
           /*
@@ -177,10 +174,9 @@ class _FinishJobPageState extends State<FinishJobPage> {
           }
 */
           final resultInspectionEditDetail =
-              await _userHiveOperation.getInspectionDetails(id);
-          print('resultInspectionEditDetail: $resultInspectionEditDetail');
-          if (resultInspectionEditDetail != null &&
-              resultInspectionEditDetail.isNotEmpty) {
+              await userHiveOperation.getInspectionDetails(id);
+          // print('resultInspectionEditDetail: $resultInspectionEditDetail');
+          if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
                     odoReading: item!.odoReading,
@@ -190,7 +186,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
                   ));
               await Future.delayed(const Duration(seconds: 2));
             });
-            await _userHiveOperation.removeInspectionDetailsRecord(id);
+            await userHiveOperation.removeInspectionDetailsRecord(id);
           }
 /*
           final resultInspectionEdit =
@@ -209,15 +205,15 @@ class _FinishJobPageState extends State<FinishJobPage> {
           */
 
           final resultInspectionCustomerSign =
-              await _userHiveOperation.getSignCustomerPostModel(id);
+              await userHiveOperation.getSignCustomerPostModel(id);
           final resultInspectionSign =
-              await _userHiveOperation.getSignInspectorPostModel(id);
-          print('resultInspectionSign $resultInspectionCustomerSign');
+              await userHiveOperation.getSignInspectorPostModel(id);
+          // print('resultInspectionSign $resultInspectionCustomerSign');
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
                   jobInspectionId: id,
-                  data: resultInspectionCustomerSign!,
+                  data: resultInspectionCustomerSign,
                   isAsync: true,
                 ));
             await Future.delayed(const Duration(seconds: 1));
@@ -229,8 +225,8 @@ class _FinishJobPageState extends State<FinishJobPage> {
                 ));
             await Future.delayed(const Duration(seconds: 2));
 
-            await _userHiveOperation.clearAllSignCustomerPostModels();
-            await _userHiveOperation.clearAllSignInspectorPostModels();
+            await userHiveOperation.clearAllSignCustomerPostModels();
+            await userHiveOperation.clearAllSignInspectorPostModels();
           }
         } catch (e) {
           print('Error occurred: $e');
@@ -252,13 +248,13 @@ class _FinishJobPageState extends State<FinishJobPage> {
     }
 
     final result = await ProductStateItems.hiveStorageManager.getJobUpdate();
-    if (result != [] && result != null && result.isNotEmpty && result != {}) {
+    if (result != [] && result.isNotEmpty && result != {}) {
       BotToast.showText(
         text: 'Syncing Expenses...',
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 4),
       );
-      print('resultJOBExpemde: $result');
+      // print('resultJOBExpemde: $result');
       for (var item in result) {
         context.read<HomeBloc>().add(UpdateJob(
               ProductStateItems.hiveDatabaseManager
@@ -278,16 +274,15 @@ class _FinishJobPageState extends State<FinishJobPage> {
     if (resultPatch.isNotEmpty &&
         resultPatch != {} &&
         resultPatch != [] &&
-        resultPatch != null &&
         ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
       BotToast.showText(
         text: 'Syncing Expenses...',
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 8),
       );
-      print(
-        'resultPatchsssss: $resultPatch',
-      );
+      // print(
+      //   'resultPatchsssss: $resultPatch',
+      // );
       for (var item in resultPatch) {
         context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
         await Future.delayed(const Duration(seconds: 1));
@@ -404,9 +399,8 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                         .feedbackInputs?.showAnyInput ==
                                     true,
                                 feedbackInputAvailability:
-                                    job?.movementTypeId!.feedbackInputs == null
-                                        ? job?.movementTypeId!.feedbackInputs
-                                        : job?.movementTypeId!.feedbackInputs,
+                                    job?.movementTypeId!.feedbackInputs ??
+                                        job?.movementTypeId!.feedbackInputs,
                                 context: context,
                                 id: ProductStateItems.hiveDatabaseManager
                                     .getUserModel()!
@@ -430,7 +424,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             title: const Text('Finish Job'),
           ),
           body: BlocBuilder<HomeBloc, HomeState>(
@@ -468,13 +462,10 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                 text: 'Feedback',
                                 ontap: () {
                                   context.push("/feedback_page", extra: {
-                                    "feedbackInputAvailability": job
-                                                ?.movementTypeId
-                                                ?.feedbackInputs ==
-                                            null
-                                        ? state.showJob?.movementTypeId
-                                            ?.feedbackInputs
-                                        : job?.movementTypeId?.feedbackInputs
+                                    "feedbackInputAvailability":
+                                        job?.movementTypeId?.feedbackInputs ??
+                                            state.showJob?.movementTypeId
+                                                ?.feedbackInputs
                                   });
                                 }),
                           const VerticalSpace.small(),
@@ -572,9 +563,9 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                       final currentTime = DateTime.now()
                                               .millisecondsSinceEpoch ~/
                                           1000;
-                                      print(widget.isFuelView);
-                                      print(widget.feedbackInputAvailability);
-                                      print(widget.feedbackInputAvailability);
+                                      // print(widget.isFuelView);
+                                      // print(widget.feedbackInputAvailability);
+                                      // print(widget.feedbackInputAvailability);
 
                                       context.read<HomeBloc>().add(EndJob(
                                             isViewFuel: widget.isFuelView ==

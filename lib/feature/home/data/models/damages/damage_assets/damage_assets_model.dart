@@ -2,45 +2,8 @@ import 'package:hive/hive.dart';
 
 part 'damage_assets_model.g.dart';
 
-@HiveType(typeId: 500)
+@HiveType(typeId: 120)
 class DamageAssetsModel {
-  @HiveField(0)
-  bool? status;
-
-  @HiveField(1)
-  String? message;
-
-  @HiveField(2)
-  List<Data>? data;
-
-  @HiveField(3)
-  Debug? debug;
-
-  DamageAssetsModel({this.status, this.message, this.data, this.debug});
-
-  factory DamageAssetsModel.fromJson(Map<String, dynamic> json) {
-    return DamageAssetsModel(
-      status: json['status'],
-      message: json['message'],
-      data: (json['data'] as List<dynamic>?)
-          ?.map((item) => Data.fromJson(item))
-          .toList(),
-      debug: json['debug'] != null ? Debug.fromJson(json['debug']) : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'status': status,
-      'message': message,
-      'data': data?.map((v) => v.toJson()).toList(),
-      'debug': debug?.toJson(),
-    };
-  }
-}
-
-@HiveType(typeId: 501)
-class Data {
   @HiveField(0)
   int? id;
 
@@ -59,7 +22,7 @@ class Data {
   @HiveField(5)
   List<Categories>? categories;
 
-  Data(
+  DamageAssetsModel(
       {this.id,
       this.mainClientId,
       this.name,
@@ -67,8 +30,8 @@ class Data {
       this.updatedAt,
       this.categories});
 
-  factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(
+  factory DamageAssetsModel.fromJson(Map<String, dynamic> json) {
+    return DamageAssetsModel(
       id: json['id'],
       mainClientId: json['main_client_id'],
       name: json['name'],
@@ -92,7 +55,7 @@ class Data {
   }
 }
 
-@HiveType(typeId: 502)
+@HiveType(typeId: 121)
 class Categories {
   @HiveField(0)
   int? id;
@@ -124,7 +87,7 @@ class Categories {
   }
 }
 
-@HiveType(typeId: 503)
+@HiveType(typeId: 122)
 class Parts {
   @HiveField(0)
   int? id;
@@ -161,7 +124,7 @@ class Parts {
   }
 }
 
-@HiveType(typeId: 504)
+@HiveType(typeId: 123)
 class Issues {
   @HiveField(0)
   int? id;
@@ -198,7 +161,7 @@ class Issues {
   }
 }
 
-@HiveType(typeId: 505)
+@HiveType(typeId: 124)
 class Failures {
   @HiveField(0)
   int? id;
@@ -235,7 +198,7 @@ class Failures {
   }
 }
 
-@HiveType(typeId: 506)
+@HiveType(typeId: 125)
 class Repairs {
   @HiveField(0)
   int? id;
@@ -265,7 +228,7 @@ class Repairs {
   }
 }
 
-@HiveType(typeId: 507)
+@HiveType(typeId: 126)
 class Debug {
   @HiveField(0)
   String? timestamp;
@@ -318,7 +281,7 @@ class Debug {
   }
 }
 
-@HiveType(typeId: 508)
+@HiveType(typeId: 127)
 class RequestQuery {
   @HiveField(0)
   AuthUser? authUser;
@@ -339,7 +302,7 @@ class RequestQuery {
   }
 }
 
-@HiveType(typeId: 509)
+@HiveType(typeId: 128)
 class AuthUser {
   @HiveField(0)
   int? id;
@@ -376,7 +339,7 @@ class AuthUser {
   }
 }
 
-@HiveType(typeId: 510)
+@HiveType(typeId: 129)
 class MainClientId {
   @HiveField(0)
   int? id;

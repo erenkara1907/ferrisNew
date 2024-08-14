@@ -9,7 +9,7 @@ part of 'job_inspection_abort_type_item.dart';
 class JobInspectionAbortTypeItemAdapter
     extends TypeAdapter<JobInspectionAbortTypeItem> {
   @override
-  final int typeId = 198;
+  final int typeId = 199;
 
   @override
   JobInspectionAbortTypeItem read(BinaryReader reader) {

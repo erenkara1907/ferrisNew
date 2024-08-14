@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ferrisfwt/feature/auth/data/models/user_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_tracking_coordinates/tracking_coordinates_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/movement_type/feedback_input_availability.dart';
@@ -65,27 +66,67 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _onGetJobs(GetJobs event, Emitter<HomeState> emit) async {
-    print("GİRDİ JOB");
     emit(state.copyWith(status: ViewStatus.loading, jobs: []));
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
     if (id == null || id == "") {
-      final result = await _ucGetJob.getJob(
+      // // İlk API çağrısı: Bugünkü jobları al
+      final todayJobsResult = await _ucGetJob.getJob(
+        status: "0",
         date:
             "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}",
       );
-      result.fold(
-          (failure) => emit(
-              state.copyWith(status: ViewStatus.failure, failure: failure)),
-          (data) {
-        emit(state.copyWith(status: ViewStatus.success, jobs: data));
-      });
+
+      // İkinci API çağrısı: Tüm aktif jobları al (tarih filtresi olmadan)
+      final activeJobsResult = await _ucGetJob.getJob(
+        status: "1",
+      );
+
+      // Her iki sonuç için de hata kontrolü yap
+      if (todayJobsResult.isLeft() || activeJobsResult.isLeft()) {
+        final failure =
+            todayJobsResult.fold((failure) => failure, (_) => null) ??
+                activeJobsResult.fold((failure) => failure, (_) => null);
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+        return;
+      }
+
+      // Sonuçları birleştir
+      final todayJobs = todayJobsResult.getOrElse(() => []);
+      final activeJobs = activeJobsResult.getOrElse(() => []);
+
+      // Eğer bugünkü joblar, tüm aktif jobların içinde varsa bu durumu kontrol edebilir veya bugünkü jobları diğer aktif joblarla birleştirebilirsiniz.
+      final allJobs = [...todayJobs, ...activeJobs];
+
+      // Job'ları önce tarihe göre sıralayalım (eskiden yeniye doğru)
+      allJobs.sort((a, b) => a.date!.compareTo(b.date ?? ""));
+
+      // Aktif olan jobları listenin başına getirelim
+      allJobs.sort((a, b) => b.status!.compareTo(a.status ??
+          1)); // Assuming status "1" is active, and status is a string
+
+      // Elde edilen jobları state'e aktar
+      emit(state.copyWith(status: ViewStatus.success, jobs: allJobs));
+
+      // final result = await _ucGetJob.getJob(
+      //     status: "0",
+      //     date:
+      //         "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}");
+
+      // result.fold(
+      //     (failure) => emit(
+      //         state.copyWith(status: ViewStatus.failure, failure: failure)),
+      //     (data) {
+      //   emit(state.copyWith(status: ViewStatus.success, jobs: data));
+      // });
+
       return;
     }
     final jobWorkingOn = await _hiveStorageManager
         .getJobWorkingOnModel(int.parse(id.toString()));
 
     final result = await _ucGetJob.getJob(
+        status: "0",
         date:
             "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}");
 
@@ -93,8 +134,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         (failure) =>
             emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
         (data) {
+      bool jobExists = false;
       if (jobWorkingOn != null) {
-        bool jobExists = false;
         for (var element in data) {
           if (element.id == jobWorkingOn.id) {
             jobExists = true;
@@ -106,8 +147,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         } else {
           emit(state.copyWith(status: ViewStatus.success, jobs: data));
         }
-      } else {
-        emit(state.copyWith(status: ViewStatus.success, jobs: data));
       }
     });
   }
@@ -124,12 +163,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onStartJob(StartJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
+
     final result = await _ucGetJob.startJob(
         data: StartJobPostModel(startDate: event.jobShowModel.startDate ?? 0),
         jobId: event.jobShowModel.id);
     result.fold((failure) {
       emit(state.copyWith(status: ViewStatus.failure, failure: failure));
     }, (data) async {
+      // _hiveDatabaseManager.saveUserModel(
+      //     UserModel(currentJobId: event.jobShowModel.id.toString()));
       _hiveDatabaseManager.saveJob(event.jobShowModel.id.toString(),
           event.jobShowModel.startDate.toString());
       _hiveStorageManager.setJobWorkingOn(event.jobShowModel);
@@ -262,14 +304,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _onGetJobTracingCordinates(
       GetJobTracingCordinates event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    print("event.jobId: ${event.jobId}");
+
     final result = await _ucGetJobTrackingCoordinates
         .getJobTrackingCoordinatess(jobId: event.jobId);
     result.fold(
         (failure) =>
             emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
         (data) {
-      print("dataaaaaaa: $data");
       emit(state.copyWith(
         status: ViewStatus.success,
         getTrackingCoordinatesResponse: data,
@@ -316,13 +357,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final result = await _ucGetJob.getJob(
         date:
             "${DateTime.now().year}-${DateTime.now().month < 9 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day + 1 < 9 ? "0${DateTime.now().day + 1}" : "${DateTime.now().day + 1}"}");
-    print(
-        "${DateTime.now().year}-${DateTime.now().month < 9 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day + 1 < 9 ? "0${DateTime.now().day + 1}" : "${DateTime.now().day + 1}"}");
+    // print(
+    //     "${DateTime.now().year}-${DateTime.now().month < 9 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day + 1 < 9 ? "0${DateTime.now().day + 1}" : "${DateTime.now().day + 1}"}");
     result.fold(
         (failure) =>
             emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
         (data) {
-      print("data: $data");
+      // print("data: $data");
       emit(state.copyWith(status: ViewStatus.success, jobsTomorrow: data));
     });
   }

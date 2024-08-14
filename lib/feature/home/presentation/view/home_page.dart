@@ -1,8 +1,12 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/home/presentation/view/tab_view/today_jobs_view.dart';
 import 'package:ferrisfwt/feature/home/presentation/view/tab_view/tomorrow_jobs_view.dart';
+import 'package:ferrisfwt/product/database/hive/core/hive_database_manager.dart';
+import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
@@ -14,6 +18,8 @@ import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../auth/data/models/user_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -259,6 +265,17 @@ class CustomCard extends StatelessWidget {
               BotToast.showLoading();
               final result = await hasNetwork();
               if (context.mounted) {
+                if (jobModel.status == 1) {
+                  print("GİRİRİR");
+                  // ignore: no_leading_underscores_for_local_identifiers
+                  final HiveDatabaseManager _hiveDatabaseManager =
+                      HiveDatabaseManager();
+                  final HiveStorageManager hiveStorageManager =
+                      HiveStorageManager();
+                  _hiveDatabaseManager.saveJob(
+                      jobModel.id.toString(), jobModel.regNumber!);
+                  hiveStorageManager.setJobWorkingOn(jobModel);
+                }
                 context.push('/job_detail_page', extra: {
                   'jobId': jobModel.id.toString(),
                   'asyncJob': !result,

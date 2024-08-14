@@ -45,7 +45,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<List<ChecklistResponseModelItem>> getChecklists({
     required int? inspectionId,
   }) async {
-    print("inspection ıd : $inspectionId");
+    // print("inspection ıd : $inspectionId");
     try {
       final response = await _networkClient.get(
         ServicePath.jobInspectionsCheckList.value,
@@ -55,7 +55,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         options: Options(headers: headers),
       );
 
-      print("CHECK LIST : ${response.data}");
+      // print("CHECK LIST : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -83,7 +83,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<String> postChecklist({
     required InspectionChecklistPostModel data,
   }) async {
-    print("POST DATA : girdi");
+    // print("POST DATA : girdi");
     try {
       final response = await _networkClient.post(
         ServicePath.jobInspectionsCheckList.value,
@@ -91,7 +91,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         data: data.toMap(),
       );
 
-      print("POST DATA : ${response.data}");
+      // print("POST DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -124,13 +124,15 @@ class JobInspectionsCheckListRemoteDataSourceImpl
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
+
+      // print("DATA : ${response.data}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
       return ChecklistUpdateResponseModel.fromMap(response.data["data"]);
     } on DioException catch (e) {
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       print('Error: $e, StackTrace: $stackTrace');

@@ -88,7 +88,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       }
       _hiveStorageManager.setJobStopAsync(event.data);
       await Future.delayed(const Duration(seconds: 1));
-      print("No network");
+      // print("No network");
       emit(state.copyWith(
         status: ViewStatus.success,
         totalStop: state.totalStop + 1,

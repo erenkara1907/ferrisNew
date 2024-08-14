@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -29,6 +30,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         _ucGetJobInspectionsDamages = ucGetInspectionsDamage,
         super(const JobDamageState()) {
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
+    on<GetAllDamageAssets>(_onGetAllDamageAssets);
     on<GetDamageCategories>(_onGetDamageCategories);
     on<GetDamageIssues>(_onGetDamageIssues);
     on<GetDamageParts>(_onGetDamageParts);
@@ -43,9 +45,27 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
 
   final UCGetJobInspectionsDamages _ucGetJobInspectionsDamages;
 
+  Future<void> _onGetAllDamageAssets(
+      GetAllDamageAssets event, Emitter<JobDamageState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result = await _ucGetJobDamage.getAllDamageAssets();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      },
+      (data) {
+        // print("OKAY GİRDİ");
+        _hiveStorageManager.addDamageAssetsToTable(data);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          damageAssetsModel: data,
+        ));
+      },
+    );
+  }
+
   Future<void> _onGetDamageCategories(
       GetDamageCategories event, Emitter<JobDamageState> emit) async {
-    print("GİRDİ KRAL");
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getDamageCategories(
         inspectionId: event.inspectionId);
@@ -53,7 +73,6 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         (failure) =>
             emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
         (data) {
-      print("DATA : $data");
       _hiveStorageManager.replaceDamageCategoriesTable(data);
       emit(state.copyWith(
         status: ViewStatus.success,

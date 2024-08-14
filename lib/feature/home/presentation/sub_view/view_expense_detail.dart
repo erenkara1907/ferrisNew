@@ -40,8 +40,8 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
   File? _imageFile;
   String? filePath;
   bool? imageSelected = false;
-  TextEditingController _priceController = TextEditingController();
-  TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController();
 
   Future<void> _getImage(ImageSource source) async {
     if (source == ImageSource.camera) {
@@ -107,7 +107,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
       });
       _scrollToEnd();
     } else {
-      print('No image selected.');
+      // print('No image selected.');
     }
   }
 
@@ -143,7 +143,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
 
   @override
   void initState() {
-    print("expendsfsdfsdfse: ${widget.index}");
+    // print("expendsfsdfsdfse: ${widget.index}");
     _priceController.text = widget.expense.price!.toStringAsFixed(2);
 
     _reasonController.text = widget.expense.reasonNoReceipt ?? "";
@@ -207,7 +207,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
               child: LoadingProgress(),
             ));
           }
-          print("pathhjjkj: $filePath");
+          // print("pathhjjkj: $filePath");
           final pathImage = ProductStateItems.hiveStorageManager
                   .getPostExpenseSaveImage(
                       price: widget.expense.price!,
@@ -216,16 +216,16 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                   ?.path ??
               "";
           if (pathImage != "") {
-            print("pathIdsfsdfsdfmage: $pathImage");
+            // print("pathIdsfsdfsdfmage: $pathImage");
             int documentsIndex = pathImage.indexOf("Documents/");
             String result =
                 pathImage.substring(documentsIndex + "Documents/".length);
 
-            final path = filePath.toString() + '/' + result;
-            print("pathIdsfsdfsdfmasdsadaage: $path");
+            final path = '$filePath/$result';
+            // print("pathIdsfsdfsdfmasdsadaage: $path");
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: context.theme.colorScheme.background,
+                backgroundColor: context.theme.colorScheme.surface,
                 leading: IconButton(
                   icon: Icon(
                     Icons.cancel_outlined,
@@ -395,7 +395,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                     "Please upload a receipt or provide a reason why no receipt is uploaded");
                             return;
                           }
-                          final _selectedLevelAtHubOld = context
+                          final selectedLevelAtHubOld = context
                               .read<JobExpenseBloc>()
                               .state
                               .expenseCategories
@@ -404,7 +404,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                               .map((category) => category.name)
                               .firstOrNull;
 
-                          if (_selectedLevelAtHubOld == _selectedLevelAtHub &&
+                          if (selectedLevelAtHubOld == _selectedLevelAtHub &&
                               double.parse(_priceController.text) ==
                                   widget.expense.price &&
                               imageSelected == false) {
@@ -439,7 +439,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
           _reasonController.text = widget.expense.reasonNoReceipt ?? "";
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
               leading: IconButton(
                 icon: Icon(
                   Icons.cancel_outlined,
@@ -598,7 +598,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                   "Please upload a receipt or provide a reason why no receipt is uploaded");
                           return;
                         }
-                        final _selectedLevelAtHubOld = context
+                        final selectedLevelAtHubOld = context
                             .read<JobExpenseBloc>()
                             .state
                             .expenseCategories
@@ -607,7 +607,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                             .map((category) => category.name)
                             .firstOrNull;
 
-                        if (_selectedLevelAtHubOld == _selectedLevelAtHub &&
+                        if (selectedLevelAtHubOld == _selectedLevelAtHub &&
                             double.parse(_priceController.text) ==
                                 widget.expense.price &&
                             _reasonController.text ==

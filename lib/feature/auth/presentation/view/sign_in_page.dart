@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class SignInPage extends StatelessWidget {
-  SignInPage({super.key});
+  const SignInPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +39,17 @@ class SignInPage extends StatelessWidget {
                     const VerticalSpace.medium(),
                     Text(
                       "Explore the app",
-                      style: context.textTheme.headlineLarge,
+                      style: context.textTheme.headlineLarge?.copyWith(
+                        color: Colors.black,
+                      ),
                     ),
                     const VerticalSpace.small(),
                     Center(
                         child: Text(
                       "Deliver and collect vehicles directly from customers across mainland UK",
-                      style: context.textTheme.bodyLarge,
+                      style: context.textTheme.bodyLarge?.copyWith(
+                        color: Colors.black,
+                      ),
                       textAlign: TextAlign.center,
                     )),
                     const VerticalSpace.medium(),

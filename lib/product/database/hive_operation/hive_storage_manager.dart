@@ -1,6 +1,7 @@
 library hive_storage_manager;
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_patch_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expenses_response_model_item.dart';
@@ -38,6 +39,8 @@ import 'package:ferrisfwt/product/database/hive_operation/models/stop/stop.dart'
 import 'package:flutter/cupertino.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_repairs/damage_repair.dart';
 import 'package:uuid/uuid.dart';
+
+part 'operation_mixins/damage/damage_assets_operation_mixin.dart';
 
 part 'operation_mixins/stop_operations_mixin.dart';
 
@@ -112,12 +115,14 @@ part 'operation_mixins/damage_operation_mixin.dart';
 part 'operation_mixins/post_expense_save_image.dart';
 
 part 'operation_mixins/inspections/inspect_edit_detail_operation_mixin.dart';
+
 /// Perform the CRUD operations on all oof the hive models with this class.
 class HiveStorageManager
     with
         StopOperationsMixin,
         DamageRepairOperationMixin,
         DamageCategoryOperationMixin,
+        DamageAssetsOperationMixin,
         DamageIssueOperationMixin,
         DamagePartOperationMixin,
         DamageFailureOperationMixin,
@@ -151,8 +156,7 @@ class HiveStorageManager
         ConditionImageOperationMixin,
         PostExpenseSaveImageOperationMixin,
         InspectionDamagePostOperationsMixin,
-        InspectEditDetail
-        {
+        InspectEditDetail {
   /// gets an merged stream of all the boxes related to uploading job data.
   Future<Stream> get jobDataOperationsStream async => StreamGroup.merge([
         (await _stopBox).watch(),

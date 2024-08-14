@@ -1,5 +1,9 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'inspection_checklist_post_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
 // **************************************************************************
 
 class InspectionChecklistPostModelAdapter
@@ -14,6 +18,7 @@ class InspectionChecklistPostModelAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return InspectionChecklistPostModel(
+      jobInspectionId: fields[0] as int,
       inflatorKit: fields[1] as int,
       evCable: fields[2] as int,
       jack: fields[3] as int,
@@ -23,7 +28,6 @@ class InspectionChecklistPostModelAdapter
       hvChargingCable: fields[7] as int,
       spareKey: fields[8] as int,
       masterKey: fields[9] as int,
-      jobInspectionId: fields[0] as int,
     );
   }
 

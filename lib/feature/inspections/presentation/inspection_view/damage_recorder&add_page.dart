@@ -16,7 +16,13 @@ import 'package:go_router/go_router.dart';
 
 class RecordedDamages extends StatefulWidget {
   final int jobInspectionId;
-  const RecordedDamages({super.key, required this.jobInspectionId});
+  final List<int> standardIds;
+
+  const RecordedDamages({
+    super.key,
+    required this.jobInspectionId,
+    required this.standardIds,
+  });
 
   @override
   State<RecordedDamages> createState() => RecordedDamagesState();
@@ -72,6 +78,14 @@ class RecordedDamagesState extends State<RecordedDamages> {
                 size: 24,
               ),
               onPressed: () {
+                // context.read<InspectionsBloc>().add(GetJobInspections(
+                //     jobId: int.parse(ProductStateItems.hiveDatabaseManager
+                //             .getUserModel()
+                //             ?.currentJobId ??
+                //         "0"),
+                //     regnNumber: ProductStateItems.hiveDatabaseManager
+                //         .getUserModel()
+                //         ?.regnNumber));
                 context.pop();
               },
             ),
@@ -92,7 +106,8 @@ class RecordedDamagesState extends State<RecordedDamages> {
                         text: 'Add Damage',
                         ontap: () {
                           context.push('/damages_page', extra: {
-                            'jobInspectionId': widget.jobInspectionId
+                            'jobInspectionId': widget.jobInspectionId,
+                            "standardIds": widget.standardIds,
                           });
                         },
                       ),
@@ -149,9 +164,10 @@ class RecordedDamagesState extends State<RecordedDamages> {
                               return Stack(
                                 children: [
                                   DamageCardWidget(
-                                      inspection: widget.jobInspectionId,
-                                      damageResponse:
-                                          state.damageResponse[index]),
+                                    standarIds: widget.standardIds,
+                                    inspection: widget.jobInspectionId,
+                                    damageResponse: state.damageResponse[index],
+                                  ),
                                   isSigned == false
                                       ? Positioned(
                                           top: 16,
@@ -194,10 +210,12 @@ class RecordedDamagesState extends State<RecordedDamages> {
 class DamageCardWidget extends StatelessWidget {
   final DamageResponseModel damageResponse;
   final int inspection;
+  final List<int> standarIds;
   const DamageCardWidget({
     super.key,
     required this.damageResponse,
     required this.inspection,
+    required this.standarIds,
   });
 
   @override
@@ -209,6 +227,7 @@ class DamageCardWidget extends StatelessWidget {
           extra: {
             "damageResponse": damageResponse,
             "inspection": inspection,
+            "standardIds": standarIds,
           },
         );
       },

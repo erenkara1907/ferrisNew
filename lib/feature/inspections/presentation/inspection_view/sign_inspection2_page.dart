@@ -37,7 +37,8 @@ class SignInspection2Page extends StatefulWidget {
 
 class _SignInspection2PageState extends State<SignInspection2Page>
     with WidgetsBindingObserver {
-  TextEditingController _inspectorNameController = TextEditingController();
+  final TextEditingController _inspectorNameController =
+      TextEditingController();
   Position? position;
 
   Uint8List? exportedImage;
@@ -160,7 +161,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                 'Inspector Signature',
                 style: context.textTheme.titleSmall,
               ),
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
             ),
             body: const Center(
               child: LoadingProgress(),
@@ -179,7 +180,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                 context.pop();
               },
             ),
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             title: Text(
               'Inspector Signature',
               style: context.textTheme.titleSmall,
@@ -196,7 +197,8 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: context.theme.colorScheme.surfaceVariant,
+                        color:
+                            context.theme.colorScheme.surfaceContainerHighest,
                       ),
                       child: Padding(
                         padding: context.paddingAllLow,
@@ -245,8 +247,9 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                     ),
                                   ),
                                   TextSpan(
-                                    text:
-                                        state.address == "" || state.address == null ? 'Find Adress' : state.address,
+                                    text: state.address == ""
+                                        ? 'Find Adress'
+                                        : state.address,
                                     style: context.textTheme.bodyLarge
                                         ?.copyWith(color: Colors.white),
                                   ),
@@ -267,7 +270,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                   ),
                                   TextSpan(
                                     text:
-                                        '${state.lat == "" || state.lat == null ? position?.latitude : state.lat} ',
+                                        '${state.lat == "" ? position?.latitude : state.lat} ',
                                     style: context.textTheme.bodyLarge
                                         ?.copyWith(color: Colors.white),
                                   ),
@@ -288,7 +291,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                   ),
                                   TextSpan(
                                     text:
-                                        '${state.long == "" || state.long == null ? position?.longitude : state.long} ',
+                                        '${state.long == "" ? position?.longitude : state.long} ',
                                     style: context.textTheme.bodyLarge
                                         ?.copyWith(color: Colors.white),
                                   ),
@@ -485,7 +488,7 @@ class SignMapView extends StatefulWidget {
 }
 
 class _SignMapViewState extends State<SignMapView> {
-  Completer<GoogleMapController> _googleMapController = Completer();
+  final Completer<GoogleMapController> _googleMapController = Completer();
   CameraPosition? _cameraPosition;
   late LatLng _defaultLatLang;
   late LatLng _draggedLatlang;
@@ -511,7 +514,7 @@ class _SignMapViewState extends State<SignMapView> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         shape: OutlineInputBorder(borderRadius: BorderRadius.circular(90)),
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         onPressed: () {
           _gotoUserCurrentPosition();
         },
@@ -534,7 +537,7 @@ class _SignMapViewState extends State<SignMapView> {
   Widget _showDraggedLatlang() {
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.background,
+        color: context.theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.4),
@@ -632,7 +635,7 @@ class _SignMapViewState extends State<SignMapView> {
 
   Widget _getCustomPin() {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: 40,
         child: Lottie.asset('assets/lottie/fr_pin2.json'),
       ),
@@ -664,7 +667,7 @@ class _SignMapViewState extends State<SignMapView> {
     bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!isLocationServiceEnabled) {
-      print("User has not enabled location services");
+      // print("User has not enabled location services");
     }
 
     locationPermission = await Geolocator.checkPermission();
@@ -672,12 +675,12 @@ class _SignMapViewState extends State<SignMapView> {
     if (locationPermission == LocationPermission.denied) {
       locationPermission = await Geolocator.requestPermission();
       if (locationPermission == LocationPermission.denied) {
-        print('User denied location permissions');
+        // print('User denied location permissions');
       }
     }
 
     if (locationPermission == LocationPermission.deniedForever) {
-      print('User denied location permissions permanently');
+      // print('User denied location permissions permanently');
     }
 
     return await Geolocator.getCurrentPosition(

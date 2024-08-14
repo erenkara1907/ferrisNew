@@ -54,7 +54,7 @@ class JobInspectionsRemoteDataSourceImpl
         throw NullResponseException();
       }
 
-      print("Access Token : ${response.data['newAccessToken']}");
+      // print("Access Token : ${response.data['newAccessToken']}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
@@ -108,6 +108,7 @@ class JobInspectionsRemoteDataSourceImpl
     required int fuelLevel,
     required int inspectionId,
   }) async {
+    print("insp id : $inspectionId");
     try {
       final response = await _networkClient.post(
         "${ServicePath.jobInspectionsUpdate.value}/$inspectionId",
@@ -129,9 +130,12 @@ class JobInspectionsRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
-      print(
-          '******** inspection remote data source ********* ${response.data}');
-      return JobInspectionResponseModelItem.fromMap(response.data);
+
+      print("EDIT DETAIL DATA : ${response.data['data']}");
+
+      // print(
+      //     '******** inspection remote data source ********* ${response.data}');
+      return JobInspectionResponseModelItem.fromMap(response.data['data']);
     } on DioException catch (e) {
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);

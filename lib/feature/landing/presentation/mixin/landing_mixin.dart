@@ -46,6 +46,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
     context.read<HomeBloc>().add(const GetJobHistory());
     context.read<StopJobBloc>().add(const GetJobStopsCategories());
     context.read<JobExpenseBloc>().add(const GetExpenseCategories());
+    context.read<JobDamageBloc>().add(const GetAllDamageAssets());
     // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
     // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
     // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));
@@ -75,19 +76,19 @@ mixin LandingMixin on BaseMixin<LandingPage> {
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await userHiveOperation.getJobExpenseAsync();
-      print('result: $result');
+      // print('result: $result');
 
       final resultStop = await userHiveOperation.getJobStopAsync();
 
-      print('resultStop: $resultStop');
+      // print('resultStop: $resultStop');
 
       final resultJobUpdate = await userHiveOperation.getJobUpdate();
 
-      print('resultJobUpdate: $resultJobUpdate');
+      // print('resultJobUpdate: $resultJobUpdate');
 
       final resultPatch = await userHiveOperation.getJobExpensePatchAsync();
 
-      print('resultPatch: $resultPatch');
+      // print('resultPatch: $resultPatch');
 
       if (result != [] && result.isNotEmpty && result != {}) {
         for (var item in result) {
@@ -146,13 +147,13 @@ mixin LandingMixin on BaseMixin<LandingPage> {
               ?.inspectionsJobId ??
           [];
 
-      print('jobInspectionsId: $jobInspectionsId');
+      // print('jobInspectionsId: $jobInspectionsId');
 
       for (var id in jobInspectionsId) {
         try {
           final resultInspection =
               await userHiveOperation.getChecklistPostModel(id);
-          print('resultInspectionChekList: $resultInspection');
+          // print('resultInspectionChekList: $resultInspection');
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
               context
@@ -178,7 +179,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
 */
           final resultInspectionEditDetail =
               await userHiveOperation.getInspectionDetails(id);
-          print('resultInspectionEditDetail: $resultInspectionEditDetail');
+          // print('resultInspectionEditDetail: $resultInspectionEditDetail');
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
@@ -194,7 +195,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
 
           final resultInspectionEdit =
               await userHiveOperation.getDamagePostModel(id);
-          print('resultInspectionDamage $resultInspectionEdit');
+          // print('resultInspectionDamage $resultInspectionEdit');
           if (resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
               context
@@ -209,7 +210,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
               await userHiveOperation.getSignCustomerPostModel(id);
           final resultInspectionSign =
               await userHiveOperation.getSignInspectorPostModel(id);
-          print('resultInspectionSign $resultInspectionCustomerSign');
+          // print('resultInspectionSign $resultInspectionCustomerSign');
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(

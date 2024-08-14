@@ -48,7 +48,7 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
     setState(() {
       final result = hiveStorageManager.getJopUpdatePage();
       updateModel = result;
-      print(updateModel);
+      // print(updateModel);
     });
   }
 
@@ -74,7 +74,7 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
         }
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: IconButton(
               icon: Icon(
                 Icons.cancel_outlined,
@@ -100,7 +100,7 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
                 ),
                 const VerticalSpace.small(),
                 DropdownButtonWidget(
-                  value: '${_selectedLevelAtHub}%',
+                  value: '$_selectedLevelAtHub%',
                   text: 'Fuel/EV Charge Level at Hub',
                   hintText: updateModel?.fuelChargeLevelCollection.toString() ??
                       'Choose the level',
@@ -119,7 +119,7 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
                 ),
                 const VerticalSpace.small(),
                 DropdownButtonWidget(
-                  value: '${_selectedLevelDelivery}%',
+                  value: '$_selectedLevelDelivery%',
                   text: 'Fuel/EV Charge Level at Delivery',
                   hintText: updateModel?.fuelChargeLevelDelivery.toString() ??
                       'Choose the level',

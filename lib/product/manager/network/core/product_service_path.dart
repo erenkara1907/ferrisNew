@@ -16,6 +16,7 @@ enum ServicePath {
   jobTrackings("/api/v1/job-tracking-cordinates"),
   jobConditionImage("/api/v1/job-inspection-condition-images"),
   damageCategories("/api/v1/categories"),
+  getAllDamageAssets("/api/v1/get-all-damage-assets"),
   jobInspectionsDamages("/api/v1/damages"),
   jobInspectionsCheckList("/api/v1/job-inspection-checklists"),
   damageFailures("/api/v1/failures"),
@@ -38,7 +39,7 @@ enum ServicePath {
 final class NetworkSpeedChecker {
 // Function to check network speed(Future Method)
   Future<bool> checkNetworkSpeed(BuildContext context) async {
-    final url =
+    const url =
         'https://drive.google.com/uc?export=download&id=1lEn1DtJQW6-nTcoS_FG7-EB3Kamy0147'; // Doğrudan indirme için link
     final stopwatch = Stopwatch()..start();
     const thresholdKbps = 500; // Zayıf sinyal eşiği Kbps cinsinden

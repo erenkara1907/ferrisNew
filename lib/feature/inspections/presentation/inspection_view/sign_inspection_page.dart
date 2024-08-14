@@ -202,6 +202,7 @@ class _SignInspectionPageState extends State<SignInspectionPage> {
                       ),
                       const VerticalSpace.small(),
                       InspectionDamagesWidget(
+                        standarIds: widget.inspection.damageStandards ?? [],
                         inspectionId: widget.inspection.id ?? 1,
                         state: state,
                       ),
@@ -359,6 +360,11 @@ class InspectionSignInfoWidget extends StatelessWidget {
     String formattedDate = _formatDate(inspection.date!);
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
+        final gradeText = state.damageResponse.isNotEmpty
+            ? state.damageResponse[state.damageResponse.length - 1].gradeId
+            : inspection.gradleItem != null
+                ? inspection.gradleItem!.name
+                : "-";
         return Card(
           elevation: 8,
           child: Container(
@@ -405,11 +411,7 @@ class InspectionSignInfoWidget extends StatelessWidget {
                             color: context.theme.colorScheme.primary,
                             fontWeight: FontWeight.w600),
                       ),
-                      Text(
-                          inspection.gradleItem == null
-                              ? "-"
-                              : inspection.gradleItem!.name ?? "",
-                          style: context.textTheme.bodyMedium)
+                      Text(gradeText ?? "", style: context.textTheme.bodyMedium)
                     ],
                   ),
                   Divider(
@@ -594,9 +596,11 @@ class _InspectionConditionImageWidgetState
 class InspectionDamagesWidget extends StatelessWidget {
   final InspectionsState state;
   final int inspectionId;
+  final List<int> standarIds;
   const InspectionDamagesWidget({
     required this.state,
     required this.inspectionId,
+    required this.standarIds,
     super.key,
   });
 
@@ -640,6 +644,7 @@ class InspectionDamagesWidget extends StatelessWidget {
                         itemCount: state.damageResponse.length,
                         itemBuilder: (BuildContext context, int index) {
                           return DamageCardWidget(
+                              standarIds: standarIds,
                               inspection: inspectionId,
                               damageResponse: state.damageResponse[index]);
                         },
@@ -688,15 +693,15 @@ class InspectionDamagesWidget extends StatelessWidget {
                           )
                         : const Center(),
                   ]),
-                  Padding(
-                    padding: context.paddingAllDefault,
-                    child: Text(
-                        textAlign: TextAlign.center,
-                        "If you do not have an internet connection when adding damage, the G value may be out of date.",
-                        style: context.textTheme.bodySmall?.copyWith(
-                            color: context.theme.colorScheme.error,
-                            fontWeight: FontWeight.w600)),
-                  )
+                  // Padding(
+                  //   padding: context.paddingAllDefault,
+                  //   child: Text(
+                  //       textAlign: TextAlign.center,
+                  //       "If you do not have an internet connection when adding damage, the G value may be out of date.",
+                  //       style: context.textTheme.bodySmall?.copyWith(
+                  //           color: context.theme.colorScheme.error,
+                  //           fontWeight: FontWeight.w600)),
+                  // )
                 ],
               ),
             ),

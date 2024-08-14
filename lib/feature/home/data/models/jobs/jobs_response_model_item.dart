@@ -93,15 +93,15 @@ class JobsResponseModelItem implements IResponseModel {
   final bool? isVisibleCheckpoint1Address;
   @HiveField(39)
   final bool? isVisibleCheckpoint2Address;
-  @HiveField(39)
-  final bool? isVisibleCheckpoint3Address;
   @HiveField(40)
-  final bool? isVisibleEndAddress;
+  final bool? isVisibleCheckpoint3Address;
   @HiveField(41)
-  final String? checkpoint1AddressPostalCode;
+  final bool? isVisibleEndAddress;
   @HiveField(42)
-  final String? checkpoint2AddressPostalCode;
+  final String? checkpoint1AddressPostalCode;
   @HiveField(43)
+  final String? checkpoint2AddressPostalCode;
+  @HiveField(44)
   final String? checkpoint3AddressPostalCode;
 
   JobsResponseModelItem({

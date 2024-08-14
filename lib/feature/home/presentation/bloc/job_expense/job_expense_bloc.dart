@@ -67,7 +67,7 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
 
             return;
           }
-          print("Receipt: ${event.data.receipt}");
+          // print("Receipt: ${event.data.receipt}");
           if (event.data.receipt != null) {
             _hiveStorageManager.addPostExpenseSaveImage(event.data);
           }
@@ -120,7 +120,7 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
       final total = (double.parse(state.totalExpense) +
               double.parse(data.price.toString()))
           .toString();
-      print("Total: $total");
+      // print("Total: $total");
 
       await Future.delayed(const Duration(seconds: 1));
       emit(state.copyWith(
@@ -163,22 +163,20 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
                   ""),
               categoryId: event.data.categoryId ?? 0,
               price: event.data.price ?? 0,
-              reasonNoReceipt: event.data.reasonNoReceipt == null
-                  ? _hiveStorageManager
+              reasonNoReceipt: event.data.reasonNoReceipt ??
+                  _hiveStorageManager
                       .getPostExpenseSaveImage(
                         price: event.data.price ?? 0,
                         categoryId: event.data.categoryId ?? 0,
                       )
-                      ?.reasonNoReceipt
-                  : event.data.reasonNoReceipt,
-              receipt: event.data.receipt == null
-                  ? _hiveStorageManager
+                      ?.reasonNoReceipt,
+              receipt: event.data.receipt ??
+                  _hiveStorageManager
                       .getPostExpenseSaveImage(
                         price: event.data.price ?? 0,
                         categoryId: event.data.categoryId ?? 0,
                       )
-                      ?.receipt
-                  : event.data.receipt);
+                      ?.receipt);
           _hiveStorageManager.updateLastPostExpenseSaveImage(
               oldCategoryId: data.oldExpense.categoryId!.id,
               oldPrice: data.oldExpense.price ?? 0.0,
@@ -295,6 +293,7 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
             emit(state.copyWith(status: ViewStatus.failure, failure: failure));
           },
           (data) async {
+            print("EXPENSES : $data");
             if (cachedExpenses.isEmpty) {
               _hiveStorageManager.deleteExpenses();
               _hiveStorageManager.addExpense(data);

@@ -1,4 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, no_leading_underscores_for_local_identifiers
 import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/job_expense/job_expense_bloc.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
@@ -6,13 +11,15 @@ import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class ViewExpenses extends StatefulWidget {
   final bool isAsync;
-  const ViewExpenses({super.key, this.isAsync = false});
+  final int jobId;
+  const ViewExpenses({
+    Key? key,
+    required this.isAsync,
+    required this.jobId,
+  }) : super(key: key);
 
   @override
   State<ViewExpenses> createState() => _ViewExpensesState();
@@ -35,11 +42,21 @@ class _ViewExpensesState extends State<ViewExpenses> {
               .toString())));
     } else {
       _onCheck();
-      context.read<JobExpenseBloc>().add(GetJobExpenses(
-          jobId: int.parse(ProductStateItems.hiveDatabaseManager
-              .getUserModel()!
-              .currentJobId
-              .toString())));
+      String? _currentJobId = "";
+      // ignore: unused_local_variable
+      if (ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
+        _currentJobId = ProductStateItems.hiveDatabaseManager
+            .getUserModel()!
+            .currentJobId
+            .toString();
+      }
+
+      context.read<JobExpenseBloc>().add(
+            GetJobExpenses(
+              jobId:
+                  _currentJobId != "" ? int.parse(_currentJobId) : widget.jobId,
+            ),
+          );
     }
   }
 
@@ -53,7 +70,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
     }
     final result =
         await ProductStateItems.hiveStorageManager.getJobExpenseAsync();
-    if (result != [] && result != null && result.isNotEmpty && result != {}) {
+    if (result != [] && result.isNotEmpty && result != {}) {
       setState(() {
         isSyncing = true;
       });
@@ -62,7 +79,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 4),
       );
-      print('resultJOBExpemde: $result');
+      // print('resultJOBExpemde: $result');
       for (var item in result) {
         context.read<JobExpenseBloc>().add(PostExpense(item!, true));
         await Future.delayed(const Duration(milliseconds: 300));
@@ -76,16 +93,15 @@ class _ViewExpensesState extends State<ViewExpenses> {
     if (resultPatch.isNotEmpty &&
         resultPatch != {} &&
         resultPatch != [] &&
-        resultPatch != null &&
         ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
       BotToast.showText(
         text: 'Syncing Expenses...',
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 8),
       );
-      print(
-        'resultPatchsssss: $resultPatch',
-      );
+      // print(
+      //   'resultPatchsssss: $resultPatch',
+      // );
       for (var item in resultPatch) {
         context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
         await Future.delayed(const Duration(milliseconds: 300));
@@ -118,7 +134,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
         if (state.status != ViewStatus.loading) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
               leading: IconButton(
                 icon: Icon(
                   Icons.cancel_outlined,
@@ -147,7 +163,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          VerticalSpace.large(),
+                          const VerticalSpace.large(),
                           Image.asset(
                             'assets/images/fr_empty_job.png',
                             width: 130,

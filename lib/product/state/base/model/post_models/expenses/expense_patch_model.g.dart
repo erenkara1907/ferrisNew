@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'expense_patch_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class ExpensePatchModelAdapter extends TypeAdapter<ExpensePatchModel> {
   @override
@@ -11,11 +17,11 @@ class ExpensePatchModelAdapter extends TypeAdapter<ExpensePatchModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ExpensePatchModel(
-      expenseId: fields[0] as int?,
-      categoryId: fields[1] as int,
-      price: fields[2] as double,
+      categoryId: fields[1] as int?,
+      price: fields[2] as double?,
       reasonNoReceipt: fields[3] as String?,
       receipt: fields[4] as File?,
+      expenseId: fields[0] as int?,
     );
   }
 

@@ -30,8 +30,8 @@ class PermissionHandlerManager {
       provisional: false,
       sound: true,
     );
-    print(result.authorizationStatus == AuthorizationStatus.provisional ||
-        result.authorizationStatus == AuthorizationStatus.authorized);
+    // print(result.authorizationStatus == AuthorizationStatus.provisional ||
+    //     result.authorizationStatus == AuthorizationStatus.authorized);
     return result.authorizationStatus == AuthorizationStatus.provisional ||
         result.authorizationStatus == AuthorizationStatus.authorized;
   }

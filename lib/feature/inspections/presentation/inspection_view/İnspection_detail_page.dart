@@ -1,4 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_response_model_item.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
@@ -6,13 +11,17 @@ import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_horizontal_spacer.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../../home/data/models/damages/damage_response_model.dart';
 
 class InspectionDetailPage extends StatefulWidget {
   final JobInspectionResponseModelItem inspection;
-  const InspectionDetailPage({super.key, required this.inspection});
+  final DamageResponseModel? damageResponse;
+  const InspectionDetailPage({
+    Key? key,
+    required this.inspection,
+    this.damageResponse,
+  }) : super(key: key);
 
   @override
   State<InspectionDetailPage> createState() => _InspectionDetailPageState();
@@ -54,6 +63,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
               JobInspectionDetailWidget(
                 inspection: widget.inspection,
                 state: state,
+                damageResponse: widget.damageResponse,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -105,6 +115,8 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       ontap: () {
                         context.push("/recorded_damages_page", extra: {
                           "jobInspectionId": widget.inspection.id,
+                          "standardIds":
+                              widget.inspection.damageStandards ?? [],
                         });
                       }),
                 ],
@@ -132,13 +144,29 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
 class JobInspectionDetailWidget extends StatelessWidget {
   final JobInspectionResponseModelItem inspection;
   final InspectionsState state;
+  final DamageResponseModel? damageResponse;
   const JobInspectionDetailWidget({
+    Key? key,
     required this.inspection,
     required this.state,
-    super.key,
-  });
+    this.damageResponse,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    // final gradeText = (inspection.gradleItem != null && state.damageResponse.isNotEmpty
+
+    //     ? inspection.gradleItem!.name
+    //     : state.damageResponse.isNotEmpty
+    //         ? state.damageResponse[state.damageResponse.length - 1].gradeId ??
+    //             "-"
+    //         : "-");
+
+    final gradeText = state.damageResponse.isNotEmpty
+        ? state.damageResponse[state.damageResponse.length - 1].gradeId
+        : inspection.gradleItem != null
+            ? inspection.gradleItem!.name
+            : "-";
+
     late String formattedDate = formatDate(inspection.date!);
     final bool isSigned =
         ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
@@ -196,9 +224,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        inspection.gradleItem == null
-                            ? "-"
-                            : inspection.gradleItem!.name ?? "",
+                        gradeText ?? "-",
                         style: context.textTheme.bodySmall,
                       ),
                     ],
@@ -215,7 +241,9 @@ class JobInspectionDetailWidget extends StatelessWidget {
                       ),
                       Text(
                         inspection.odoReading == null
-                            ? '-'
+                            ? state.odo == 0
+                                ? '-'
+                                : "${state.odo.toInt()} Miles"
                             : "${state.odo == 0 ? inspection.odoReading!.toInt() : state.odo.toInt()} Miles",
                         style: context.textTheme.bodySmall,
                       ),
@@ -233,7 +261,9 @@ class JobInspectionDetailWidget extends StatelessWidget {
                       ),
                       Text(
                         inspection.fuelLevel == null
-                            ? '-'
+                            ? state.fuelLevel == 0
+                                ? '-'
+                                : "${state.fuelLevel.toString()}%"
                             : '${state.fuelLevel == 0 ? inspection.fuelLevel : state.fuelLevel}%',
                         style: context.textTheme.bodySmall,
                       ),

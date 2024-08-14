@@ -116,10 +116,10 @@ class RoleAdapter extends TypeAdapter<Role> {
 
 UserResponseModel _$UserResponseModelFromJson(Map<String, dynamic> json) =>
     UserResponseModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String?,
       email: json['email'] as String?,
-      clientId: json['clientId'] as int?,
+      clientId: (json['clientId'] as num?)?.toInt(),
       phone: json['phone'] as String?,
       cognitoUserCreated: json['cognitoUserCreated'] as bool?,
       mfaCodeSended: json['mfaCodeSended'] as bool?,
@@ -149,7 +149,7 @@ Map<String, dynamic> _$UserResponseModelToJson(UserResponseModel instance) =>
     };
 
 Role _$RoleFromJson(Map<String, dynamic> json) => Role(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
     );
 

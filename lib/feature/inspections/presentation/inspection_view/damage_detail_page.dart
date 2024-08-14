@@ -17,10 +17,12 @@ import 'package:path_provider/path_provider.dart';
 class DamageDetailPage extends StatefulWidget {
   final int jobInspectionId;
   final DamageResponseModel damageResponse;
+  final List<int> standarIds;
   const DamageDetailPage({
     super.key,
     required this.damageResponse,
     required this.jobInspectionId,
+    required this.standarIds,
   });
 
   @override
@@ -42,7 +44,10 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     // context
     //     .read<InspectionsBloc>()
     //     .add(GetInspectionsDamageCategories(widget.jobInspectionId));
-    context.read<InspectionsBloc>().add(const GetInspectionsDamageCategories());
+    // context.read<InspectionsBloc>().add(const GetInspectionsDamageCategories());
+    context
+        .read<InspectionsBloc>()
+        .add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
 
     _category = widget.damageResponse.categoryId.name;
     _part = widget.damageResponse.partId.name;
@@ -50,7 +55,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     _failure = widget.damageResponse.failureId.name;
     _repair = widget.damageResponse.repairId.name;
 
-    print('damage detail page${widget.damageResponse.damageImage}');
+    // print('damage detail page${widget.damageResponse.damageImage}');
     getImage();
 
     super.initState();
@@ -84,7 +89,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
       int documentsIndex = path.indexOf("Documents/");
 
       String result = path.substring(documentsIndex + "Documents/".length);
-      print("documentsIndex: $result");
+      // print("documentsIndex: $result");
       final pathLast = '$directory/$result';
       _selectedImage = pathLast;
     }
@@ -136,8 +141,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
           );
         }
 
-        print("selected image: $_selectedImage");
-        print("selected context image: $_selectedContextImage");
+        // print("selected image: $_selectedImage");
+        // print("selected context image: $_selectedContextImage");
 
         return Scaffold(
           appBar: AppBar(
@@ -201,7 +206,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     items: state.getDamagePartsResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Part",
@@ -236,7 +241,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     items: state.getDamageIssuesResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Issue",
@@ -270,7 +275,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     items: state.getDamageFailuresResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Failure",
@@ -303,7 +308,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     items: state.getDamageRepairsResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Repair",

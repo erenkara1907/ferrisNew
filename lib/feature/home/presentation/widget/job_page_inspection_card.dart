@@ -1,29 +1,53 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:bot_toast/bot_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_response_model_item.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
+import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
-import 'package:flutter/material.dart';
-import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class InspectionCustomInfoCard extends StatelessWidget {
   final JobInspectionResponseModelItem inspection;
+  final DamageResponseModel? damageResponse;
+  final InspectionsState inspectionState;
 
   const InspectionCustomInfoCard({
-    required this.inspection,
     Key? key,
+    required this.inspection,
+    this.damageResponse,
+    required this.inspectionState,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     String formattedDate = _formatDate(inspection.date!);
+    final gradeText = (damageResponse != null &&
+            damageResponse!.gradeId != null &&
+            damageResponse!.gradeId!.isNotEmpty)
+        ? damageResponse!.gradeId
+        : (inspection.gradleItem != null ? inspection.gradleItem!.name : "-");
+
+    String? odoText = (inspectionState.odo != 0)
+        ? "${inspectionState.odo.toInt()} Miles"
+        : (inspection.odoReading != null
+                ? "${inspection.odoReading!.toInt()} Miles"
+                : "-")
+            .toString();
+
+    String? fuelLevel = (inspectionState.fuelLevel != 0)
+        ? "${inspectionState.fuelLevel}%"
+        : (inspection.fuelLevel != null ? "${inspection.fuelLevel}%" : "-")
+            .toString();
 
     final bool isSigned =
         ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
@@ -50,8 +74,14 @@ class InspectionCustomInfoCard extends StatelessWidget {
           },
           child: InkWell(
             onTap: () {
-              context.push('/inspection_detail_page',
-                  extra: {'inspection': inspection});
+              context.push(
+                '/inspection_detail_page',
+                extra: {
+                  'inspection': inspection,
+                  'damageResponse': damageResponse,
+                },
+              );
+              inspectionState.damageResponse.clear();
             },
             child: Padding(
               padding: context.paddingAllDefault,
@@ -102,11 +132,23 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            inspection.gradleItem == null
-                                ? "-"
-                                : inspection.gradleItem!.name ?? "",
+                            gradeText ?? "-",
                             style: context.textTheme.bodySmall,
                           ),
+                          // if (damageResponse != null)
+                          //   if (damageResponse!.gradeId != null &&
+                          //       damageResponse!.gradeId!.isNotEmpty)
+                          //     Text(
+                          //       damageResponse!.gradeId ?? "-",
+                          //       style: context.textTheme.bodySmall,
+                          //     ),
+                          // if (damageResponse == null)
+                          //   Text(
+                          //     inspection.gradleItem == null
+                          //         ? "-"
+                          //         : inspection.gradleItem!.name ?? "",
+                          //     style: context.textTheme.bodySmall,
+                          //   ),
                         ],
                       ),
                       const VerticalSpace.xxSmall(),
@@ -120,6 +162,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
+                            // odoText,
                             inspection.odoReading != null
                                 ? "${inspection.odoReading!.toInt()} Miles"
                                 : "-",

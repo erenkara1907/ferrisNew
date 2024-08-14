@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 

@@ -24,10 +24,10 @@ class DamageResponseModelAdapter extends TypeAdapter<DamageResponseModel> {
       issueId: fields[4] as DamagesIssue,
       failureId: fields[5] as DamagesFailure,
       repairId: fields[6] as DamagesRepair,
+      gradeId: fields[10] as String?,
       damageImage: fields[7] as String?,
       contextImage: fields[8] as String?,
       price: fields[9] as double?,
-      gradeId: fields[10] as String?,
     );
   }
 

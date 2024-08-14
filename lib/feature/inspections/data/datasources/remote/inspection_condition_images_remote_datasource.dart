@@ -74,8 +74,8 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
-      print('****** condition formadata ******* $formData');
-      print('****** condition formadata files ******* ${formData.files}');
+      // print('****** condition formadata ******* $formData');
+      // print('****** condition formadata files ******* ${formData.files}');
       return ConditionImageResponseModel.fromMap(response.data["data"]);
     } on DioException catch (e) {
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');

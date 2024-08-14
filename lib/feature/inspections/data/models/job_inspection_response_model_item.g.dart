@@ -18,40 +18,43 @@ class JobInspectionResponseModelItemAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return JobInspectionResponseModelItem(
-        id: fields[0] as int?,
-        jobId: fields[1] as JobsResponseModelItem?,
-        typeId: fields[2] as JobInspectionType?,
-        reportSigned: fields[3],
-        conditionImagesAdded: fields[4] as int?,
-        reportNumber: fields[5] as String?,
-        paymentMade: fields[6],
-        checklistComplete: fields[7],
-        abortType: fields[8] as JobInspectionAbortTypeItem?,
-        date: fields[9] as String?,
-        time: fields[10] as String?,
-        odoReading: fields[11] as double?,
-        fuelLevel: fields[12] as int?,
-        paymentMethod: fields[13] as String?,
-        customerLocality: fields[14] as String?,
-        customerState: fields[15] as String?,
-        customerCountry: fields[16] as String?,
-        notes: fields[17] as String?,
-        inspectorSignerName: fields[18] as String?,
-        inspectorSignature: fields[19] as String?,
-        inspectorSignedDate: fields[20] as String?,
-        inspectorSignedLatitude: fields[21] as String?,
-        inspectorSignedLongitude: fields[22] as String?,
-        customerSignerName: fields[23] as String?,
-        customerSignature: fields[24] as String?,
-        customerSignedDate: fields[25] as String?,
-        customerSignedLatitude: fields[26] as String?,
-        customerSignedLongitude: fields[27] as String?);
+      id: fields[0] as int?,
+      jobId: fields[1] as JobsResponseModelItem?,
+      gradleItem: fields[28] as GradeId?,
+      typeId: fields[2] as JobInspectionType?,
+      reportSigned: fields[3] as dynamic,
+      conditionImagesAdded: fields[4] as int?,
+      reportNumber: fields[5] as String?,
+      paymentMade: fields[6] as dynamic,
+      checklistComplete: fields[7] as dynamic,
+      abortType: fields[8] as JobInspectionAbortTypeItem?,
+      date: fields[9] as String?,
+      time: fields[10] as String?,
+      odoReading: fields[11] as double?,
+      fuelLevel: fields[12] as int?,
+      paymentMethod: fields[13] as String?,
+      customerLocality: fields[14] as String?,
+      customerState: fields[15] as String?,
+      customerCountry: fields[16] as String?,
+      notes: fields[17] as String?,
+      inspectorSignerName: fields[18] as String?,
+      inspectorSignature: fields[19] as String?,
+      inspectorSignedDate: fields[20] as String?,
+      inspectorSignedLatitude: fields[21] as String?,
+      inspectorSignedLongitude: fields[22] as String?,
+      customerSignerName: fields[23] as String?,
+      customerSignature: fields[24] as String?,
+      customerSignedDate: fields[25] as String?,
+      customerSignedLatitude: fields[26] as String?,
+      customerSignedLongitude: fields[27] as String?,
+      damageStandards: (fields[29] as List?)?.cast<int>(),
+    );
   }
 
   @override
   void write(BinaryWriter writer, JobInspectionResponseModelItem obj) {
     writer
-      ..writeByte(28)
+      ..writeByte(30)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -107,7 +110,11 @@ class JobInspectionResponseModelItemAdapter
       ..writeByte(26)
       ..write(obj.customerSignedLatitude)
       ..writeByte(27)
-      ..write(obj.customerSignedLongitude);
+      ..write(obj.customerSignedLongitude)
+      ..writeByte(28)
+      ..write(obj.gradleItem)
+      ..writeByte(29)
+      ..write(obj.damageStandards);
   }
 
   @override

@@ -25,7 +25,12 @@ import 'package:permission_handler/permission_handler.dart';
 
 class DamagesPage extends StatefulWidget {
   final int jobInspectionId;
-  const DamagesPage({super.key, required this.jobInspectionId});
+  final List<int> standarIds;
+  const DamagesPage({
+    super.key,
+    required this.jobInspectionId,
+    required this.standarIds,
+  });
 
   @override
   State<DamagesPage> createState() => _DamagesPageState();
@@ -131,16 +136,21 @@ class _DamagesPageState extends State<DamagesPage> {
   void initState() {
     super.initState();
 
-    // context.read<InspectionsBloc>().add(const GetInspectionsDamageCategories());
     context
-        .read<JobDamageBloc>()
-        .add(GetDamageCategories(widget.jobInspectionId));
+        .read<InspectionsBloc>()
+        .add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
+    // context
+    //     .read<JobDamageBloc>()
+    //     .add(GetDamageCategories(widget.jobInspectionId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<JobDamageBloc, JobDamageState>(
+    return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
+        // print("CATEGORY RESPONSE 1 : ${state.getDamageCategoriesResponse}");
+        // print(
+        //     "CATEGORY RESPONSE 2 : ${state.getDamageCategoriesResponse[1]!.name}");
         if (state.status == ViewStatus.loading ||
             state.getDamageCategoriesResponse.isEmpty) {
           return const Scaffold(
@@ -160,6 +170,11 @@ class _DamagesPageState extends State<DamagesPage> {
               ),
               onPressed: () {
                 context.pop();
+                state.getDamageCategoriesResponse.clear();
+                state.getDamagePartsResponse.clear();
+                state.getDamageIssuesResponse.clear();
+                state.getDamageFailuresResponse.clear();
+                state.getDamageRepairsResponse.clear();
               },
             ),
             backgroundColor: context.theme.colorScheme.surface,
@@ -192,11 +207,24 @@ class _DamagesPageState extends State<DamagesPage> {
                           _repair = "";
                         });
                         final int id = state.getDamageCategoriesResponse
-                            .firstWhere((element) => element?.name == String)!
-                            .id;
-                        context
-                            .read<JobDamageBloc>()
-                            .add(GetDamageParts(id, widget.jobInspectionId));
+                                .firstWhere(
+                                    (element) => element?.name == String)!
+                                .id ??
+                            1;
+
+                        // if (state.getDamagePartsResponse.isNotEmpty ||
+                        //     state.getDamageIssuesResponse.isNotEmpty ||
+                        //     state.getDamageFailuresResponse.isNotEmpty ||
+                        //     state.getDamageRepairsResponse.isNotEmpty) {
+                        //   state.getDamagePartsResponse.clear();
+                        //   state.getDamageIssuesResponse.clear();
+                        //   state.getDamageFailuresResponse.clear();
+                        //   state.getDamageRepairsResponse.clear();
+                        // }
+
+                        // print("SELECT CATEGORY : $id");
+                        context.read<InspectionsBloc>().add(
+                            GetInspectionsDamagesPart(id, widget.standarIds));
                       }
                     },
                     textSpanEnable: true,
@@ -208,7 +236,7 @@ class _DamagesPageState extends State<DamagesPage> {
                     items: state.getDamagePartsResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Part",
@@ -220,11 +248,24 @@ class _DamagesPageState extends State<DamagesPage> {
                         _repair = "";
 
                         final int id = state.getDamagePartsResponse
-                            .firstWhere((element) => element.name == String)
-                            .id;
-                        context
-                            .read<JobDamageBloc>()
-                            .add(GetDamageIssues(id, widget.jobInspectionId));
+                                .firstWhere((element) => element.name == String)
+                                .id ??
+                            1;
+
+                        // if (state.getDamageIssuesResponse.isNotEmpty ||
+                        //     state.getDamageFailuresResponse.isNotEmpty ||
+                        //     state.getDamageRepairsResponse.isNotEmpty) {
+                        //   state.getDamageIssuesResponse.clear();
+                        //   state.getDamageFailuresResponse.clear();
+                        //   state.getDamageRepairsResponse.clear();
+                        // }
+                        context.read<InspectionsBloc>().add(
+                              GetInspectionsDamagesIssue(
+                                id,
+                                damageCategoryId: state.damageCategoryId,
+                                standarIds: widget.standarIds,
+                              ),
+                            );
                       }
                     },
                     textSpanEnable: true,
@@ -236,7 +277,7 @@ class _DamagesPageState extends State<DamagesPage> {
                     items: state.getDamageIssuesResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Issue",
@@ -249,10 +290,20 @@ class _DamagesPageState extends State<DamagesPage> {
                         });
                         final int id = state.getDamageIssuesResponse
                             .firstWhere((element) => element.name == String)
-                            .id;
-                        context
-                            .read<JobDamageBloc>()
-                            .add(GetDamageFailures(id, widget.jobInspectionId));
+                            .id!;
+                        // if (state.getDamageFailuresResponse.isNotEmpty ||
+                        //     state.getDamageRepairsResponse.isNotEmpty) {
+                        //   state.getDamageFailuresResponse.clear();
+                        //   state.getDamageRepairsResponse.clear();
+                        // }
+                        context.read<InspectionsBloc>().add(
+                              GetInspectionsDamagesFailure(
+                                id,
+                                damageCategoryId: state.damageCategoryId,
+                                damagePartId: state.damagePartId,
+                                standarIds: widget.standarIds,
+                              ),
+                            );
                       }
                     },
                     textSpanEnable: true,
@@ -264,7 +315,7 @@ class _DamagesPageState extends State<DamagesPage> {
                     items: state.getDamageFailuresResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Failure",
@@ -276,10 +327,19 @@ class _DamagesPageState extends State<DamagesPage> {
                         });
                         final int id = state.getDamageFailuresResponse
                             .firstWhere((element) => element.name == String)
-                            .id;
-                        context
-                            .read<JobDamageBloc>()
-                            .add(GetDamageRepairs(id, widget.jobInspectionId));
+                            .id!;
+                        // if (state.getDamageRepairsResponse.isNotEmpty) {
+                        //   state.getDamageRepairsResponse.clear();
+                        // }
+                        context.read<InspectionsBloc>().add(
+                              GetInspectionsDamagesRepair(
+                                id,
+                                damageCategoryId: state.damageCategoryId,
+                                damagePartId: state.damagePartId,
+                                standarIds: widget.standarIds,
+                                damageIssueId: state.damageIssueId,
+                              ),
+                            );
                       }
                     },
                     textSpanEnable: true,
@@ -291,7 +351,7 @@ class _DamagesPageState extends State<DamagesPage> {
                     items: state.getDamageRepairsResponse
                         .map((e) => DropdownMenuItem(
                               value: e.name,
-                              child: Text(e.name),
+                              child: Text(e.name ?? ""),
                             ))
                         .toList(),
                     text: "Repair",
@@ -303,6 +363,78 @@ class _DamagesPageState extends State<DamagesPage> {
                     textSpanEnable: true,
                   ),
                   const VerticalSpace.small(),
+                  // Column(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   children: [
+                  //     SizedBox(
+                  //       width: context.dynamicWidth(1.0),
+                  //       child: ElevatedButton(
+                  //         style: ElevatedButton.styleFrom(
+                  //           padding: EdgeInsets.zero,
+                  //           backgroundColor:
+                  //               context.theme.colorScheme.primaryContainer,
+                  //           elevation: 0,
+                  //           shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(8.0),
+                  //           ),
+                  //         ),
+                  //         onPressed: () {
+                  //           context
+                  //               .read<InspectionsBloc>()
+                  //               .add(ToggleButtonsEvent());
+                  //         },
+                  //         child: Text(
+                  //           'Add Image',
+                  //           style: context.theme.textTheme.bodyMedium?.copyWith(
+                  //             color: context.theme.colorScheme.onSecondary,
+                  //             fontWeight: FontWeight.w600,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(height: 10.0),
+                  //     AnimatedSize(
+                  //       alignment: Alignment.center,
+                  //       duration: const Duration(milliseconds: 300),
+                  //       curve: Curves.easeInOut,
+                  //       child: Column(
+                  //         children: state.areButtonsVisible
+                  //             ? [
+                  //                 Padding(
+                  //                   padding: const EdgeInsets.symmetric(
+                  //                       horizontal: 16.0),
+                  //                   child: CustomGreyAppButton(
+                  //                     width: context.dynamicWidth(1.0),
+                  //                     textColor:
+                  //                         context.theme.colorScheme.primary,
+                  //                     text: "Damage",
+                  //                     containerColor:
+                  //                         context.theme.colorScheme.surface,
+                  //                     ontap: () {},
+                  //                   ),
+                  //                 ),
+                  //                 const SizedBox(height: 8.0),
+                  //                 Padding(
+                  //                   padding: const EdgeInsets.symmetric(
+                  //                       horizontal: 16.0),
+                  //                   child: CustomGreyAppButton(
+                  //                     width: context.dynamicWidth(1.0),
+                  //                     textColor:
+                  //                         context.theme.colorScheme.primary,
+                  //                     text: "Context",
+                  //                     containerColor:
+                  //                         context.theme.colorScheme.surface,
+                  //                     ontap: () {},
+                  //                   ),
+                  //                 ),
+                  //               ]
+                  //             : [],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const VerticalSpace.small(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -456,28 +588,39 @@ class _DamagesPageState extends State<DamagesPage> {
                                 contextImage: _selectedContextImage,
                                 jobInspectionId: widget.jobInspectionId,
                                 categoryId: state.getDamageCategoriesResponse
-                                    .firstWhere((element) =>
-                                        element?.name == _category)!
-                                    .id,
+                                        .firstWhere((element) =>
+                                            element?.name == _category)!
+                                        .id ??
+                                    1,
                                 partId: state.getDamagePartsResponse
-                                    .firstWhere(
-                                        (element) => element.name == _part)
-                                    .id,
+                                        .firstWhere(
+                                            (element) => element.name == _part)
+                                        .id ??
+                                    1,
                                 issueId: state.getDamageIssuesResponse
                                     .firstWhere(
                                         (element) => element.name == _issue)
-                                    .id,
+                                    .id!,
                                 failureId: state.getDamageFailuresResponse
-                                    .firstWhere(
-                                        (element) => element.name == _failure)
-                                    .id,
+                                        .firstWhere((element) =>
+                                            element.name == _failure)
+                                        .id ??
+                                    1,
                                 repairId: state.getDamageRepairsResponse
-                                    .firstWhere(
-                                        (element) => element.name == _repair)
-                                    .id,
+                                        .firstWhere((element) =>
+                                            element.name == _repair)
+                                        .id ??
+                                    1,
                               ),
                             ),
                           );
+
+                      state.getDamageCategoriesResponse.clear();
+                      state.getDamagePartsResponse.clear();
+                      state.getDamageIssuesResponse.clear();
+                      state.getDamageFailuresResponse.clear();
+                      state.getDamageRepairsResponse.clear();
+
                       showTopSnackBarFr(
                         context,
                         message: "Damage added successfully",

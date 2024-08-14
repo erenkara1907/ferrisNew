@@ -51,7 +51,7 @@ class AwesomeNotificationService {
       if (action.payload?.isNotEmpty ?? false) {
         // eğer bildirimle açıldıysa uygulama
         final payload = json.decode(action.payload!['data'] ?? '') as Map;
-        print('payload: $payload');
+        // print('payload: $payload');
       }
     }
   }

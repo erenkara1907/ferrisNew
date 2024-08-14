@@ -41,6 +41,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       getJobTrackingCoordinatess({
     required int jobId,
   }) async {
+    print("GİRDİ 1");
     try {
       final response = await _networkClient.get(
         "${ServicePath.jobTrackings.value}/$jobId",
@@ -80,7 +81,6 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
   Future<TrackingCoordinatesResponseModelItem> getTrackingCoordinate({
     required int id,
   }) async {
-    print("GİRDİ 1");
     try {
       final response = await _networkClient.get(
         "${ServicePath.jobTrackings.value}/$id",
@@ -91,7 +91,8 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
         }),
       );
 
-      print("GİRDİ 1 ${response.data}");
+      print("GET JOB : ${response.data['data']}");
+
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
@@ -155,7 +156,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
             ?.go('/sign_in_page');
       }
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
+      throw DioException(requestOptions: e.requestOptions, message: "HATA VAR");
     } catch (e, stackTrace) {
       print('Error: $e, StackTrace: $stackTrace');
       throw UnknownException();

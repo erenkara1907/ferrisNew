@@ -73,6 +73,8 @@ class JobInspectionResponseModelItem extends Equatable {
   final String? customerSignedLongitude;
   @HiveField(28)
   final GradeId? gradleItem;
+  @HiveField(29)
+  final List<int>? damageStandards;
 
   const JobInspectionResponseModelItem({
     required this.id,
@@ -104,6 +106,7 @@ class JobInspectionResponseModelItem extends Equatable {
     this.customerSignedDate,
     this.customerSignedLatitude,
     this.customerSignedLongitude,
+    this.damageStandards,
   });
 
   Map<String, dynamic> toMap() {
@@ -182,6 +185,7 @@ class JobInspectionResponseModelItem extends Equatable {
       customerSignedDate: map['customerSignedDate'],
       customerSignedLatitude: map['customerSignedLatitude'],
       customerSignedLongitude: map['customerSignedLongitude'],
+      damageStandards: List<int>.from(map['damageStandards']),
     );
   }
 
@@ -258,10 +262,12 @@ class JobInspectionResponseModelItem extends Equatable {
     String? customerSignedDate,
     String? customerSignedLatitude,
     String? customerSignedLongitude,
+    List<int>? damageStandards,
   }) {
     return JobInspectionResponseModelItem(
       id: id ?? this.id,
       jobId: jobId ?? this.jobId,
+      damageStandards: damageStandards ?? this.damageStandards,
       gradleItem: gradleItem ?? this.gradleItem,
       typeId: typeId ?? this.typeId,
       reportSigned: reportSigned ?? this.reportSigned,

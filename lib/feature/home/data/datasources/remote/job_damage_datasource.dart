@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -11,6 +12,7 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 abstract interface class JobDamageRemoteDataSource {
   Future<List<DamagesCategory>> getDamageCategories(
@@ -27,6 +29,8 @@ abstract interface class JobDamageRemoteDataSource {
 
   Future<List<DamagesRepair>> getDamageRepairs(
       {required int inspectionId, required int failureId});
+
+  Future<List<DamageAssetsModel>> getAllDamageAssets();
 }
 
 final class JobDamageRemoteDataSourceImpl
@@ -40,7 +44,6 @@ final class JobDamageRemoteDataSourceImpl
   @override
   Future<List<DamagesCategory>> getDamageCategories(
       {required int inspectionId}) async {
-    print("SERVICE : $inspectionId");
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageCategories.value}/$inspectionId",
@@ -60,7 +63,6 @@ final class JobDamageRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
 
-      print("SERVICE DATA ${response.data["data"]}");
       final List<dynamic> productData = response.data["data"];
 
       return productData.map((e) => DamagesCategory.fromMap(e)).toList();
@@ -157,7 +159,6 @@ final class JobDamageRemoteDataSourceImpl
   @override
   Future<List<DamagesPart>> getDamageParts(
       {required int inspectionId, required int categoryId}) async {
-    print("SERVICE PART : $inspectionId");
     try {
       final response = await _networkClient.get(
         "${ServicePath.damageParts.value}/$inspectionId?categoryId=$categoryId",
@@ -224,6 +225,56 @@ final class JobDamageRemoteDataSourceImpl
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
+      print('Error: $e, StackTrace: $stackTrace');
+      throw UnknownException();
+    }
+  }
+
+  @override
+  Future<List<DamageAssetsModel>> getAllDamageAssets() async {
+    try {
+      final response = await _networkClient.get(
+        ServicePath.getAllDamageAssets.value,
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        }),
+      );
+
+      if (response.data == null || response.data == null) {
+        throw Exception('No data found');
+      }
+
+      if (response.data['newAccessToken'] != null) {
+        ProductStateItems.hiveDatabaseManager
+            .setToken(response.data['newAccessToken']);
+      }
+
+      final List<dynamic> productData = response.data["data"];
+
+      return productData.map((e) => DamageAssetsModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      if (e.response?.data["message"] == "Not authenticated") {
+        ProductStateItems.hiveDatabaseManager.deleteUserToken();
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/sign_in_page');
+      }
+      print("HATA : ${e.message}");
+      print("DioException Detayları: ");
+      print("Response Data: ${e.response?.data}");
+      print("Response Data 2: ${e.response?.data["data"]}");
+      print("Request Path: ${e.requestOptions.path}");
+      print("Error Type: ${e.type}");
+      print("Error: ${e.error}");
+      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      throw DioException(requestOptions: e.requestOptions, message: e.message);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       print('Error: $e, StackTrace: $stackTrace');
       throw UnknownException();
     }

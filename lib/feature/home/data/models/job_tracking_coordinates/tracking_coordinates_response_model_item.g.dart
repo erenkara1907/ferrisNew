@@ -18,7 +18,7 @@ class TrackingCoordinatesResponseModelItemAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TrackingCoordinatesResponseModelItem(
-      id: fields[0] as int,
+      id: fields[0] as int?,
       jobId: fields[1] as int?,
       addedTime: fields[2] as int?,
       latitude: fields[3] as double?,

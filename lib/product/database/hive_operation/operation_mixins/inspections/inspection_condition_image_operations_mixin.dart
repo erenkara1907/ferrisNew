@@ -15,7 +15,7 @@ mixin InspectionConditionImageOperationsMixin {
 
   Future<List<ConditionImageResponseModel>> getInspectionConditionImages(
       int inspectionId) async {
-    print('inspectionId123: $inspectionId');
+    // print('inspectionId123: $inspectionId');
     final jsonList = _inspectionConditionImageBox.values.toList();
     final List<ConditionImageResponseModel> results = [];
 

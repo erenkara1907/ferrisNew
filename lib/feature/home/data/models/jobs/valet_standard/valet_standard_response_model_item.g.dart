@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'valet_standard_response_model_item.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class ValetStandardResponseModelItemAdapter
     extends TypeAdapter<ValetStandardResponseModelItem> {

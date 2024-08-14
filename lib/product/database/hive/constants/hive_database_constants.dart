@@ -10,6 +10,7 @@ final class HiveDatabaseConstants {
   static const String jobValetStandardBox = 'jobValetStandardBox';
   static const String jobExpenseBox = 'jobExpenseBox';
   static const String damageCategoryBox = 'damageCategoryBox';
+  static const String damageAssetsBox = 'damageAssetsBox';
   static const String damageIssueBox = 'damageIssueBox';
   static const String damageFailureBox = 'damageFailureBox';
   static const String damagePartBox = 'damagePartBox';

@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../home/data/models/damages/damage_response_model.dart';
+
 class InspectionPage extends StatefulWidget {
   final bool? isAsync;
   final bool? isSigned;
@@ -152,10 +154,34 @@ class _InspectionPageState extends State<InspectionPage> {
                 : ListView.builder(
                     itemCount: state.inspections.length,
                     itemBuilder: (BuildContext context, int index) {
-                      if (state.inspections.isNotEmpty) {}
+                      // final damage = index < state.damageResponse.length
+                      //     ? state.damageResponse[index]
+                      //     : null;
                       return InspectionCustomInfoCard(
                         inspection: state.inspections[index]!,
+                        inspectionState: state,
                       );
+                      // if (state.damageResponse.isNotEmpty &&
+                      //     state.inspections.isNotEmpty) {
+                      //   print("LAST : ${state.damageResponse.last.gradeId}");
+                      // }
+
+                      // List<DamageResponseModel> trimmedDamageResponse =
+                      //     state.damageResponse.isNotEmpty
+                      //         ? [state.damageResponse.last]
+                      //         : [];
+
+                      // if (trimmedDamageResponse.isNotEmpty &&
+                      //     index < trimmedDamageResponse.length) {
+                      //   return InspectionCustomInfoCard(
+                      //     // damageResponse: trimmedDamageResponse[index],
+                      //     inspection: state.inspections[index]!,
+                      //   );
+                      // } else {
+                      //   return InspectionCustomInfoCard(
+                      //     inspection: state.inspections[index]!,
+                      //   );
+                      // }
                     },
                   ));
       },

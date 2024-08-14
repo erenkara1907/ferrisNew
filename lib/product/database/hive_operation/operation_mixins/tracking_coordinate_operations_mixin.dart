@@ -15,7 +15,7 @@ mixin TrackingCoordinateOperationsMixin {
 
   Future<bool> setTrackingCoordinate(
       TrackingCoordinatesResponseModelItem data) async {
-    print(data);
+    // print(data);
     final box = await _trackingCoordinateBox;
     await box.put(_keyTrackingCoordinate, data);
     return true;

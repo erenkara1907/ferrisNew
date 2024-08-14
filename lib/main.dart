@@ -17,10 +17,48 @@ import 'package:ferrisfwt/product/theme/theme_notifer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
   await ApplicationInitialize().make();
-  runApp(ProductLocalization(child: const StateInitialize(child: _MyApp())));
+  FlutterError.onError = (FlutterErrorDetails details) {
+    //FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+
+    if (details.library == 'image resource service' &&
+        (details.exception.toString().contains('404') ||
+            details.exception.toString().contains("Invalid"))) {
+      return;
+    }
+    Sentry.captureException(details.exception, stackTrace: details.stack);
+    FlutterError.presentError(details);
+  };
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://5a101e43010540dc8fb5247780c8b7f8@o4507728913956864.ingest.de.sentry.io/4507743999492176';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      options.attachScreenshot = true;
+      // options.beforeScreenshot = (event, {hint}) {
+      //   // Return false if you don't want to attach the screenshot based on some condition.
+      //   return true;
+      // };
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.attachViewHierarchy = true;
+      options.enableAutoPerformanceTracing = true;
+    },
+    appRunner: () => runApp(
+      SentryWidget(
+        child: ProductLocalization(
+          child: const StateInitialize(
+            child: _MyApp(),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _MyApp extends StatefulWidget {
@@ -64,6 +102,8 @@ class _MyAppState extends State<_MyApp> {
         final currentJobId =
             ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
 
+        print("currentJob Id : $currentJobId");
+
         if (currentJobId != null && context.mounted) {
           final position = await Geolocator.getCurrentPosition(
               desiredAccuracy: LocationAccuracy.high);
@@ -76,11 +116,11 @@ class _MyAppState extends State<_MyApp> {
         }
       } else {}
     } on PermissionDeniedException catch (_) {
-      print('permission');
+      // print('permission');
     } on LocationServiceDisabledException catch (_) {
-      print('location');
+      // print('location');
     } catch (e) {
-      print('catchhh $e');
+      // print('catchhh $e');
     }
   }
 
@@ -114,21 +154,21 @@ class _MyAppState extends State<_MyApp> {
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await _userHiveOperation.getJobExpenseAsync();
-      print('result: $result');
+      // print('result: $result');
 
       final resultStop = await _userHiveOperation.getJobStopAsync();
 
-      print('resultStop: $resultStop');
+      // print('resultStop: $resultStop');
 
       final resultJobUpdate = await _userHiveOperation.getJobUpdate();
 
-      print('resultJobUpdate: $resultJobUpdate');
+      // print('resultJobUpdate: $resultJobUpdate');
 
       final resultPatch = await _userHiveOperation.getJobExpensePatchAsync();
 
-      print('resultPatch: $resultPatch');
+      // print('resultPatch: $resultPatch');
 
-      if (result != [] && result != null && result.isNotEmpty && result != {}) {
+      if (result != [] && result.isNotEmpty && result != {}) {
         for (var item in result) {
           context.read<JobExpenseBloc>().add(PostExpense(item!, true));
           await Future.delayed(const Duration(seconds: 5));
@@ -140,7 +180,6 @@ class _MyAppState extends State<_MyApp> {
       if (resultPatch.isNotEmpty &&
           resultPatch != {} &&
           resultPatch != [] &&
-          resultPatch != null &&
           _userHiveDatabase.getUserModel() != null) {
         for (var item in resultPatch) {
           context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
@@ -150,7 +189,6 @@ class _MyAppState extends State<_MyApp> {
       }
 
       if (resultStop != [] &&
-          resultStop != null &&
           resultStop.isNotEmpty &&
           resultStop != {} &&
           _userHiveDatabase.getUserModel() != null) {
@@ -165,8 +203,7 @@ class _MyAppState extends State<_MyApp> {
         _userHiveOperation.deleteJobStopAsync();
       }
 
-      if (resultJobUpdate != null &&
-          resultJobUpdate.isNotEmpty &&
+      if (resultJobUpdate.isNotEmpty &&
           resultJobUpdate != {} &&
           resultJobUpdate != [] &&
           _userHiveDatabase.getUserModel() != null) {
@@ -185,14 +222,14 @@ class _MyAppState extends State<_MyApp> {
               ?.inspectionsJobId ??
           [];
 
-      print('jobInspectionsId: $jobInspectionsId');
+      // print('jobInspectionsId: $jobInspectionsId');
 
       for (var id in jobInspectionsId) {
         try {
           final resultInspection =
               await _userHiveOperation.getChecklistPostModel(id);
-          print('resultInspectionChekList: $resultInspection');
-          if (resultInspection != null && resultInspection.isNotEmpty) {
+          // print('resultInspectionChekList: $resultInspection');
+          if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
               context
                   .read<InspectionsBloc>()
@@ -218,9 +255,8 @@ class _MyAppState extends State<_MyApp> {
 */
           final resultInspectionEditDetail =
               await _userHiveOperation.getInspectionDetails(id);
-          print('resultInspectionEditDetail: $resultInspectionEditDetail');
-          if (resultInspectionEditDetail != null &&
-              resultInspectionEditDetail.isNotEmpty) {
+          // print('resultInspectionEditDetail: $resultInspectionEditDetail');
+          if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
                     odoReading: item!.odoReading,
@@ -252,12 +288,12 @@ class _MyAppState extends State<_MyApp> {
               await _userHiveOperation.getSignCustomerPostModel(id);
           final resultInspectionSign =
               await _userHiveOperation.getSignInspectorPostModel(id);
-          print('resultInspectionSign $resultInspectionCustomerSign');
+          // print('resultInspectionSign $resultInspectionCustomerSign');
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
                   jobInspectionId: id,
-                  data: resultInspectionCustomerSign!,
+                  data: resultInspectionCustomerSign,
                   isAsync: true,
                 ));
             await Future.delayed(const Duration(seconds: 1));

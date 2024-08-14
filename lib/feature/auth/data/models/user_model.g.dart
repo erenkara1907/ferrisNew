@@ -24,12 +24,12 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       rememberMe: fields[4] as bool?,
       currentJobId: fields[6] as String?,
       regnNumber: fields[7] as String?,
-      isStarted: fields[5] as bool?,
-      inspectionsJobId: fields[8] as List<int>?,
+      inspectionsJobId: (fields[8] as List?)?.cast<int>(),
       totalStop: fields[9] as int?,
-      inspectionsSign: fields[10] as List<int>?,
+      inspectionsSign: (fields[10] as List?)?.cast<int>(),
       isLastUse: fields[11] as String?,
       isjobFinish: fields[12] as bool?,
+      isStarted: fields[5] as bool?,
     );
   }
 
@@ -88,12 +88,16 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       rememberMe: json['rememberMe'] as bool?,
       currentJobId: json['currentJobId'] as String?,
       regnNumber: json['regnNumber'] as String?,
-      isStarted: json['isStarted'] as bool?,
-      inspectionsJobId: json['inspectionsJobId'] as List<int>?,
-      totalStop: json['totalStop'] as int?,
-      inspectionsSign: json['inspectionsSign'] as List<int>?,
+      inspectionsJobId: (json['inspectionsJobId'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
+      totalStop: (json['totalStop'] as num?)?.toInt(),
+      inspectionsSign: (json['inspectionsSign'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
       isLastUse: json['isLastUse'] as String?,
       isjobFinish: json['isjobFinish'] as bool?,
+      isStarted: json['isStarted'] as bool?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{

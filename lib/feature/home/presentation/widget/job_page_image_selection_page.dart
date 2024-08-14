@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MyImagePicker extends StatefulWidget {
+  const MyImagePicker({super.key});
+
   @override
   _MyImagePickerState createState() => _MyImagePickerState();
 }
@@ -19,7 +21,7 @@ class _MyImagePickerState extends State<MyImagePicker> {
       if (pickedImage != null) {
         _imageFile = File(pickedImage.path);
       } else {
-        print('No image selected.');
+        // print('No image selected.');
       }
     });
   }
@@ -78,7 +80,7 @@ class _MyImagePickerState extends State<MyImagePicker> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: MyImagePicker(),
   ));
 }

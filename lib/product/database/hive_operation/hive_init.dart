@@ -30,6 +30,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/stops/stop_post_f
 import 'package:ferrisfwt/product/state/base/model/post_models/stops/stop_post_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../../feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
+import '../../../feature/home/data/models/jobs/gradle_item_model.dart';
 import 'models/expense/expense.dart';
 import 'models/job_update/job_update.dart';
 import 'models/stop/stop.dart';
@@ -75,5 +77,12 @@ abstract class HiveInit {
     Hive.registerAdapter(InspectionDetailsPostModelAdapter());
     Hive.registerAdapter(ExpensePatchModelAdapter());
     Hive.registerAdapter(JobInspectionResponseModelItemAdapter());
+    Hive.registerAdapter(GradeIdAdapter());
+    Hive.registerAdapter(DamageAssetsModelAdapter());
+    Hive.registerAdapter(CategoriesAdapter());
+    Hive.registerAdapter(PartsAdapter());
+    Hive.registerAdapter(IssuesAdapter());
+    Hive.registerAdapter(FailuresAdapter());
+    Hive.registerAdapter(RepairsAdapter());
   }
 }

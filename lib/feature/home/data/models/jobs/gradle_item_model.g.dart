@@ -1,36 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'inspection_details_post_model.dart';
+part of 'gradle_item_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class InspectionDetailsPostModelAdapter
-    extends TypeAdapter<InspectionDetailsPostModel> {
+class GradeIdAdapter extends TypeAdapter<GradeId> {
   @override
-  final int typeId = 194;
+  final int typeId = 105;
 
   @override
-  InspectionDetailsPostModel read(BinaryReader reader) {
+  GradeId read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return InspectionDetailsPostModel(
-      odoReading: fields[0] as double,
-      fuelLevel: fields[1] as int,
+    return GradeId(
+      id: fields[0] as int?,
+      name: fields[1] as String?,
+      order: fields[2] as int?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, InspectionDetailsPostModel obj) {
+  void write(BinaryWriter writer, GradeId obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.odoReading)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.fuelLevel);
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.order);
   }
 
   @override
@@ -39,7 +41,7 @@ class InspectionDetailsPostModelAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is InspectionDetailsPostModelAdapter &&
+      other is GradeIdAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

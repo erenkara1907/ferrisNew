@@ -32,7 +32,7 @@ class _AutoDarkModePageState extends State<AutoDarkModePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             if (isSelected)
-              Container(
+              SizedBox(
                 width: 5,
                 child: Icon(
                   size: 18,
@@ -56,9 +56,9 @@ class _AutoDarkModePageState extends State<AutoDarkModePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.theme.colorScheme.surfaceVariant,
+      backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.surfaceVariant,
+        backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
         leading: IconButton(
           onPressed: () {
             context.pop();
@@ -130,7 +130,7 @@ class _SelectedDisabledState extends State<SelectedDisabled> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: context.theme.colorScheme.surfaceVariant,
+      color: context.theme.colorScheme.surfaceContainerHighest,
     );
   }
 }
@@ -231,7 +231,7 @@ class _SelectedScheduledState extends State<SelectedScheduled> {
                     child: Row(
                       children: [
                         Text(
-                          "${_selectedFromTime.format(context)}",
+                          _selectedFromTime.format(context),
                           style: context.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: context.theme.colorScheme.surfaceTint,
@@ -264,7 +264,7 @@ class _SelectedScheduledState extends State<SelectedScheduled> {
                     child: Row(
                       children: [
                         Text(
-                          "${_selectedToTime.format(context)}",
+                          _selectedToTime.format(context),
                           style: context.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: context.theme.colorScheme.surfaceTint,
@@ -332,8 +332,8 @@ class _SelectedScheduledState extends State<SelectedScheduled> {
           _selectedToTime = pickedTime;
         }
       });
-      print(
-          'Selected Time: ${isFromTime ? _selectedFromTime : _selectedToTime}');
+      // print(
+      //     'Selected Time: ${isFromTime ? _selectedFromTime : _selectedToTime}');
     }
   }
 }
@@ -349,7 +349,7 @@ class _SelectedAutomaticallyState extends State<SelectedAutomatically> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: context.theme.colorScheme.surfaceVariant,
+      color: context.theme.colorScheme.surfaceContainerHighest,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -381,7 +381,7 @@ class SwitchButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: context.dynamicWidth(0.1),
       child: CupertinoSwitch(
         value: switchValue,

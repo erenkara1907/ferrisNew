@@ -7,6 +7,13 @@ sealed class JobDamageEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class GetAllDamageAssets extends JobDamageEvent {
+  const GetAllDamageAssets();
+
+  @override
+  List<Object> get props => [];
+}
+
 class GetDamageCategories extends JobDamageEvent {
   final int inspectionId;
   const GetDamageCategories(this.inspectionId);

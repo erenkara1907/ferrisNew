@@ -27,7 +27,7 @@ class FeedbackPage extends StatefulWidget {
 class _FeedbackPageState extends State<FeedbackPage> {
   late final HiveStorageManager _hiveStorageManager;
   UpdateJobStatusPostModel? updateModel;
-  bool _isSaveButtonEnabled = false;
+  final bool _isSaveButtonEnabled = false;
   final TextEditingController _customerFeedbackController =
       TextEditingController();
   final TextEditingController _vehicleFeedbackController =
@@ -53,7 +53,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     setState(() {
       final result = hiveStorageManager.getJopUpdatePage();
       updateModel = result;
-      print(updateModel);
+      // print(updateModel);
     });
   }
 
@@ -76,7 +76,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         }
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: IconButton(
               icon: Icon(
                 Icons.cancel_outlined,

@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -38,7 +40,7 @@ class ConditionImagePage extends StatefulWidget {
 class _ConditionImagePageState extends State<ConditionImagePage> {
   HiveStorageManager? _hiveStorageManager;
   List<File> _imageFiles = [];
-  List<ConditionImageResponseModel> _deletedImages = [];
+  final List<ConditionImageResponseModel> _deletedImages = [];
   static const int maxImages = 12;
   String? filePath;
 
@@ -132,18 +134,14 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
   Future<void> _getImagesFromGallery(InspectionsState state) async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickMultiImage();
-    if (pickedFiles != null) {
-      for (var pickedFile in pickedFiles) {
-        File file = File(pickedFile.path);
-        if (_imageFiles.length < 12) {
-          await compressImage(file);
-        } else {
-          BotToast.showText(text: 'You can only select 12 images in total');
-          break;
-        }
+    for (var pickedFile in pickedFiles) {
+      File file = File(pickedFile.path);
+      if (_imageFiles.length < 12) {
+        await compressImage(file);
+      } else {
+        BotToast.showText(text: 'You can only select 12 images in total');
+        break;
       }
-    } else {
-      BotToast.showText(text: 'No images selected');
     }
   }
 
@@ -195,14 +193,14 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
               color: context.theme.colorScheme.primary, size: 24),
           onPressed: () => context.pop(),
         ),
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         title: Text('Condition Images', style: context.textTheme.titleSmall),
       ),
       body: BlocConsumer<InspectionsBloc, InspectionsState>(
         listener: (context, state) {
           if (state.status == ViewStatus.failure) {
             BotToast.showText(text: state.failure.toString());
-            print(state.failure.toString());
+            // print(state.failure.toString());
           }
           if (state.status == ViewStatus.success) {
             context
@@ -323,8 +321,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                     pathImage.indexOf("Documents/");
                                 String result = pathImage.substring(
                                     documentsIndex + "Documents/".length);
-                                final path = filePath.toString() + '/' + result;
-                                print('path: $path');
+                                final path = '$filePath/$result';
+                                // print('path: $path');
                                 return Stack(
                                   children: [
                                     ClipRRect(
@@ -525,7 +523,31 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     super.dispose();
   }
 
+  // Future<void> _captureImage() async {
+  //   try {
+  //     await _initializeControllerFuture;
+  //     final XFile image = await _cameraController.takePicture();
+  //     final File file = File(image.path);
+  //     widget.onCapture(file);
+  //     setState(() {
+  //       _capturedImages.add(file);
+  //     });
+  //   } catch (e) {
+  //     print("EROR CAMERA : $e");
+  //     BotToast.showText(text: 'Error capturing image: $e');
+  //   }
+  // }
+
+  bool _isTakingPicture = false;
+
   Future<void> _captureImage() async {
+    if (_isTakingPicture) {
+      return; // Eğer bir fotoğraf çekme işlemi devam ediyorsa çıkış yap
+    }
+    setState(() {
+      _isTakingPicture = true; // Fotoğraf çekme işlemi başladı
+    });
+
     try {
       await _initializeControllerFuture;
       final XFile image = await _cameraController.takePicture();
@@ -535,7 +557,12 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
         _capturedImages.add(file);
       });
     } catch (e) {
+      print("EROR CAMERA : $e");
       BotToast.showText(text: 'Error capturing image: $e');
+    } finally {
+      setState(() {
+        _isTakingPicture = false; // Fotoğraf çekme işlemi tamamlandı
+      });
     }
   }
 
@@ -565,7 +592,7 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                Container(
+                SizedBox(
                   height: context.height,
                   child: CameraPreview(_cameraController),
                 ),

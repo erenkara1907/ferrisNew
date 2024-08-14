@@ -36,6 +36,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     context.read<HomeBloc>().add(const GetJobHistory());
     context.read<StopJobBloc>().add(const GetJobStopsCategories());
     context.read<JobExpenseBloc>().add(const GetExpenseCategories());
+    context.read<JobDamageBloc>().add(const GetAllDamageAssets());
     // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
     // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
     // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));

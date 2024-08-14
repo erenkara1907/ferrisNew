@@ -24,7 +24,7 @@ class _ChangePersonalPhoneNumberState extends State<ChangePersonalPhoneNumber> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         leading: IconButton(
           onPressed: () {
             context.pop();
@@ -70,10 +70,10 @@ class _ChangePersonalPhoneNumberState extends State<ChangePersonalPhoneNumber> {
               languageCode: "en",
               onChanged: (phone) {
                 setState(() {});
-                print(phone.completeNumber);
+                // print(phone.completeNumber);
               },
               onCountryChanged: (country) {
-                print('Country changed to: ' + country.name);
+                // print('Country changed to: ' + country.name);
               },
             ),
             const VerticalSpace.small(),

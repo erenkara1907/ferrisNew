@@ -61,8 +61,10 @@ class DamageResponseModel implements IResponseModel {
 
   factory DamageResponseModel.fromMap(Map<String, dynamic> map) {
     Map<String, dynamic> damageCombination = map['damageCombinationId'];
-    final price = damageCombination['price']?['price'];
-    final gradeId = map["jobInspectionId"]?['gradeId']?["name"];
+    final price = map['price'];
+
+    final gradeId = map["jobInspectionId"]['gradeId']["name"];
+    print("GRAD ID : $gradeId");
     return DamageResponseModel(
       id: map['id'],
       jobInspectionId: map['jobInspectionId'] is int?

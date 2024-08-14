@@ -116,7 +116,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final message = await FirebaseMessaging.instance.getToken();
-    print("message: $message");
+
+    // print("message: $message");
 
     _ucGetAuth.setDeviceId(deviceId: message ?? '');
   }
@@ -186,7 +187,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await _ucGetAuth.getUserInfo();
 
-    print('result: $result');
+    // print('result: $result');
 
     result.fold(
       (failure) {

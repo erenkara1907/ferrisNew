@@ -10,6 +10,7 @@ final class JobDamageState extends Equatable {
     this.getDamagePartsResponse = const [],
     this.getDamageRepairsResponse = const [],
     this.damageResponse = const [],
+    this.damageAssetsModel = const [],
     this.inspectionId = 0,
   });
 
@@ -21,6 +22,7 @@ final class JobDamageState extends Equatable {
   final List<DamagesPart> getDamagePartsResponse;
   final List<DamagesRepair> getDamageRepairsResponse;
   final List<DamageResponseModel> damageResponse;
+  final List<DamageAssetsModel> damageAssetsModel;
   final int inspectionId;
 
   @override
@@ -42,6 +44,7 @@ final class JobDamageState extends Equatable {
     List<DamagesPart>? getDamagePartsResponse,
     List<DamagesRepair>? getDamageRepairsResponse,
     List<DamageResponseModel>? damageResponse,
+    List<DamageAssetsModel>? damageAssetsModel,
     Failure? failure,
   }) {
     return JobDamageState(
@@ -49,6 +52,7 @@ final class JobDamageState extends Equatable {
       status: status ?? this.status,
       getDamageCategoriesResponse:
           getDamageCategoriesResponse ?? this.getDamageCategoriesResponse,
+      damageAssetsModel: damageAssetsModel ?? this.damageAssetsModel,
       getDamageFailuresResponse:
           getDamageFailuresResponse ?? this.getDamageFailuresResponse,
       getDamageIssuesResponse:

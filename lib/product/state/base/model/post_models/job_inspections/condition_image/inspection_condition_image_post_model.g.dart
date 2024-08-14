@@ -1,5 +1,9 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'inspection_condition_image_post_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
 // **************************************************************************
 
 class InspectionConditionImagePostModelAdapter
@@ -14,7 +18,7 @@ class InspectionConditionImagePostModelAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return InspectionConditionImagePostModel(
-      jobInspectionId: fields[0] as int,
+      jobInspectionId: fields[0] as int?,
       image: fields[1] as File,
     );
   }

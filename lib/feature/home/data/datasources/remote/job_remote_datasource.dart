@@ -62,7 +62,6 @@ final class JobRemoteDataSourceImpl
     String? date,
     String? status,
   }) async {
-    print("GİRDİ GET JOB");
     try {
       final response = await _networkClient.get(ServicePath.job.value,
           queryParameters: {
@@ -76,7 +75,7 @@ final class JobRemoteDataSourceImpl
                   'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
             },
           ));
-      print("GİRDİ GET JOB ${response.data["data"]}");
+
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:ferrisfwt/feature/auth/data/models/user_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -62,6 +63,9 @@ final class HiveDatabaseManager {
         HiveDatabaseConstants.jobExpenseBox);
     await Hive.openBox<DamagesCategory>(
         HiveDatabaseConstants.damageCategoryBox);
+    await Hive.openBox<DamageAssetsModel>(
+        HiveDatabaseConstants.damageAssetsBox);
+
     await Hive.openBox<DamagesIssue>(HiveDatabaseConstants.damageIssueBox);
     await Hive.openBox<DamagesFailure>(HiveDatabaseConstants.damageFailureBox);
     await Hive.openBox<DamagesPart>(HiveDatabaseConstants.damagePartBox);

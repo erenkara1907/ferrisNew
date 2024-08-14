@@ -36,7 +36,7 @@ class CustomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(jobModel.predictedStartLocationTime);
+    // print(jobModel.predictedStartLocationTime);
     return Container(
       decoration: BoxDecoration(
         color: context.theme.colorScheme.surface,
@@ -104,7 +104,7 @@ class CustomInfoCard extends StatelessWidget {
                   )
                 else
                   Text(
-                    '£${jobModel.expensesTotalCost?.toStringAsFixed(2) == null ? "0.00" : jobModel.expensesTotalCost?.toStringAsFixed(2)}',
+                    '£${jobModel.expensesTotalCost?.toStringAsFixed(2) ?? "0.00"}',
                     style: context.textTheme.bodySmall
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),

@@ -217,7 +217,7 @@ final class AppRouter {
               buildRightPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
-                child: SignInPage(),
+                child: const SignInPage(),
               )),
       GoRoute(
           path: "/view_expense_detail",
@@ -348,6 +348,7 @@ final class AppRouter {
               context: context,
               state: state,
               child: RecordedDamages(
+                standardIds: extraState['standardIds'],
                 jobInspectionId: extraState['jobInspectionId'] as int,
               ));
         },
@@ -367,12 +368,16 @@ final class AppRouter {
           }),
       GoRoute(
           path: "/expense_details",
-          pageBuilder: (context, state) =>
-              buildDownPageWithDefaultTransition<void>(
-                context: context,
-                state: state,
-                child: const ExpenseDetails(),
-              )),
+          pageBuilder: (context, state) {
+            final extraState = state.extra as Map<String, dynamic>;
+            return buildDownPageWithDefaultTransition<void>(
+              context: context,
+              state: state,
+              child: ExpenseDetails(
+                jobId: extraState['jobId'],
+              ),
+            );
+          }),
       GoRoute(
         path: "/add_stop_page",
         pageBuilder: (context, state) =>
@@ -392,6 +397,7 @@ final class AppRouter {
               state: state,
               child: ViewExpenses(
                 isAsync: extraState['isAsync'] as bool? ?? false,
+                jobId: extraState['jobId'],
               ),
             );
           }),
@@ -428,6 +434,7 @@ final class AppRouter {
               context: context,
               state: state,
               child: DamageDetailPage(
+                  standarIds: extraState['standardIds'],
                   jobInspectionId: extraState['inspection'],
                   damageResponse:
                       extraState['damageResponse'] as DamageResponseModel),
@@ -472,6 +479,7 @@ final class AppRouter {
             context: context,
             state: state,
             child: InspectionDetailPage(
+              damageResponse: extraState['damageResponse'],
               inspection:
                   extraState['inspection'] as JobInspectionResponseModelItem,
             ),
@@ -537,6 +545,7 @@ final class AppRouter {
             context: context,
             state: state,
             child: DamagesPage(
+              standarIds: extraState['standardIds'] as List<int>,
               jobInspectionId: extraState['jobInspectionId'] as int,
             ),
           );

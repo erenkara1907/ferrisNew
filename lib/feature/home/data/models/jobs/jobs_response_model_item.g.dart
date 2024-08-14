@@ -49,13 +49,27 @@ class JobsResponseModelItemAdapter extends TypeAdapter<JobsResponseModelItem> {
       predictedStartLocationTime: fields[28] as String?,
       predictedEndLocationTime: fields[29] as String?,
       expensesTotalCost: fields[30] as double?,
+      checkpoint1Address: fields[31] as String?,
+      checkpoint2Address: fields[32] as String?,
+      checkpoint3Address: fields[33] as String?,
+      checkpoint1AddressCordinates: fields[34] as LatLng?,
+      checkpoint2AddressCordinates: fields[35] as LatLng?,
+      checkpoint3AddressCordinates: fields[36] as LatLng?,
+      isVisibleStartAddress: fields[37] as bool?,
+      isVisibleCheckpoint1Address: fields[38] as bool?,
+      isVisibleCheckpoint2Address: fields[39] as bool?,
+      isVisibleCheckpoint3Address: fields[40] as bool?,
+      isVisibleEndAddress: fields[41] as bool?,
+      checkpoint1AddressPostalCode: fields[42] as String?,
+      checkpoint2AddressPostalCode: fields[43] as String?,
+      checkpoint3AddressPostalCode: fields[44] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, JobsResponseModelItem obj) {
     writer
-      ..writeByte(31)
+      ..writeByte(45)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -117,7 +131,35 @@ class JobsResponseModelItemAdapter extends TypeAdapter<JobsResponseModelItem> {
       ..writeByte(29)
       ..write(obj.predictedEndLocationTime)
       ..writeByte(30)
-      ..write(obj.expensesTotalCost);
+      ..write(obj.expensesTotalCost)
+      ..writeByte(31)
+      ..write(obj.checkpoint1Address)
+      ..writeByte(32)
+      ..write(obj.checkpoint2Address)
+      ..writeByte(33)
+      ..write(obj.checkpoint3Address)
+      ..writeByte(34)
+      ..write(obj.checkpoint1AddressCordinates)
+      ..writeByte(35)
+      ..write(obj.checkpoint2AddressCordinates)
+      ..writeByte(36)
+      ..write(obj.checkpoint3AddressCordinates)
+      ..writeByte(37)
+      ..write(obj.isVisibleStartAddress)
+      ..writeByte(38)
+      ..write(obj.isVisibleCheckpoint1Address)
+      ..writeByte(39)
+      ..write(obj.isVisibleCheckpoint2Address)
+      ..writeByte(40)
+      ..write(obj.isVisibleCheckpoint3Address)
+      ..writeByte(41)
+      ..write(obj.isVisibleEndAddress)
+      ..writeByte(42)
+      ..write(obj.checkpoint1AddressPostalCode)
+      ..writeByte(43)
+      ..write(obj.checkpoint2AddressPostalCode)
+      ..writeByte(44)
+      ..write(obj.checkpoint3AddressPostalCode);
   }
 
   @override

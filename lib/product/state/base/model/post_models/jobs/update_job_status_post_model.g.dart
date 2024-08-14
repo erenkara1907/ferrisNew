@@ -1,3 +1,5 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'update_job_status_post_model.dart';
 
 // **************************************************************************
@@ -42,4 +44,14 @@ class UpdateJobStatusPostModelAdapter
       ..writeByte(5)
       ..write(obj.customerFeedback);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UpdateJobStatusPostModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

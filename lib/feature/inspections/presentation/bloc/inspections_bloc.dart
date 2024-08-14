@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -71,12 +72,13 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     on<InspectionsItemDetail>(_onInspectionsItemDetail);
     on<SetInspections>(_onSetInspections);
     on<SetItemCheckList>(_setItemCheckList);
-    on<GetInspectionsDamagesCategory>(_getDamagesCategory);
+    // on<GetInspectionsDamagesCategory>(_getDamagesCategory);
     on<GetInspectionsDamagesFailure>(_getDamagesFailure);
     on<GetInspectionsDamagesIssue>(_getDamagesIssue);
     on<GetInspectionsDamagesPart>(_getDamagesPart);
     on<GetInspectionsDamagesRepair>(_getDamagesRepair);
-    on<GetInspectionsDamageCategories>(_getDamageCategories);
+    // on<GetInspectionsDamageCategories>(_getDamageCategories);
+    on<GetInspectionsDamageAssets>(_getDamageAssets);
     on<CleanDamages>(_cleanDamages);
     on<SetDriverImage>(_setDriverImage);
     on<SetCustomerImage>(_setCustomerImage);
@@ -90,6 +92,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     on<DeleteRecordedDamage>(_onDeleteRecordedDamage);
     on<UpdateDamageResponse>(_onUpdateDamageResponse);
     on<ClearInspection>(_clearInspection);
+    on<ToggleButtonsEvent>(_onToggleButton);
   }
 
   final UCGetJobInspections _ucGetJobInspections;
@@ -100,6 +103,13 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
   late final HiveStorageManager _hiveStorageManager;
   late final HiveDatabaseManager _hiveDatabaseManager;
 
+  Future<void> _onToggleButton(
+      ToggleButtonsEvent event, Emitter<InspectionsState> emit) async {
+    emit(
+      state.copyWith(areButtonsVisible: !state.areButtonsVisible),
+    );
+  }
+
   Future<void> _onSetEditDetails(
       SetEditDetails event, Emitter<InspectionsState> emit) async {
     emit(state.copyWith(odo: event.odo, fuelLevel: event.fuelLevel));
@@ -109,6 +119,19 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       ClearInspection event, Emitter<InspectionsState> emit) async {
     emit(const InspectionsState());
   }
+
+  // Future<void> _getDamageCategories(GetInspectionsDamageCategories event,
+  //     Emitter<InspectionsState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _hiveStorageManager.getDamageCategories();
+
+  //   if (result != []) {
+  //     emit(state.copyWith(
+  //       getDamageCategoriesResponse: result,
+  //       status: ViewStatus.success,
+  //     ));
+  //   }
+  // }
 
   Future<void> _onConditionImages(
       ConditionsImagesEvent event, Emitter<InspectionsState> emit) async {
@@ -229,7 +252,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
       },
       (data) {
-        print("dataaaaaaaaaaa: $data");
         _hiveStorageManager.putInspectionChecklist(data);
 
         emit(state.copyWith(
@@ -241,7 +263,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
   Future<void> _postJobInspectionsCheckList(
       PostJobInspectionsCheckList event, Emitter<InspectionsState> emit) async {
-    print("GİRDİ CHECK 1 ${event.isUpdate}");
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await hasNetwork();
     if (result) {
@@ -251,21 +272,15 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
           data: event.data,
         );
 
-        print(
-            "GİRDİ CHECK 2 ${event.data} - ${event.checklistId} update ${event.isUpdate}");
-
         result.fold(
           (failure) {
-            print("GİRDİ CHECK 3");
             emit(state.copyWith(status: ViewStatus.failure, failure: failure));
           },
           (data) {
-            print("GİRDİ CHECK 4");
             _hiveStorageManager.setItemCheckList(event.data);
             emit(state.copyWith(
               status: ViewStatus.success,
             ));
-            print("GİRDİ CHECK 5 $data");
           },
         );
         return;
@@ -400,7 +415,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     final List<DamageResponseModel> damageResponse = state.damageResponse;
     await Future.delayed(const Duration(seconds: 1));
     damageResponse.removeWhere((element) => element.id == event.damageId);
-    print('damageResponse: $damageResponse');
+    // print('damageResponse: $damageResponse');
     emit(state.copyWith(
       status: ViewStatus.success,
       damageResponse: damageResponse,
@@ -491,7 +506,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
               status: ViewStatus.success,
               damageResponse: [data, ...state.damageResponse],
             ));
-            print("DATA BLOC GİRDİ 10");
             return;
           }
         },
@@ -529,15 +543,15 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
               categoryId: event.data.categoryId),
           issueId: DamagesIssue(
               id: event.data.issueId,
-              name: issueName.name,
+              name: issueName.name ?? "",
               partId: event.data.partId),
           failureId: DamagesFailure(
               id: event.data.failureId,
-              name: failureName.name,
+              name: failureName.name ?? "",
               issueId: event.data.issueId),
           repairId: DamagesRepair(
               id: event.data.repairId,
-              name: repairName.name,
+              name: repairName.name ?? "",
               failureId: event.data.failureId),
           damageImage: event.data.damageImage?.path ?? '',
           contextImage: event.data.contextImage?.path ?? '',
@@ -683,7 +697,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
         final resultInspectionEdit = await ProductStateItems.hiveStorageManager
             .getDamagePostModel(event.jobInspectionId);
-        print('resultInspectionDamage $resultInspectionEdit');
+        // print('resultInspectionDamage $resultInspectionEdit');
         if (resultInspectionEdit.isNotEmpty) {
           await Future.forEach(resultInspectionEdit, (item) async {
             add(PostJobInspectionsDamages(data: item!, isAsync: true));
@@ -800,7 +814,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     emit(state.copyWith(status: ViewStatus.loading));
     final inspections = await _hiveStorageManager.getInspectionsListModel();
     await Future.delayed(const Duration(seconds: 2));
-    print('inspections: $inspections');
+    // print('inspections: $inspections');
     emit(state.copyWith(
       inspections: inspections,
       status: ViewStatus.success,
@@ -821,108 +835,228 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     }
   }
 
-  Future<void> _getDamagesCategory(GetInspectionsDamagesCategory event,
-      Emitter<InspectionsState> emit) async {
-    emit(state
-        .copyWith(status: ViewStatus.loading, getDamageCategoriesResponse: []));
-
-    final result = await _hiveStorageManager.getDamageCategoryById(
-      event.damageCategoryId,
-    );
-
-    if (result != null) {
-      emit(state.copyWith(
-        selectedDamageCategory: result,
-        getDamageFailuresResponse: [],
-        getDamagePartsResponse: [],
-        getDamageIssuesResponse: [],
-        getDamageRepairsResponse: [],
-        status: ViewStatus.success,
-      ));
-    }
-  }
-
   Future<void> _getDamagesFailure(GetInspectionsDamagesFailure event,
       Emitter<InspectionsState> emit) async {
-    emit(state
-        .copyWith(status: ViewStatus.loading, getDamageFailuresResponse: []));
+    emit(state.copyWith(status: ViewStatus.loading));
     final result =
-        await _hiveStorageManager.getDamageFailures(event.damageIssueId);
+        await _hiveStorageManager.getDamageAssetsByIds(event.standarIds);
 
-    if (result != null) {
+    // Belirtilen damageCategoryId ve damagePartId'ye göre parçaları toplama
+    List<Failures> filteredParts = [];
+    for (var item in result) {
+      if (item.categories != null && item.categories!.isNotEmpty) {
+        for (var category in item.categories!) {
+          if (category.id == event.damageCategoryId) {
+            for (var part in category.parts!) {
+              if (part.id == event.damagePartId) {
+                for (var issue in part.issues!) {
+                  if (issue.id == event.damageIssueId) {
+                    filteredParts.addAll(issue.failures ?? []);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Tekrarlayan parçaları birleştirme
+    List<Failures> uniqueParts = [];
+    Set<String> seenNames = {};
+
+    for (var failure in filteredParts) {
+      if (!seenNames.contains(failure.name)) {
+        seenNames.add(failure.name ?? "");
+        uniqueParts.add(failure);
+      }
+    }
+
+    if (result.isNotEmpty) {
       emit(state.copyWith(
-        getDamageFailuresResponse: result,
-        getDamageRepairsResponse: [],
+        getDamageFailuresResponse: uniqueParts,
         status: ViewStatus.success,
+        damageCategoryId: event.damageCategoryId,
+        damagePartId: event.damagePartId,
+        damageIssueId: event.damageIssueId,
       ));
     }
   }
 
   Future<void> _getDamagesIssue(
       GetInspectionsDamagesIssue event, Emitter<InspectionsState> emit) async {
-    emit(state
-        .copyWith(status: ViewStatus.loading, getDamageIssuesResponse: []));
+    emit(state.copyWith(status: ViewStatus.loading));
     final result =
-        await _hiveStorageManager.getDamageIssues(event.damagePartId);
+        await _hiveStorageManager.getDamageAssetsByIds(event.standarIds);
 
-    if (result != null) {
+    // Belirtilen damageCategoryId ve damagePartId'ye göre parçaları toplama
+    List<Issues> filteredParts = [];
+    for (var item in result) {
+      if (item.categories != null && item.categories!.isNotEmpty) {
+        for (var category in item.categories!) {
+          if (category.id == event.damageCategoryId) {
+            for (var part in category.parts!) {
+              if (part.id == event.damagePartId) {
+                filteredParts.addAll(part.issues ?? []);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Tekrarlayan parçaları birleştirme
+    List<Issues> uniqueParts = [];
+    Set<String> seenNames = {};
+
+    for (var part in filteredParts) {
+      if (!seenNames.contains(part.name)) {
+        seenNames.add(part.name ?? "");
+        uniqueParts.add(part);
+      }
+    }
+
+    if (result.isNotEmpty) {
       emit(state.copyWith(
-        getDamageIssuesResponse: result,
-        getDamageFailuresResponse: [],
-        getDamageRepairsResponse: [],
+        getDamageIssuesResponse: uniqueParts,
         status: ViewStatus.success,
+        damageCategoryId: event.damageCategoryId,
+        damagePartId: event.damagePartId,
       ));
     }
   }
 
   Future<void> _getDamagesPart(
       GetInspectionsDamagesPart event, Emitter<InspectionsState> emit) async {
-    emit(
-        state.copyWith(status: ViewStatus.loading, getDamagePartsResponse: []));
-    final result = await _hiveStorageManager.getDamageParts(
-      event.damageCategoryId,
-    );
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result =
+        await _hiveStorageManager.getDamageAssetsByIds(event.standardIds);
 
-    print("DAMAGE PART : $result");
+    // Belirtilen damageCategoryId'ye göre parçaları toplama
+    List<Parts> combinedParts = [];
+    for (var item in result) {
+      if (item.categories != null && item.categories!.isNotEmpty) {
+        for (var category in item.categories!) {
+          if (category.id == event.damageCategoryId) {
+            combinedParts.addAll(category.parts!);
+          }
+        }
+      }
+    }
 
-    if (result != null) {
+    // Tekrarlayan parçaları birleştirme
+    List<Parts> uniqueParts = [];
+    Set<String> seenNames = {};
+
+    for (var part in combinedParts) {
+      if (!seenNames.contains(part.name)) {
+        seenNames.add(part.name ?? "");
+        uniqueParts.add(part);
+      }
+    }
+
+    if (result.isNotEmpty) {
       emit(state.copyWith(
-        getDamagePartsResponse: result,
-        getDamageIssuesResponse: [],
-        getDamageFailuresResponse: [],
-        getDamageRepairsResponse: [],
+        getDamagePartsResponse: uniqueParts,
         status: ViewStatus.success,
+        damageCategoryId: event.damageCategoryId,
       ));
     }
   }
 
   Future<void> _getDamagesRepair(
       GetInspectionsDamagesRepair event, Emitter<InspectionsState> emit) async {
-    emit(state
-        .copyWith(status: ViewStatus.loading, getDamageRepairsResponse: []));
-    final result = await _hiveStorageManager.getDamageRepairs(
-      event.damageFailureId,
-    );
+    // emit(state
+    //     .copyWith(status: ViewStatus.loading, getDamageRepairsResponse: []));
+    // final result = await _hiveStorageManager.getDamageRepairs(
+    //   event.damageFailureId,
+    // );
 
-    if (result != null) {
+    // if (result != null) {
+    //   emit(state.copyWith(
+    //     getDamageRepairsResponse: result,
+    //     status: ViewStatus.success,
+    //   ));
+    // }
+
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result =
+        await _hiveStorageManager.getDamageAssetsByIds(event.standarIds);
+
+    // Belirtilen damageCategoryId ve damagePartId'ye göre parçaları toplama
+    List<Repairs> filteredParts = [];
+    for (var item in result) {
+      if (item.categories != null && item.categories!.isNotEmpty) {
+        for (var category in item.categories!) {
+          if (category.id == event.damageCategoryId) {
+            for (var part in category.parts!) {
+              if (part.id == event.damagePartId) {
+                for (var issue in part.issues!) {
+                  if (issue.id == event.damageIssueId) {
+                    for (var failure in issue.failures!) {
+                      if (failure.id == event.damageFailureId) {
+                        filteredParts.addAll(failure.repairs ?? []);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Tekrarlayan parçaları birleştirme
+    List<Repairs> uniqueParts = [];
+    Set<String> seenNames = {};
+
+    for (var repair in filteredParts) {
+      if (!seenNames.contains(repair.name)) {
+        seenNames.add(repair.name ?? "");
+        uniqueParts.add(repair);
+      }
+    }
+
+    if (result.isNotEmpty) {
       emit(state.copyWith(
-        getDamageRepairsResponse: result,
+        getDamageRepairsResponse: uniqueParts,
         status: ViewStatus.success,
+        damageCategoryId: event.damageCategoryId,
+        damagePartId: event.damagePartId,
+        damageIssueId: event.damageIssueId,
       ));
     }
   }
 
-  Future<void> _getDamageCategories(GetInspectionsDamageCategories event,
-      Emitter<InspectionsState> emit) async {
+  Future<void> _getDamageAssets(
+      GetInspectionsDamageAssets event, Emitter<InspectionsState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _hiveStorageManager.getDamageCategories();
+    final result =
+        await _hiveStorageManager.getDamageAssetsByIds(event.standardIds);
 
-    print("DAMAGE CATEGORY : $result");
-    // print("INSPECTION ID : ${event.inspectionId}");
+    // result içindeki tüm kategorileri tek bir listeye toplama
+    List<Categories> combinedCategories = [];
+    for (var item in result) {
+      if (item.categories != null) {
+        combinedCategories.addAll(item.categories!);
+      }
+    }
 
-    if (result != []) {
+    // Tekrarlayan kategorileri birleştirme
+    List<Categories> uniqueCategories = [];
+    Set<String> seenNames = {};
+
+    for (var category in combinedCategories) {
+      if (!seenNames.contains(category.name)) {
+        seenNames.add(category.name ?? "");
+        uniqueCategories.add(category);
+      }
+    }
+
+    if (result.isNotEmpty) {
       emit(state.copyWith(
-        getDamageCategoriesResponse: result,
+        getDamageCategoriesResponse: uniqueCategories,
         status: ViewStatus.success,
       ));
     }
@@ -986,7 +1120,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       SetGetDamages event, Emitter<InspectionsState> emit) async {
     final result = await _hiveStorageManager.getGetDamage(event.inspectionId);
 
-    print("RESULT DAMAGE : $result");
+    // print("RESULT DAMAGE : $result");
 
     emit(state.copyWith(damageResponse: result));
   }
@@ -996,7 +1130,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     final result = await _hiveStorageManager.getInspectionConditionImages(
       event.inspectionId,
     );
-    print('result: $result');
+    // print('result: $result');
     emit(state.copyWith(conditionImageResponse: result));
   }
 

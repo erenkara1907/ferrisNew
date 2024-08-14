@@ -45,7 +45,7 @@ class ExpensePatchModel extends INetworkSentDataModel {
       final file = File(evidencePath.path);
 
       if (!file.existsSync()) {
-        print('File not found at path: $evidencePath');
+        // print('File not found at path: $evidencePath');
         return null;
       }
 

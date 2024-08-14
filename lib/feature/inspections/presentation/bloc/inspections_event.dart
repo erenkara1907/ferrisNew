@@ -158,35 +158,60 @@ class GetInspectionsDamagesCategory extends InspectionsEvent {
 
 class GetInspectionsDamagesFailure extends InspectionsEvent {
   final int damageIssueId;
+  final int damageCategoryId;
+  final int damagePartId;
+  final List<int> standarIds;
   const GetInspectionsDamagesFailure(
-    this.damageIssueId,
-  );
+    this.damageIssueId, {
+    required this.damageCategoryId,
+    required this.damagePartId,
+    required this.standarIds,
+  });
 }
 
 class GetInspectionsDamagesIssue extends InspectionsEvent {
   final int damagePartId;
+  final int damageCategoryId;
+  final List<int> standarIds;
   const GetInspectionsDamagesIssue(
-    this.damagePartId,
-  );
+    this.damagePartId, {
+    required this.damageCategoryId,
+    required this.standarIds,
+  });
 }
 
 class GetInspectionsDamagesPart extends InspectionsEvent {
   final int damageCategoryId;
+  final List<int> standardIds;
   const GetInspectionsDamagesPart(
     this.damageCategoryId,
+    this.standardIds,
   );
 }
 
 class GetInspectionsDamagesRepair extends InspectionsEvent {
   final int damageFailureId;
+  final int damageCategoryId;
+  final int damagePartId;
+  final int damageIssueId;
+  final List<int> standarIds;
   const GetInspectionsDamagesRepair(
-    this.damageFailureId,
-  );
+    this.damageFailureId, {
+    required this.damageCategoryId,
+    required this.damagePartId,
+    required this.standarIds,
+    required this.damageIssueId,
+  });
 }
 
 class GetInspectionsDamageCategories extends InspectionsEvent {
   // final int inspectionId;
   const GetInspectionsDamageCategories();
+}
+
+class GetInspectionsDamageAssets extends InspectionsEvent {
+  final List<int> standardIds;
+  const GetInspectionsDamageAssets({required this.standardIds});
 }
 
 class SetAllDamages extends InspectionsEvent {
@@ -261,3 +286,5 @@ class SetInspectionDetailType extends InspectionsEvent {
 class ClearInspection extends InspectionsEvent {
   const ClearInspection();
 }
+
+class ToggleButtonsEvent extends InspectionsEvent {}

@@ -89,7 +89,7 @@ class JobInspectionsSignRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
-      print('******* sign response data: ${response.data}');
+      // print('******* sign response data: ${response.data}');
       return response.data['message'];
     } on DioException catch (e) {
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
@@ -106,7 +106,7 @@ class JobInspectionsSignRemoteDataSourceImpl
   }) async {
     try {
       final response = await _networkClient.patch(
-        "${ServicePath.jobInspectionsCustomerSign.value}",
+        ServicePath.jobInspectionsCustomerSign.value,
         data: data,
         options: Options(headers: {'Accept': 'application/json'}),
       );
@@ -133,7 +133,7 @@ class JobInspectionsSignRemoteDataSourceImpl
   }) async {
     try {
       final response = await _networkClient.patch(
-        "${ServicePath.jobInspectionsInspectorSign.value}",
+        ServicePath.jobInspectionsInspectorSign.value,
         data: data,
         options: Options(headers: {'Accept': 'application/json'}),
       );

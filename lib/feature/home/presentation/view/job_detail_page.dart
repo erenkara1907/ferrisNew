@@ -87,7 +87,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
   void _initializeJob() async {
     job = await ProductStateItems.hiveStorageManager
         .getJobWorkingOnModel(int.parse(widget.jobId));
-    print("job: $job");
+    // print("job: $job");
     if (widget.asyncJob == false) {
       context.read<HomeBloc>().add(GetJob(widget.jobId));
     } else if (job != null && job!.id.toString() == widget.jobId) {
@@ -139,7 +139,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     ?.showAnyInput ==
                                 true,
                             feedbackInputAvailability:
-                                job?.movementTypeId!.feedbackInputs ?? job?.movementTypeId!.feedbackInputs,
+                                job?.movementTypeId!.feedbackInputs ??
+                                    job?.movementTypeId!.feedbackInputs,
                             context: context,
                             id: ProductStateItems.hiveDatabaseManager
                                 .getUserModel()!
@@ -229,13 +230,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   Future<void> _launchMap() async {
-    if (job == null) {
-      job = context.read<HomeBloc>().state.showJob;
-    }
+    job ??= context.read<HomeBloc>().state.showJob;
 
     _trackingCoordinate =
         await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
-    print("trackingCoordinate: $_trackingCoordinate");
+    // print("trackingCoordinate: $_trackingCoordinate");
 
     final googleMapAvailable = await MapLauncher.isMapAvailable(MapType.google);
     final appleMapAvailable = await MapLauncher.isMapAvailable(MapType.apple);
@@ -299,7 +298,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         if (widget.asyncJob == true && widget.jobId != job?.id.toString()) {
           return Scaffold(
               appBar: AppBar(
-                backgroundColor: context.theme.colorScheme.background,
+                backgroundColor: context.theme.colorScheme.surface,
               ),
               body: Center(
                 child: Column(
@@ -325,7 +324,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         if (state.status == ViewStatus.loading) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
               leading: widget.asyncJob != true
                   ? IconButton(
                       icon: const Icon(Icons.arrow_back),
@@ -343,7 +342,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         if (widget.asyncJob == true && state.showJob == null) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
             ),
             body: const Center(
               child: Text("No jobs found. Please contact the administrator."),
@@ -353,7 +352,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         if (state.showJob != null) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back,
@@ -385,7 +384,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         }
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: widget.asyncJob != true
                 ? IconButton(
                     icon: const Icon(Icons.arrow_back),
@@ -424,7 +423,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       ),
                       style: context.textTheme.headlineMedium,
                     ),
-                    SizedBox.shrink()
+                    const SizedBox.shrink()
                   ],
                 ),
                 const VerticalSpace.small(),
@@ -499,7 +498,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                               .feedbackInputs?.showAnyInput ==
                                           true,
                                   "feedbackInputAvailability":
-                                      job?.movementTypeId!.feedbackInputs ?? state.showJob?.movementTypeId!
+                                      job?.movementTypeId!.feedbackInputs ??
+                                          state.showJob?.movementTypeId!
                                               .feedbackInputs,
                                 });
                               } else {
@@ -526,8 +526,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                         state.showJob?.movementTypeId!
                                                 .feedbackInputs?.showAnyInput ==
                                             true,
-                                    "feedbackInputAvailability": job?.movementTypeId!.feedbackInputs ?? state.showJob?.movementTypeId!
-                                            .feedbackInputs,
+                                    "feedbackInputAvailability":
+                                        job?.movementTypeId!.feedbackInputs ??
+                                            state.showJob?.movementTypeId!
+                                                .feedbackInputs,
                                   });
                                 } else {
                                   context
@@ -536,7 +538,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                 }
                               }
                             })
-                        : SizedBox.shrink(),
+                        : const SizedBox.shrink(),
                     const VerticalSpace.small(),
                     if (state.showJob?.status == 1 ||
                         isStarted ||
@@ -601,6 +603,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                       context
                                           .push("/view_expenses_page", extra: {
                                         "isAsync": !result,
+                                        "jobId": state.showJob!.id,
                                       });
                                       BotToast.closeAllLoading();
                                     }),
@@ -618,10 +621,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     containerColor:
                                         context.theme.colorScheme.surface,
                                     ontap: () {
-                                      print(state.showJob!.id);
-                                      context.push(
-                                        "/expense_details",
-                                      );
+                                      context.push("/expense_details", extra: {
+                                        "jobId": state.showJob!.id,
+                                      });
                                     }),
                                 const HorizontalSpace.xxSmall(),
                                 CustomGreyAppButton(
@@ -697,11 +699,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                           //     .hiveDatabaseManager
                                           //     .getUserModel()
                                           //     ?.currentJobId);
-                                          print(state.showJob!.id);
+                                          // print(state.showJob!.id);
                                           context
                                               .push("/feedback_page", extra: {
-                                            "feedbackInputAvailability": job?.movementTypeId
-                                                    ?.feedbackInputs ?? state.showJob?.movementTypeId
+                                            "feedbackInputAvailability": job
+                                                    ?.movementTypeId
+                                                    ?.feedbackInputs ??
+                                                state.showJob?.movementTypeId
                                                     ?.feedbackInputs
                                           });
                                         }),

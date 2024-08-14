@@ -91,7 +91,8 @@ class JobInspectionsDamagesRemoteDataSourceImpl
         data: formData,
       );
 
-      print("POST DATA ITEM : ${response.data["data"]}");
+      print(
+          "POST DATA ITEM : ${response.data["data"]['jobInspectionId']['gradeId']}");
 
       if (response.data == null || response.data == null) {
         throw NullResponseException();

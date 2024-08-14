@@ -22,6 +22,7 @@ final class InspectionsState extends Equatable {
     this.selectedDamageRepair,
     this.imageCustamerFile,
     this.imageDriverFile,
+    this.getDamageAssetsResponse = const [],
     this.imageCustamerName,
     this.damageResponse = const [],
     this.conditionImageResponse = const [],
@@ -34,6 +35,10 @@ final class InspectionsState extends Equatable {
     this.conditionImages = const [],
     this.contextImage = '',
     this.damageImage = '',
+    this.areButtonsVisible = false,
+    this.damageCategoryId = 1,
+    this.damagePartId = 1,
+    this.damageIssueId = 1,
   });
 
   final ViewStatus? status;
@@ -44,11 +49,12 @@ final class InspectionsState extends Equatable {
   final List<JobInspectionAbortTypeItem> inspectionAbortTypes;
   final bool isSetInspection;
   final List<ChecklistItemOption> selectedChecklist;
-  final List<DamagesCategory?> getDamageCategoriesResponse;
-  final List<DamagesFailure> getDamageFailuresResponse;
-  final List<DamagesIssue> getDamageIssuesResponse;
-  final List<DamagesPart> getDamagePartsResponse;
-  final List<DamagesRepair> getDamageRepairsResponse;
+  final List<Categories?> getDamageCategoriesResponse;
+  final List<DamageAssetsModel?> getDamageAssetsResponse;
+  final List<Failures> getDamageFailuresResponse;
+  final List<Issues> getDamageIssuesResponse;
+  final List<Parts> getDamagePartsResponse;
+  final List<Repairs> getDamageRepairsResponse;
   final DamagesCategory? selectedDamageCategory;
   final DamagesFailure? selectedDamageFailure;
   final DamagesIssue? selectedDamageIssue;
@@ -68,6 +74,10 @@ final class InspectionsState extends Equatable {
   final List<File> conditionImages;
   final String contextImage;
   final String damageImage;
+  final bool areButtonsVisible;
+  final int damageCategoryId;
+  final int damagePartId;
+  final int damageIssueId;
 
   @override
   List<Object?> get props => [
@@ -79,7 +89,10 @@ final class InspectionsState extends Equatable {
         inspectionAbortTypes,
         isSetInspection,
         selectedChecklist,
+        damageCategoryId,
+        damagePartId,
         getDamageCategoriesResponse,
+        getDamageAssetsResponse,
         getDamageFailuresResponse,
         getDamageIssuesResponse,
         getDamagePartsResponse,
@@ -88,6 +101,7 @@ final class InspectionsState extends Equatable {
         selectedDamageFailure,
         selectedDamageIssue,
         selectedDamagePart,
+        areButtonsVisible,
         selectedDamageRepair,
         imageCustamerFile,
         imageDriverFile,
@@ -113,11 +127,12 @@ final class InspectionsState extends Equatable {
     List<JobInspectionAbortTypeItem>? inspectionAbortTypes,
     bool? isSetInspection,
     List<ChecklistItemOption>? selectedChecklist,
-    List<DamagesCategory?>? getDamageCategoriesResponse,
-    List<DamagesFailure>? getDamageFailuresResponse,
-    List<DamagesIssue>? getDamageIssuesResponse,
-    List<DamagesPart>? getDamagePartsResponse,
-    List<DamagesRepair>? getDamageRepairsResponse,
+    List<Categories?>? getDamageCategoriesResponse,
+    List<DamageAssetsModel?>? getDamageAssetsResponse,
+    List<Failures>? getDamageFailuresResponse,
+    List<Issues>? getDamageIssuesResponse,
+    List<Parts>? getDamagePartsResponse,
+    List<Repairs>? getDamageRepairsResponse,
     DamagesCategory? selectedDamageCategory,
     DamagesFailure? selectedDamageFailure,
     DamagesIssue? selectedDamageIssue,
@@ -138,11 +153,19 @@ final class InspectionsState extends Equatable {
     String? contextImage,
     String? damageImage,
     ViewStatus? inspectionStatus,
+    bool? areButtonsVisible,
+    int? damageCategoryId,
+    int? damagePartId,
+    int? damageIssueId,
   }) {
     return InspectionsState(
       status: status ?? this.status,
+      damageCategoryId: damageCategoryId ?? this.damageCategoryId,
+      damagePartId: damagePartId ?? this.damagePartId,
+      damageIssueId: damageIssueId ?? this.damageIssueId,
       failure: failure ?? this.failure,
       checklists: checklists ?? this.checklists,
+      areButtonsVisible: areButtonsVisible ?? this.areButtonsVisible,
       inspections: inspections ?? this.inspections,
       imageCustamerFile: imageCustamerFile ?? this.imageCustamerFile,
       imageDriverFile: imageDriverFile ?? this.imageDriverFile,
@@ -152,6 +175,8 @@ final class InspectionsState extends Equatable {
       imageCustamerName: imageCustamerName ?? this.imageCustamerName,
       getDamageCategoriesResponse:
           getDamageCategoriesResponse ?? this.getDamageCategoriesResponse,
+      getDamageAssetsResponse:
+          getDamageAssetsResponse ?? this.getDamageAssetsResponse,
       getDamageFailuresResponse:
           getDamageFailuresResponse ?? this.getDamageFailuresResponse,
       getDamageIssuesResponse:

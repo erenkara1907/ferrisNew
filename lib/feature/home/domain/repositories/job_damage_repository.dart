@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -21,4 +22,6 @@ abstract interface class JobDamageRepository {
 
   Future<Either<Failure, List<DamagesRepair>>> getDamageRepairs(
       {required int inspectionId, required int failureId});
+
+  Future<Either<Failure, List<DamageAssetsModel>>> getAllDamageAssets();
 }

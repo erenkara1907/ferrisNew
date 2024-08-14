@@ -1,30 +1,37 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, no_leading_underscores_for_local_identifiers
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:bot_toast/bot_toast.dart';
-import 'package:ferrisfwt/feature/home/presentation/bloc/job_expense/job_expense_bloc.dart';
-import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
-import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
-import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_post_model.dart';
-import 'package:ferrisfwt/product/state/container/product_state_items.dart';
-import 'package:ferrisfwt/product/utility/enums/view_status.dart';
-import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
-import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path/path.dart' as path;
-import 'package:ferrisfwt/product/extensions/context_extensions.dart';
-import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
-import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
-import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:ferrisfwt/feature/home/presentation/bloc/job_expense/job_expense_bloc.dart';
+import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
+import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
+import 'package:ferrisfwt/product/extensions/context_extensions.dart';
+import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_post_model.dart';
+import 'package:ferrisfwt/product/state/container/product_state_items.dart';
+import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
+import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
+import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
+import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
+import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
+
 class ExpenseDetails extends StatefulWidget {
-  const ExpenseDetails({super.key});
+  final int jobId;
+  const ExpenseDetails({
+    Key? key,
+    required this.jobId,
+  }) : super(key: key);
 
   @override
   State<ExpenseDetails> createState() => _ExpenseDetailsState();
@@ -34,8 +41,8 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
   final ScrollController _scrollController = ScrollController();
   String? _selectedLevelAtHub;
   File? _imageFile;
-  TextEditingController _priceController = TextEditingController();
-  TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController();
   FocusNode focusNode = FocusNode();
 
   Future<void> _getImage(ImageSource source) async {
@@ -102,7 +109,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
         });
         _scrollToEnd();
       } else {
-        print('No image selected.');
+        // print('No image selected.');
       }
     } catch (e) {
       print('Error: $e');
@@ -185,7 +192,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
           }
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
               leading: IconButton(
                 icon: Icon(
                   Icons.cancel_outlined,
@@ -268,7 +275,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         _imageFile == null
-                            ? Container(
+                            ? SizedBox(
                                 height: context.dynamicHeight(0.15),
                                 width: context.dynamicWidth(0.90),
                                 child: CustomJobTextfield(
@@ -341,14 +348,21 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                                   "Please upload a receipt or provide a reason why no receipt is uploaded");
                           return;
                         }
+                        String? _currentJobId = "";
+                        // ignore: unused_local_variable
+                        if (ProductStateItems.hiveDatabaseManager
+                                .getUserModel() !=
+                            null) {
+                          _currentJobId = ProductStateItems.hiveDatabaseManager
+                              .getUserModel()!
+                              .currentJobId
+                              .toString();
+                        }
                         context.read<JobExpenseBloc>().add(PostExpense(
                             ExpensePostModel(
-                              jobId: int.parse(
-                                ProductStateItems.hiveDatabaseManager
-                                        .getUserModel()
-                                        ?.currentJobId ??
-                                    "0",
-                              ),
+                              jobId: _currentJobId != ""
+                                  ? int.parse(_currentJobId)
+                                  : widget.jobId,
                               reasonNoReceipt: _reasonController.text != ""
                                   ? _reasonController.text
                                   : null,

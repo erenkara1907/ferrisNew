@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'damage_grade_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class DamageGradeModelAdapter extends TypeAdapter<DamageGradeModel> {
   @override

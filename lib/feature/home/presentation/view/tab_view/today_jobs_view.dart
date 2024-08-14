@@ -115,17 +115,16 @@ class _TodayJobsViewState extends State<TodayJobsView> {
               )
             : ListView.separated(
                 padding: EdgeInsets.zero,
-                itemCount: sortedJobs.length,
+                itemCount: widget.homeState.jobs.length,
                 itemBuilder: (BuildContext context, int index) {
                   return CustomCard(
                     onChanged: (value) async {
                       if (value == true) {
-                        context
-                            .read<HomeBloc>()
-                            .add(ConfirmJob(sortedJobs[index].id, false));
+                        context.read<HomeBloc>().add(
+                            ConfirmJob(widget.homeState.jobs[index].id, false));
                       }
                     },
-                    jobModel: sortedJobs[index],
+                    jobModel: widget.homeState.jobs[index],
                     isToday: true,
                   );
                 },

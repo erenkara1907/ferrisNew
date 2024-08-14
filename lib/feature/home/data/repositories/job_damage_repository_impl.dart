@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:ferrisfwt/feature/home/data/datasources/remote/job_damage_datasource.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
@@ -94,6 +95,20 @@ final class JobDamageRepositoryImpl implements JobDamageRepository {
     try {
       final response = await _dataSource.getDamageRepairs(
           inspectionId: inspectionId, failureId: failureId);
+      return right(response);
+    } on DioException {
+      return left(NetworkFailure());
+    } on NullResponseException {
+      return left(NullResponseFailure());
+    } catch (e) {
+      return left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DamageAssetsModel>>> getAllDamageAssets() async {
+    try {
+      final response = await _dataSource.getAllDamageAssets();
       return right(response);
     } on DioException {
       return left(NetworkFailure());
