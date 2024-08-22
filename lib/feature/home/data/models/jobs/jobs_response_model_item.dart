@@ -103,10 +103,41 @@ class JobsResponseModelItem implements IResponseModel {
   final String? checkpoint2AddressPostalCode;
   @HiveField(44)
   final String? checkpoint3AddressPostalCode;
+  @HiveField(45)
+  final String? billableHoursStartTime;
+  @HiveField(46)
+  final String? billableHoursEndTime;
+  @HiveField(47)
+  final String? predictedCheckpoint1ArrivedTime;
+  @HiveField(48)
+  final String? predictedCheckpoint1DepartedTime;
+  @HiveField(49)
+  final String? predictedCheckpoint2ArrivedTime;
+  @HiveField(50)
+  final String? predictedCheckpoint2DepartedTime;
+  @HiveField(51)
+  final String? predictedCheckpoint3ArrivedTime;
+  @HiveField(52)
+  final String? predictedCheckpoint3DepartedTime;
+  @HiveField(53)
+  final String? startAddressLabel;
+  @HiveField(54)
+  final String? endAddressLabel;
+  @HiveField(55)
+  final String? checkpoint1AddressLabel;
+  @HiveField(56)
+  final String? checkpoint2AddressLabel;
+  @HiveField(57)
+  final String? checkpoint3AddressLabel;
 
   JobsResponseModelItem({
     required this.id,
     this.clientId,
+    this.startAddressLabel,
+    this.endAddressLabel,
+    this.checkpoint1AddressLabel,
+    this.checkpoint2AddressLabel,
+    this.checkpoint3AddressLabel,
     this.driverId,
     this.vehicleId,
     this.movementTypeId,
@@ -149,7 +180,15 @@ class JobsResponseModelItem implements IResponseModel {
     this.isVisibleEndAddress,
     this.checkpoint1AddressPostalCode,
     this.checkpoint2AddressPostalCode,
+    this.billableHoursStartTime,
+    this.billableHoursEndTime,
     this.checkpoint3AddressPostalCode,
+    this.predictedCheckpoint1ArrivedTime,
+    this.predictedCheckpoint1DepartedTime,
+    this.predictedCheckpoint2ArrivedTime,
+    this.predictedCheckpoint2DepartedTime,
+    this.predictedCheckpoint3ArrivedTime,
+    this.predictedCheckpoint3DepartedTime,
   });
 
   factory JobsResponseModelItem.fromJson(String json) {
@@ -159,10 +198,10 @@ class JobsResponseModelItem implements IResponseModel {
   factory JobsResponseModelItem.fromMap(Map<String, dynamic> map) {
     final result = JobsResponseModelItem(
       id: map['id'] as int,
-      clientId: map['clientId'] == null
+      clientId: map['subClientId'] == null
           ? null
           : ClientResponseModel.fromMap(
-              map['clientId'] as Map<String, dynamic>),
+              map['subClientId'] as Map<String, dynamic>),
       driverId: map['driverId'] == null
           ? null
           : UserResponseModel.fromMap(map['driverId'] as Map<String, dynamic>),
@@ -179,6 +218,11 @@ class JobsResponseModelItem implements IResponseModel {
               ? null
               : TrackingStatusModel.fromMap(map['trackingStatusId']),
       regNumber: map['regNumber'] as String?,
+      startAddressLabel: map['startAddressLabel'] as String?,
+      endAddressLabel: map['endAddressLabel'] as String?,
+      checkpoint1AddressLabel: map['checkpoint1AddressLabel'] as String?,
+      checkpoint2AddressLabel: map['checkpoint2AddressLabel'] as String?,
+      checkpoint3AddressLabel: map['checkpoint3AddressLabel'] as String?,
       customerName: map['customerName'] as String?,
       customerEmail: map['customerEmail'] as String?,
       customerContactNumber: map['customerContactNumber'] as String?,
@@ -235,6 +279,20 @@ class JobsResponseModelItem implements IResponseModel {
       inspectionsCount: map['inspectionsCount'] as int?,
       predictedStartLocationTime: map['predictedStartLocationTime'] as String?,
       predictedEndLocationTime: map['predictedEndLocationTime'] as String?,
+      billableHoursStartTime: map['billableHoursStartTime'] as String?,
+      billableHoursEndTime: map['billableHoursEndTime'] as String?,
+      predictedCheckpoint1ArrivedTime:
+          map['predictedCheckpoint1ArrivedTime'] as String?,
+      predictedCheckpoint1DepartedTime:
+          map['predictedCheckpoint1DepartedTime'] as String?,
+      predictedCheckpoint2ArrivedTime:
+          map['predictedCheckpoint2ArrivedTime'] as String?,
+      predictedCheckpoint2DepartedTime:
+          map['predictedCheckpoint2DepartedTime'] as String?,
+      predictedCheckpoint3ArrivedTime:
+          map['predictedCheckpoint3ArrivedTime'] as String?,
+      predictedCheckpoint3DepartedTime:
+          map['predictedCheckpoint3DepartedTime'] as String?,
       expensesTotalCost: map['expensesTotalCost'] is int
           ? (map['expensesTotalCost'] as int).toDouble()
           : map['expensesTotalCost'] as double?,

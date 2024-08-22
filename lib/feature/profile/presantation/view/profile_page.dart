@@ -23,9 +23,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: context.theme.colorScheme.surfaceVariant,
+          backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.surfaceVariant,
+            backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
             title: Text(
               "Profile",
               style: context.textTheme.headlineMedium,
@@ -97,29 +97,28 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         children: [
                           ProfilPageItem(
-                              icon: "assets/images/icons/logout.svg",
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => QuestionPopup(
-                                        actionButtonText: 'Log out',
-                                        title: 'Log out',
-                                        description:
-                                            'Are you sure you want to log out?"',
-                                        actionButtonOnPressed: () async {
-                                          final id = await FirebaseMessaging
-                                              .instance
-                                              .getToken();
-                                          context.read<AuthBloc>().add(
-                                              LogoutEvent(
-                                                  deviceToken: id ?? ''));
+                            icon: "assets/images/icons/logout.svg",
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => QuestionPopup(
+                                      actionButtonText: 'Log out',
+                                      title: 'Log out',
+                                      description:
+                                          'Are you sure you want to log out?"',
+                                      actionButtonOnPressed: () async {
+                                        final id = await FirebaseMessaging
+                                            .instance
+                                            .getToken();
+                                        context.read<AuthBloc>().add(
+                                            LogoutEvent(deviceToken: id ?? ''));
 
-                                          context.go('/sign_in_page');
-                                        },
-                                        iconPath:
-                                            'assets/images/fr_logout.png'));
-                              },
-                              title: "Log Out"),
+                                        context.go('/sign_in_page');
+                                      },
+                                      iconPath: 'assets/images/fr_logout.png'));
+                            },
+                            title: "Log Out",
+                          ),
                         ],
                       ))
                 ],

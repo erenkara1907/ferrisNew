@@ -14,7 +14,8 @@ class CubitPermissions extends Cubit<StatePermissions> {
 
   /// Check permissions and update the state.
   checkPermissions() async {
-    final location = await requestLocation();
+    print("Check Permission");
+    bool location = await requestLocation();
     bool camera = await PermissionHandlerManager().checkCamera();
     bool notification = await PermissionHandlerManager().checkNotification();
     emit(StatePermissions(
@@ -25,11 +26,43 @@ class CubitPermissions extends Cubit<StatePermissions> {
   }
 
   /// Request the location permission.
+  // Future<bool> requestLocation() async {
+  //   print("Location Girdi State : ${state.location}");
+  //   if (state.location) {
+  //     await PermissionHandlerManager().checkLocationAlways();
+  //     return true;
+  //   }
+  //   final result = await PermissionHandlerManager().requestLocationPermission();
+  //   print("Location Girdi : $result");
+
+  //   if (result) {
+  //     await PermissionHandlerManager().checkLocationAlways();
+  //   }
+
+  //   emit(state.copyWith(location: result));
+  //   return result;
+  // }
+
   Future<bool> requestLocation() async {
-    if (state.location) return true;
+    print("Location izni durumu: ${state.location}");
+
+    if (state.location) {
+      // Eğer already izin verilmişse, location always iznini kontrol edin.
+      return await PermissionHandlerManager().requestLocationAlwaysPermission();
+    }
+
+    // İlk olarak location iznini isteyin.
     final result = await PermissionHandlerManager().requestLocationPermission();
 
+    print("Location izni sonucu: $result");
+
+    // Eğer location izni verildiyse, location always iznini kontrol edin.
+    if (result) {
+      await PermissionHandlerManager().requestLocationAlwaysPermission();
+    }
+
     emit(state.copyWith(location: result));
+
     return result;
   }
 

@@ -9,6 +9,8 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class AuthRemoteDataSource {
   Future<LoginResponseModel> login({
     required String email,
@@ -74,11 +76,12 @@ class AuthRemoteDataSourceImpl
       final data = response.data['data'] as Map<String, dynamic>;
 
       return LoginResponseModel.fromJson(data);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

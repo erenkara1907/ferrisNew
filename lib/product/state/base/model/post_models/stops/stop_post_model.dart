@@ -5,6 +5,8 @@ import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/i_network_sent_data_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../../../../utility/error_handler/sentry_error_handler.dart';
+
 part 'stop_post_model.g.dart';
 
 @HiveType(typeId: 171)
@@ -63,13 +65,14 @@ class StopPostModel extends INetworkSentDataModel {
           );
           multipartFiles.add(multipartFile);
         } else {
-          print('File not found at path: $path');
+          // print('File not found at path: $path');
         }
 
         // Add the MultipartFile to the list
-      } catch (e) {
-        print('Error processing file at path: $path');
-        print(e.toString());
+      } catch (e, s) {
+        SentryErrorHandler.instance.capture(e, stackTrace: s);
+        // print('Error processing file at path: $path');
+
         // Handle the error as needed
       }
     }

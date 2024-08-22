@@ -24,7 +24,7 @@ final class ApplicationInitialize {
     await runZonedGuarded<Future<void>>(
       _initialize,
       (error, stack) {
-        Logger().e(error);
+        Logger().e(error, stackTrace: stack);
       },
     );
   }

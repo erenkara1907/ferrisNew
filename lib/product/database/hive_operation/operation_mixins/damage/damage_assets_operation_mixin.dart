@@ -10,13 +10,9 @@ mixin DamageAssetsOperationMixin {
   Future<void> addDamageAssetsToTable(List<DamageAssetsModel> data) async {
     final box = _damageAssets;
 
-    // print("DATA HIVE : $data");
-
     for (final post in data) {
       await box.put(post.id, post);
     }
-
-    // print("Keys after adding: ${box.keys.toList()}");
   }
 
   /// Get all damage categories from the Hive box.
@@ -25,27 +21,11 @@ mixin DamageAssetsOperationMixin {
 
     final keys = box.keys.toList();
 
-    // print("KEYS : $keys");
-
     for (final key in keys) {
       box.get(key);
     }
     return keys.map((key) => box.get(key)).toList();
   }
-
-  // Future<DamageAssetsModel?> getDamageAssetsById(int standardId) async {
-  //   final box = _damageAssets;
-  //   final keys = box.keys.toList();
-
-  //   for (final key in keys) {
-  //     final damageAssets = box.get(key);
-  //     if (damageAssets!.id == standardId) {
-  //       return damageAssets;
-  //     }
-  //   }
-
-  //   return null;
-  // }
 
   Future<List<DamageAssetsModel>> getDamageAssetsByIds(
       List<int> standardIds) async {

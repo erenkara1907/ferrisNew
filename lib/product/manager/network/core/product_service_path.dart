@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../utility/error_handler/sentry_error_handler.dart';
+
 enum ServicePath {
   login('/api/v1/auth/login'),
   verifyOtp("/api/v1/auth/verify-otp"),
@@ -14,9 +16,14 @@ enum ServicePath {
   jobStops("/api/v1/job-stops"),
   jobsStopCategories("/api/v1/job-stop-categories"),
   jobTrackings("/api/v1/job-tracking-cordinates"),
+  jobTrackingsBulk("/api/v1/job-tracking-cordinates/bulk"),
   jobConditionImage("/api/v1/job-inspection-condition-images"),
   damageCategories("/api/v1/categories"),
   getAllDamageAssets("/api/v1/get-all-damage-assets"),
+  getAllDamageCombination("/api/v1/damage-combinations"),
+  getAllGrade("/api/v1/grades"),
+  getAllGradeRule("/api/v1/grade-rules"),
+  getAllGradeRuleUplift("/api/v1/grade-rule-uplifts"),
   jobInspectionsDamages("/api/v1/damages"),
   jobInspectionsCheckList("/api/v1/job-inspection-checklists"),
   damageFailures("/api/v1/failures"),
@@ -30,7 +37,8 @@ enum ServicePath {
   jobInspectionsAbortTypes("/api/v1/job-inspection-abort-types"),
   jobInspectionsCustomerSign("/api/v1/job-inspections/customer-sign"),
   jobInspectionsInspectorSign("/api/v1/job-inspections//inspector-sign"),
-  job("/api/v1/jobs");
+  job("/api/v1/jobs"),
+  jobPrice("/api/v1/pricing-templates");
 
   final String value;
   const ServicePath(this.value);
@@ -60,7 +68,8 @@ final class NetworkSpeedChecker {
         // İndirme başarısız olduysa zayıf sinyal olarak kabul et
         return true; // Hata durumunda zayıf sinyal
       }
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       // İstisna durumunda zayıf sinyal olarak kabul et
       return true; // İstisna durumunda zayıf sinyal
     }

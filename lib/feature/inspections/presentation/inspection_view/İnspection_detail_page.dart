@@ -76,7 +76,17 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       ontap: () {
                         context.push("/edit_details_page", extra: {
                           "jobInspectionId": widget.inspection.id,
-                          "inspection": widget.inspection
+                          "inspection": widget.inspection,
+                          "odo": widget.inspection.odoReading == null
+                              ? state.odo == 0
+                                  ? ''
+                                  : "${state.odo.toInt()}"
+                              : "${state.odo == 0 ? widget.inspection.odoReading!.toInt() : state.odo.toInt()}",
+                          "fuelLevel": widget.inspection.fuelLevel == null
+                              ? state.fuelLevel == 0
+                                  ? '-'
+                                  : "${state.fuelLevel.toString()}%"
+                              : '${state.fuelLevel == 0 ? widget.inspection.fuelLevel : state.fuelLevel}%',
                         });
                       }),
                   const HorizontalSpace.xSmall(),
@@ -161,8 +171,8 @@ class JobInspectionDetailWidget extends StatelessWidget {
     //             "-"
     //         : "-");
 
-    final gradeText = state.damageResponse.isNotEmpty
-        ? state.damageResponse[state.damageResponse.length - 1].gradeId
+    final gradeText = state.gradeId != ""
+        ? state.gradeId
         : inspection.gradleItem != null
             ? inspection.gradleItem!.name
             : "-";
@@ -224,6 +234,9 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
+                        // inspection.gradleItem != null
+                        //     ? inspection.gradleItem!.name ?? "-"
+                        //     : "-",
                         gradeText ?? "-",
                         style: context.textTheme.bodySmall,
                       ),

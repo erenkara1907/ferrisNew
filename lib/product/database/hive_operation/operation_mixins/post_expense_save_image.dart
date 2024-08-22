@@ -14,7 +14,8 @@ mixin PostExpenseSaveImageOperationMixin {
         (element) => element.price == price && element.categoryId == categoryId,
       );
       return expense;
-    } catch (e) {
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
       return null;
     }
   }

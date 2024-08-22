@@ -11,6 +11,9 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/start_job_po
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_status_post_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+import '../models/job_start/job_start_model.dart';
+
 final class JobRepositoryImpl implements JobRepository {
   JobRepositoryImpl({required JobRemoteDataSource dataSource})
       : _dataSource = dataSource;
@@ -27,12 +30,11 @@ final class JobRepositoryImpl implements JobRepository {
         status: status ?? '',
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
       return left(UnknownFailure());
     }
   }
@@ -44,18 +46,17 @@ final class JobRepositoryImpl implements JobRepository {
     try {
       final response = await _dataSource.getJobShow(id: id);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
 
   @override
-  Future<Either<Failure, String>> startJob({
+  Future<Either<Failure, List<JobStartModel>>> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) async {
@@ -65,12 +66,11 @@ final class JobRepositoryImpl implements JobRepository {
         jobId: jobId,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -86,12 +86,11 @@ final class JobRepositoryImpl implements JobRepository {
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -107,12 +106,11 @@ final class JobRepositoryImpl implements JobRepository {
         updateJobStatusPostModel: updateJobStatusPostModel,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -123,12 +121,11 @@ final class JobRepositoryImpl implements JobRepository {
     try {
       final response = await _dataSource.getJobValetStandards();
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -141,12 +138,11 @@ final class JobRepositoryImpl implements JobRepository {
     try {
       final response = await _dataSource.showJobValetStandards(id: id);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -158,12 +154,28 @@ final class JobRepositoryImpl implements JobRepository {
     try {
       final response = await _dataSource.confirmJob(jobId: id);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
+      return left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<JobStartModel>>> getJobPrice(
+      {required int jobId}) async {
+    try {
+      final response = await _dataSource.getJobPrice(
+        jobId: jobId,
+      );
+      return right(response);
+    } on NullResponseException {
+      return left(NullResponseFailure());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }

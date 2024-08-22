@@ -82,8 +82,8 @@ abstract final class Locator {
       ..registerFactory(() => AuthBloc(ucGetAuth: _instance()))
       ..registerFactory(() => StopJobBloc(ucGetJobStop: _instance()))
       ..registerFactory(() => JobExpenseBloc(ucGetJobExpense: _instance()))
-      ..registerFactory(() => JobDamageBloc(
-          ucGetJobDamage: _instance(), ucGetInspectionsDamage: _instance()))
+      ..registerFactory(() => JobDamageBloc(ucGetJobDamage: _instance()))
+      // ucGetJobDamage: _instance(), ucGetInspectionsDamage: _instance()))
       ..registerFactory(() => CubitPermissions())
       ..registerFactory(() => InspectionsBloc(
           ucGetJobInspections: _instance(),

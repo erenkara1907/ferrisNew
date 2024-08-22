@@ -14,6 +14,34 @@ class GetAllDamageAssets extends JobDamageEvent {
   List<Object> get props => [];
 }
 
+class GetAllDamageCombination extends JobDamageEvent {
+  const GetAllDamageCombination();
+
+  @override
+  List<Object> get props => [];
+}
+
+class GetAllGrade extends JobDamageEvent {
+  const GetAllGrade();
+
+  @override
+  List<Object> get props => [];
+}
+
+class GetAllGradeRule extends JobDamageEvent {
+  const GetAllGradeRule();
+
+  @override
+  List<Object> get props => [];
+}
+
+class GetAllGradeRuleUplift extends JobDamageEvent {
+  const GetAllGradeRuleUplift();
+
+  @override
+  List<Object> get props => [];
+}
+
 class GetDamageCategories extends JobDamageEvent {
   final int inspectionId;
   const GetDamageCategories(this.inspectionId);

@@ -18,7 +18,7 @@ class TrackingCoordinatesResponseModelItem extends Equatable {
   @HiveField(4)
   final double? longitude;
 
-  TrackingCoordinatesResponseModelItem({
+  const TrackingCoordinatesResponseModelItem({
     required this.id,
     required this.jobId,
     required this.addedTime,
@@ -47,9 +47,9 @@ class TrackingCoordinatesResponseModelItem extends Equatable {
   factory TrackingCoordinatesResponseModelItem.fromMap(
       Map<String, dynamic> map) {
     return TrackingCoordinatesResponseModelItem(
-      id: map['id'] == null ? null : map['id'],
+      id: map['id'],
       jobId: map['jobId'] is int? ? map['jobId'] : map['jobId']['id'],
-      addedTime: map['addedTime'] == null ? null : map['addedTime'],
+      addedTime: map['addedTime'],
       latitude: map['latitude'] is double
           ? map['latitude']
           : double.parse(map['latitude']),

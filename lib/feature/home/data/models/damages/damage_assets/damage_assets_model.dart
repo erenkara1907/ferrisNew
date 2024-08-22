@@ -314,7 +314,7 @@ class AuthUser {
   String? email;
 
   @HiveField(3)
-  MainClientId? mainClientId;
+  DamageAssetsMainClientId? mainClientId;
 
   AuthUser({this.id, this.name, this.email, this.mainClientId});
 
@@ -324,7 +324,7 @@ class AuthUser {
       name: json['name'],
       email: json['email'],
       mainClientId: json['mainClientId'] != null
-          ? MainClientId.fromJson(json['mainClientId'])
+          ? DamageAssetsMainClientId.fromJson(json['mainClientId'])
           : null,
     );
   }
@@ -339,15 +339,15 @@ class AuthUser {
   }
 }
 
-@HiveType(typeId: 129)
-class MainClientId {
+@HiveType(typeId: 133)
+class DamageAssetsMainClientId {
   @HiveField(0)
   int? id;
 
-  MainClientId({this.id});
+  DamageAssetsMainClientId({this.id});
 
-  factory MainClientId.fromJson(Map<String, dynamic> json) {
-    return MainClientId(
+  factory DamageAssetsMainClientId.fromJson(Map<String, dynamic> json) {
+    return DamageAssetsMainClientId(
       id: json['id'],
     );
   }

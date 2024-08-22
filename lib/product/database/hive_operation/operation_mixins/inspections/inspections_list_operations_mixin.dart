@@ -33,14 +33,50 @@ mixin InspectionsListOperationsMixin {
       }
     }
 
-    print('$data inspections saved.}');
+    // print('$data inspections saved.}');
   }
+
+  // Future<void> updateInspectionsListModel(
+  //     JobInspectionResponseModelItem data) async {
+  //       List<JobInspectionResponseModelItem?> currentJobInspection = await getInspectionsListModel();
+  //   final box = await _jobInspectionsBox;
+
+  //   await box.put(data.id, data);
+  // }
 
   Future<void> updateInspectionsListModel(
       JobInspectionResponseModelItem data) async {
+    // Mevcut job inspection listesini al
+    List<JobInspectionResponseModelItem?> currentJobInspection =
+        await getInspectionsListModel();
+
     final box = await _jobInspectionsBox;
 
-    await box.put(data.id, data);
+    // Mevcut listedeki öğeyi bulup güncelle
+    for (int i = 0; i < currentJobInspection.length; i++) {
+      if (currentJobInspection[i]?.id == data.id) {
+        // Güncellenmiş öğeyi elde et
+        final updatedItem = currentJobInspection[i]!.copyWith(
+          gradleItem: GradeId(
+            id: data.gradleItem!.id,
+            name: "${data.gradleItem!.name}",
+            order: data.gradleItem!.order,
+          ),
+        );
+
+        // Listede ilgili öğeyi güncelle
+        currentJobInspection[i] = updatedItem;
+
+        break;
+      }
+    }
+
+    // Güncellenmiş listeyi geri kutuya kaydet
+    for (final item in currentJobInspection) {
+      if (item != null) {
+        await box.put(item.id, item); // Her bir öğeyi kutuya geri koy
+      }
+    }
   }
 
   /// Returns the job working on. If there is no job working on, it will return null.
@@ -54,6 +90,23 @@ mixin InspectionsListOperationsMixin {
       futures.add(future);
     }
     return Future.wait(futures);
+  }
+
+  Future<JobInspectionResponseModelItem?> getInspectionById(
+      int inspectionId) async {
+    final box = await _jobInspectionsBox; // _jobInspectionsBox'tan veriyi al
+    final keys = box.keys.toList(); // Box'taki tüm anahtarları al
+
+    for (final key in keys) {
+      final jobInspection =
+          await box.get(key); // Her bir anahtara göre JobInspection öğesini al
+      if (jobInspection?.id == inspectionId) {
+        // Eğer inspectionId ile eşleşen öğe varsa
+        return jobInspection; // O öğeyi döndür
+      }
+    }
+
+    return null; // Eğer eşleşen bir öğe bulunamazsa null döndür
   }
 
   Future<void> deleteInspectionListModel(int inspectionId) async {

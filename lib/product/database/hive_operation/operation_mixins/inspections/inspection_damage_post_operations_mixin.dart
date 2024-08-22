@@ -18,11 +18,30 @@ mixin InspectionDamagePostOperationsMixin {
 
   /// Saves the given job as the job working on.
   /// If [job] is null, it will remove the job working on
-  Future<void> setDamagePostModel(
-    InspectionDamagePostModel data,
-  ) async {
+  // Future<void> setDamagePostModel(
+  //   InspectionDamagePostModel data,
+  // ) async {
+  //   final box = await _inspectionsDamageBox;
+
+  //   return box.put(data.jobInspectionId, data);
+  // }
+
+  Future<void> setDamagePostModel(InspectionDamagePostModel data) async {
     final box = await _inspectionsDamageBox;
-    return box.put(data.jobInspectionId, data);
+    final keys = box.keys.toList();
+
+    // Mevcut verilerin sayısını belirle
+    int count = 0;
+    for (final key in keys) {
+      final inspectionDetailsPostModel = await box.get(key);
+      if (inspectionDetailsPostModel?.jobInspectionId == data.jobInspectionId) {
+        count++;
+      }
+    }
+
+    // Yeni veriyi, benzersiz bir anahtar ile sakla
+    final newKey = '${data.jobInspectionId}_$count';
+    await box.put(newKey, data);
   }
 
   /// Returns the job working on. If there is no job working on, it will return null.

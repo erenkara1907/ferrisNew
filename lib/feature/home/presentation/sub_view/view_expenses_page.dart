@@ -151,6 +151,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const VerticalSpace.standard(),
                   Text(
                     "View Expenses",
                     style: context.textTheme.headlineMedium

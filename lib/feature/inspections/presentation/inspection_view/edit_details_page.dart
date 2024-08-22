@@ -19,8 +19,15 @@ import 'package:go_router/go_router.dart';
 class EditDetailsPage extends StatefulWidget {
   final int jobInspectionId;
   final JobInspectionResponseModelItem inspection;
-  const EditDetailsPage(
-      {super.key, required this.jobInspectionId, required this.inspection});
+  final String odo;
+  final String fuelLevel;
+  const EditDetailsPage({
+    super.key,
+    required this.jobInspectionId,
+    required this.inspection,
+    required this.odo,
+    required this.fuelLevel,
+  });
 
   @override
   State<EditDetailsPage> createState() => _EditDetailsPageState();
@@ -60,7 +67,7 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
             },
           ),
           centerTitle: true,
-          backgroundColor: context.theme.colorScheme.background,
+          backgroundColor: context.theme.colorScheme.surface,
           title: Text(
             'Details',
             style: context.textTheme.titleSmall,
@@ -91,16 +98,12 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
                   CustomJobTextfield(
                     keyboardType: TextInputType.number,
                     text: "Odo Reading(Miles)",
-                    hintText: widget.inspection.odoReading == null
-                        ? ''
-                        : "${state.odo == 0.0 ? widget.inspection.odoReading : state.odo}",
+                    hintText: widget.odo,
                     controller: _odoReadingController,
                   ),
                   const VerticalSpace.small(),
                   DropdownButtonWidget(
-                    hintText: widget.inspection.fuelLevel == null
-                        ? '%'
-                        : '${state.fuelLevel == 0 ? widget.inspection.fuelLevel : state.fuelLevel}%',
+                    hintText: widget.fuelLevel,
                     items: fuelLevel.map((int value) {
                       return DropdownMenuItem<String>(
                         value: value.toString(),

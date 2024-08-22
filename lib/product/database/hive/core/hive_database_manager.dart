@@ -7,9 +7,13 @@ import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_parts/damage_part.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_repairs/damage_repair.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade/grade_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_categories_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_patch_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expenses_response_model_item.dart';
+import 'package:ferrisfwt/feature/home/data/models/job_start/job_start_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_stop/stop_categories_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/valet_standard/valet_standard_response_model_item.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/checklist/checklist_response_model_item.dart';
@@ -26,6 +30,9 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../../../feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
+import '../../../state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
 
 @immutable
 final class HiveDatabaseManager {
@@ -49,11 +56,13 @@ final class HiveDatabaseManager {
     Hive.registerAdapter(ConditionImageResponseModelAdapter());
     Hive.registerAdapter(DamageResponseModelAdapter());
     Hive.registerAdapter(ExpensePostModelAdapter());
+    Hive.registerAdapter(InspectionInspectorSignPostModelAdapter());
     Hive.registerAdapter(ExpensesResponseModelItemAdapter());
     Hive.registerAdapter(ExpensePatchResponseModelAdapter());
     Hive.registerAdapter(UpdateJobStatusPostModelAdapter());
 
     await Hive.openBox<UserModel>(HiveDatabaseConstants.userModelBox);
+    await Hive.openBox<JobStartModel>(HiveDatabaseConstants.jobStartModelBox);
     await Hive.openBox<int>(HiveDatabaseConstants.themeModeBox);
     await Hive.openBox<StopCategoriesResponseModelItem>(
         HiveDatabaseConstants.jobStopCategoriesBox);
@@ -65,6 +74,13 @@ final class HiveDatabaseManager {
         HiveDatabaseConstants.damageCategoryBox);
     await Hive.openBox<DamageAssetsModel>(
         HiveDatabaseConstants.damageAssetsBox);
+    await Hive.openBox<DamageCombinationModel>(
+        HiveDatabaseConstants.damageCombinationBox);
+    await Hive.openBox<GradeModel>(HiveDatabaseConstants.gradeBox);
+    await Hive.openBox<GradeRuleModel>(HiveDatabaseConstants.gradeRuleBox);
+    await Hive.openBox<GradeRuleUpliftModel>(
+        HiveDatabaseConstants.gradeRuleUpliftBox);
+    await Hive.openBox(HiveDatabaseConstants.location);
 
     await Hive.openBox<DamagesIssue>(HiveDatabaseConstants.damageIssueBox);
     await Hive.openBox<DamagesFailure>(HiveDatabaseConstants.damageFailureBox);
@@ -85,7 +101,7 @@ final class HiveDatabaseManager {
         HiveDatabaseConstants.getDamages);
     await Hive.openBox<InspectionChecklistPostModel>(
         HiveDatabaseConstants.itemcheckListBox);
-    await Hive.openBox<InspectionConditionImagePostModel>(
+    await Hive.openBox<ConditionImageResponseModel>(
         HiveDatabaseConstants.conditionImage);
     await Hive.openBox<InspectionDamagePostModel>(
         HiveDatabaseConstants.recordedDamages);
@@ -201,6 +217,7 @@ final class HiveDatabaseManager {
 
   Future<void> deleteUserModel() async {
     await userModelBoxHive.delete(HiveDatabaseConstants.userModel);
+    await userModelBoxHive.clear();
   }
 
   Future<void> deleteUserToken() async {

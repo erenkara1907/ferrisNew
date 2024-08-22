@@ -15,14 +15,17 @@ import 'package:go_router/go_router.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 mixin LandingMixin on BaseMixin<LandingPage> {
   late final HiveDatabaseManager userHiveOperation;
 
   bool checkedLogin = false;
 
   Future<void> checkUserLogin() async {
+    context.read<CubitPermissions>().checkPermissions();
     if (!checkedLogin) {
-      final user = userHiveOperation.getUserModel()?.token;
+      final user = ProductStateItems.hiveDatabaseManager.getUserModel()?.token;
       if (user != null && user != "") {
         if (!await LocationServiceManager().isServiceStarted()) {
           await LocationServiceManager().startService();
@@ -36,9 +39,11 @@ mixin LandingMixin on BaseMixin<LandingPage> {
   }
 
   Future<void> checkLoginStatus() async {
+    print("GİRDİ PERMİSSİON");
     final user = userHiveOperation.getUserModel();
     context.read<CubitPermissions>().checkPermissions();
     await checkInternetConnection();
+
     context.read<AuthBloc>().add(const SetDeviceIdEvent());
     context.read<HomeBloc>().add(const GetJobs());
     context.read<HomeBloc>().add(const GetJobTomorrow());
@@ -47,16 +52,18 @@ mixin LandingMixin on BaseMixin<LandingPage> {
     context.read<StopJobBloc>().add(const GetJobStopsCategories());
     context.read<JobExpenseBloc>().add(const GetExpenseCategories());
     context.read<JobDamageBloc>().add(const GetAllDamageAssets());
-    // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
-    // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
-    // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));
-    // context.read<JobDamageBloc>().add(const GetDamageParts(1, 1));
-    // context.read<JobDamageBloc>().add(const GetDamageRepairs(1, 1));
+    context.read<JobDamageBloc>().add(const GetAllDamageCombination());
+    context.read<JobDamageBloc>().add(const GetAllGrade());
+    context.read<JobDamageBloc>().add(const GetAllGradeRule());
+    context.read<JobDamageBloc>().add(const GetAllGradeRuleUplift());
     context.read<StopJobBloc>().add(const SetJobStop());
 
     context.read<AuthBloc>().add(const GetUserEvent());
     if (userHiveOperation.getUserModel()?.currentJobId != null &&
         userHiveOperation.getUserModel()?.currentJobId != "") {
+      context
+          .read<HomeBloc>()
+          .add(PriceJob(int.parse(user?.currentJobId ?? "0")));
       context
           .read<JobExpenseBloc>()
           .add(GetJobExpenses(jobId: int.parse(user?.currentJobId ?? "0")));
@@ -66,6 +73,12 @@ mixin LandingMixin on BaseMixin<LandingPage> {
               .getUserModel()!
               .regnNumber));
     }
+
+    // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
+    // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageParts(1, 1));
+    // context.read<JobDamageBloc>().add(const GetDamageRepairs(1, 1));
   }
 
   Future<void> checkInternetConnection() async {
@@ -196,11 +209,11 @@ mixin LandingMixin on BaseMixin<LandingPage> {
           final resultInspectionEdit =
               await userHiveOperation.getDamagePostModel(id);
           // print('resultInspectionDamage $resultInspectionEdit');
+          print('resultInspectionDamage LANDING $resultInspectionEdit');
           if (resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(PostJobInspectionsDamages(data: item!, isAsync: true));
+              context.read<InspectionsBloc>().add(
+                  PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
               await Future.delayed(const Duration(seconds: 2));
             });
             await userHiveOperation.deleteDamagePostModel(id);
@@ -230,8 +243,9 @@ mixin LandingMixin on BaseMixin<LandingPage> {
             await userHiveOperation.clearAllSignCustomerPostModels();
             await userHiveOperation.clearAllSignInspectorPostModels();
           }
-        } catch (e) {
-          print('Error occurred: $e');
+        } catch (e, s) {
+          await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
           // Hata meydana gelirse, devam edebilir veya döngüyü durdurabilirsiniz.
           // Burada nasıl davranmak istediğinize karar verin.
         }

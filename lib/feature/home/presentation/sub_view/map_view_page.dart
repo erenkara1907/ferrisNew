@@ -19,7 +19,11 @@ import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 class MapViewPage extends StatefulWidget {
+  const MapViewPage({super.key});
+
   @override
   _MapViewPageState createState() => _MapViewPageState();
 }
@@ -282,14 +286,14 @@ class _MapViewPageState extends State<MapViewPage> {
 
       if (result.points.isNotEmpty) {
         List<LatLng> points = [];
-        result.points.forEach((PointLatLng point) {
+        for (var point in result.points) {
           points.add(LatLng(point.latitude, point.longitude));
-        });
+        }
         polyLineCoordinates.value = points;
       }
       setState(() {});
-    } catch (e) {
-      print(e);
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 
@@ -300,9 +304,9 @@ class _MapViewPageState extends State<MapViewPage> {
       currentLocation.value = await location.getLocation();
 
       initialPosition ??= LatLng(
-          currentLocation.value!.latitude!,
-          currentLocation.value!.longitude!,
-        );
+        currentLocation.value!.latitude!,
+        currentLocation.value!.longitude!,
+      );
 
       _locationSubscription =
           location.onLocationChanged.listen((LocationData newLoc) {
@@ -311,8 +315,8 @@ class _MapViewPageState extends State<MapViewPage> {
         _updateCurrentLocationMarker();
         setState(() {});
       });
-    } catch (e) {
-      print(e);
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 
@@ -345,8 +349,8 @@ class _MapViewPageState extends State<MapViewPage> {
           _mapController?.showMarkerInfoWindow(const MarkerId('destination'));
         }
       });
-    } catch (e) {
-      print("Travel time fetch error: $e");
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 

@@ -9,6 +9,8 @@ import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_patch_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_post_model.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobInspectionsDamagesRepositoryImpl
     implements JobInspectionsDamagesRepository {
   JobInspectionsDamagesRepositoryImpl(
@@ -27,11 +29,10 @@ final class JobInspectionsDamagesRepositoryImpl
       );
 
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -46,11 +47,10 @@ final class JobInspectionsDamagesRepositoryImpl
       );
 
       return right(unit);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -67,11 +67,28 @@ final class JobInspectionsDamagesRepositoryImpl
       );
 
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      return left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DamageResponseModel>>> getDamages({
+    required int jobInspectionId,
+  }) async {
+    try {
+      final response = await _dataSource.getDamages(
+        jobInspectionId: jobInspectionId,
+      );
+
+      return right(response);
+    } on NullResponseException {
+      return left(NullResponseFailure());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }

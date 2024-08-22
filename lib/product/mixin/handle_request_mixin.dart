@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:ferrisfwt/product/errors/exceptions/exceptions.dart';
 import 'package:flutter/material.dart';
 
+import '../utility/error_handler/sentry_error_handler.dart';
+
 mixin HandleRequestMixin {
   Future<T> handleRequest<T>(
     Future<Response> request,
@@ -12,11 +14,12 @@ mixin HandleRequestMixin {
     try {
       final response = await request;
       return _handleResponse(response, fromJson, manipulateData);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      debugPrint('Error: $e\nStackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

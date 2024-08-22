@@ -22,7 +22,7 @@ class _HomeJobSearchPageState extends State<HomeJobSearchPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         title: Text(
           'Search Job',
           style: context.textTheme.bodyLarge
@@ -66,7 +66,7 @@ class HomeSearchTextfieldSearchWidget extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onChanged;
 
-  HomeSearchTextfieldSearchWidget({
+  const HomeSearchTextfieldSearchWidget({
     this.controller,
     this.onChanged,
     super.key,
@@ -82,6 +82,7 @@ class HomeSearchTextfieldSearchWidget extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: 'Please enter job number',
           hintStyle: context.textTheme.bodyLarge?.copyWith(

@@ -56,7 +56,7 @@ class PostJobInspectionsCheckList extends InspectionsEvent {
 }
 
 class PostConditionImages extends InspectionsEvent {
-  final InspectionConditionImagePostModel data;
+  final ConditionImageResponseModel data;
   final int? jobInspectionId;
   final bool isAsync;
 
@@ -91,10 +91,27 @@ class UpdateDamageResponse extends InspectionsEvent {
 class PostJobInspectionsDamages extends InspectionsEvent {
   final InspectionDamagePostModel data;
   final bool isAsync;
+  final int? jobInspectionId;
   const PostJobInspectionsDamages({
     required this.data,
     required this.isAsync,
+    this.jobInspectionId,
   });
+}
+
+class PostJobInspectionsDamagesRemote extends InspectionsEvent {
+  final InspectionDamagePostModel data;
+  final bool isAsync;
+  final int? jobInspectionId;
+  const PostJobInspectionsDamagesRemote({
+    required this.data,
+    required this.isAsync,
+    this.jobInspectionId,
+  });
+}
+
+class PostJobInspectionsDamagesControl extends InspectionsEvent {
+  const PostJobInspectionsDamagesControl();
 }
 
 class PostJobInspectionsCustomerSign extends InspectionsEvent {

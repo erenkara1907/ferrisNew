@@ -28,7 +28,7 @@ class CustomInfoCard extends StatelessWidget {
     DateTime localDateTime = dateTime.toLocal();
 
     // DateFormat'i kullanarak tarih formatını belirtiyoruz
-    DateFormat dateFormat = DateFormat('dd-MM-yyyy HH:mm');
+    DateFormat dateFormat = DateFormat('dd/MM/yyyy');
 
     // Yerel saate göre formatlıyoruz
     return dateFormat.format(localDateTime);
@@ -50,13 +50,13 @@ class CustomInfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Depart',
+                  'Start',
                   style: context.textTheme.bodySmall,
                 ),
                 Text(
                   jobModel.predictedStartLocationTime == null
                       ? "-"
-                      : _formatDate(jobModel.predictedStartLocationTime!),
+                      : "${_formatDate(jobModel.billableHoursStartTime!)} - ${DateFormat('HH:mm').format(DateTime.parse(jobModel.billableHoursStartTime!))}",
                   style: context.textTheme.bodySmall
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
@@ -67,13 +67,13 @@ class CustomInfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Arrive',
+                  'End',
                   style: context.textTheme.bodySmall,
                 ),
                 Text(
                   jobModel.predictedEndLocationTime == null
                       ? "-"
-                      : _formatDate(jobModel.predictedEndLocationTime!),
+                      : "${_formatDate(jobModel.billableHoursEndTime!)} - ${DateFormat('HH:mm').format(DateTime.parse(jobModel.billableHoursEndTime!))}",
                   style: context.textTheme.bodySmall
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),

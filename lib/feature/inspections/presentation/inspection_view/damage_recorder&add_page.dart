@@ -78,14 +78,6 @@ class RecordedDamagesState extends State<RecordedDamages> {
                 size: 24,
               ),
               onPressed: () {
-                // context.read<InspectionsBloc>().add(GetJobInspections(
-                //     jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                //             .getUserModel()
-                //             ?.currentJobId ??
-                //         "0"),
-                //     regnNumber: ProductStateItems.hiveDatabaseManager
-                //         .getUserModel()
-                //         ?.regnNumber));
                 context.pop();
               },
             ),
@@ -170,25 +162,25 @@ class RecordedDamagesState extends State<RecordedDamages> {
                                   ),
                                   isSigned == false
                                       ? Positioned(
-                                          top: 16,
+                                          top: 7,
                                           right: 0,
                                           child: IconButton(
-                                              onPressed: () {
-                                                context
-                                                    .read<InspectionsBloc>()
-                                                    .add(DeleteRecordedDamage(
-                                                        state
-                                                            .damageResponse[
-                                                                index]
-                                                            .id,
-                                                        widget
-                                                            .jobInspectionId));
-                                              },
-                                              icon: Icon(
-                                                Icons.cancel_outlined,
-                                                color: context
-                                                    .theme.colorScheme.error,
-                                              )))
+                                            onPressed: () {
+                                              context
+                                                  .read<InspectionsBloc>()
+                                                  .add(DeleteRecordedDamage(
+                                                      state
+                                                          .damageResponse[index]
+                                                          .id,
+                                                      widget.jobInspectionId));
+                                            },
+                                            icon: Icon(
+                                              Icons.cancel_outlined,
+                                              color: context
+                                                  .theme.colorScheme.error,
+                                            ),
+                                          ),
+                                        )
                                       : const SizedBox.shrink()
                                 ],
                               );
@@ -239,7 +231,7 @@ class DamageCardWidget extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(10),
         ),
-        margin: context.paddingVerticalDefault,
+        margin: context.paddingVerticalLow,
         child: Padding(
           padding:
               context.paddingHorizontalDefault + context.paddingVerticalLow,
@@ -264,15 +256,6 @@ class DamageCardWidget extends StatelessWidget {
                               ?.copyWith(color: Colors.white),
                         )
                       ],
-                    ),
-                  ),
-                  const HorizontalSpace.medium(),
-                  Text(
-                    damageResponse.gradeId != null
-                        ? "${damageResponse.gradeId}"
-                        : "",
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: Colors.red,
                     ),
                   ),
                 ],
@@ -350,7 +333,8 @@ class DamageCardWidget extends StatelessWidget {
                           color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
-                      text: damageResponse.price != null
+                      text: damageResponse.price != null &&
+                              damageResponse.price != 0.0
                           ? '£${damageResponse.price}0'
                           : "-",
                       style: context.textTheme.bodyMedium

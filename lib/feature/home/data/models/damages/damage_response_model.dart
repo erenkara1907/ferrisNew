@@ -61,24 +61,29 @@ class DamageResponseModel implements IResponseModel {
 
   factory DamageResponseModel.fromMap(Map<String, dynamic> map) {
     Map<String, dynamic> damageCombination = map['damageCombinationId'];
-    final price = map['price'];
 
-    final gradeId = map["jobInspectionId"]['gradeId']["name"];
-    print("GRAD ID : $gradeId");
+    // final gradeId = map["jobInspectionId"]['gradeId']["name"];
+    // print("GRAD ID : $gradeId");
+
+    final jobInspection = map["jobInspectionId"];
+    final grade = jobInspection?['gradeId'];
+    final gradeName = grade?["name"];
     return DamageResponseModel(
       id: map['id'],
       jobInspectionId: map['jobInspectionId'] is int?
           ? map['jobInspectionId']
           : map['jobInspectionId']?['id'],
-      categoryId: DamagesCategory.fromMap(damageCombination['category_id']),
-      partId: DamagesPart.fromMap(damageCombination['part_id']),
-      issueId: DamagesIssue.fromMap(damageCombination['issue_id']),
-      failureId: DamagesFailure.fromMap(damageCombination['failure_id']),
-      repairId: DamagesRepair.fromMap(damageCombination['repair_id']),
+      categoryId: DamagesCategory.fromMap(damageCombination['categoryId']),
+      partId: DamagesPart.fromMap(damageCombination['partId']),
+      issueId: DamagesIssue.fromMap(damageCombination['issueId']),
+      failureId: DamagesFailure.fromMap(damageCombination['failureId']),
+      repairId: DamagesRepair.fromMap(damageCombination['repairId']),
       damageImage: map['damageImage'],
       contextImage: map['contextImage'],
-      gradeId: gradeId is String? ? gradeId : gradeId.toString(),
-      price: price is double? ? price : double.parse(price.toString()),
+      gradeId: gradeName is String ? gradeName : gradeName?.toString(),
+      price: map['price'] is double?
+          ? map['price']
+          : double.parse(map['price'].toString()),
     );
   }
 

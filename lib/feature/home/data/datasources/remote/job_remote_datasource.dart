@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
+import 'package:ferrisfwt/feature/home/data/models/job_start/job_start_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/movement_type/feedback_input_availability.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/valet_standard/valet_standard_response_model_item.dart';
@@ -13,6 +14,9 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_s
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 abstract interface class JobRemoteDataSource {
   Future<List<JobsResponseModelItem>> getJob({
@@ -23,8 +27,12 @@ abstract interface class JobRemoteDataSource {
   Future<JobsResponseModelItem> getJobShow({
     required String id,
   });
-  Future<String> startJob({
+  Future<List<JobStartModel>> startJob({
     required StartJobPostModel data,
+    required int jobId,
+  });
+
+  Future<List<JobStartModel>> getJobPrice({
     required int jobId,
   });
 
@@ -83,17 +91,19 @@ final class JobRemoteDataSourceImpl
       final List<dynamic> productData = response.data["data"];
 
       return productData.map((e) => JobsResponseModelItem.fromMap(e)).toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -118,23 +128,24 @@ final class JobRemoteDataSourceImpl
       }
       final productData = response.data["data"];
       return JobsResponseModelItem.fromMap(productData);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
 
   @override
-  Future<String> startJob({
+  Future<List<JobStartModel>> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) async {
@@ -156,8 +167,14 @@ final class JobRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
-      return response.data.toString();
-    } on DioException catch (e) {
+
+      print(
+          "JOB START DATA : ${response.data["vehicleDamagePricingTemplates"]}");
+      final List<dynamic> productData =
+          response.data["vehicleDamagePricingTemplates"];
+      return productData.map((e) => JobStartModel.fromMap(e)).toList();
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
@@ -187,7 +204,7 @@ final class JobRemoteDataSourceImpl
       }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -215,7 +232,8 @@ final class JobRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return response.data.toString();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       final result =
           e.response?.data['message'].toString().contains(("feedback"));
@@ -243,7 +261,7 @@ final class JobRemoteDataSourceImpl
       }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -271,7 +289,8 @@ final class JobRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return response.data.toString();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.statusCode == 401) {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
@@ -302,7 +321,7 @@ final class JobRemoteDataSourceImpl
       }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -328,17 +347,18 @@ final class JobRemoteDataSourceImpl
       return productData
           .map((e) => ValetStandardResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -364,17 +384,18 @@ final class JobRemoteDataSourceImpl
       }
       final productData = response.data["data"];
       return ValetStandardResponseModelItem.fromMap(productData);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -400,17 +421,58 @@ final class JobRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return response.data.toString();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
+      throw UnknownException();
+    }
+  }
+
+  @override
+  Future<List<JobStartModel>> getJobPrice({required int jobId}) async {
+    try {
+      print("JOB ID : $jobId");
+      final response = await _networkClient.post(
+        "${ServicePath.jobPrice.value}/$jobId",
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        }),
+      );
+
+      if (response.data == null || response.data == null) {
+        throw NullResponseException();
+      }
+      if (response.data['newAccessToken'] != null) {
+        ProductStateItems.hiveDatabaseManager
+            .setToken(response.data['newAccessToken']);
+      }
+
+      final List<dynamic> productData =
+          response.data["vehicleDamagePricingTemplates"];
+      return productData.map((e) => JobStartModel.fromMap(e)).toList();
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      if (e.response?.data["message"] == "Not authenticated") {
+        ProductStateItems.hiveDatabaseManager.deleteUserToken();
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/sign_in_page');
+      }
+
+      throw DioException(requestOptions: e.requestOptions, message: e.message);
+    } catch (e, stackTrace) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

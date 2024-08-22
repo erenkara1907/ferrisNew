@@ -422,7 +422,7 @@ final class AppRouter {
             buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
-          child: MapViewPage(),
+          child: const MapViewPage(),
         ),
       ),
       GoRoute(
@@ -495,6 +495,8 @@ final class AppRouter {
             context: context,
             state: state,
             child: EditDetailsPage(
+                odo: extraState['odo'],
+                fuelLevel: extraState['fuelLevel'],
                 jobInspectionId: extraState['jobInspectionId'] as int,
                 inspection:
                     extraState['inspection'] as JobInspectionResponseModelItem),

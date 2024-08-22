@@ -1,6 +1,8 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:camera/camera.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/job_damage/job_damage_bloc.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
@@ -13,6 +15,7 @@ import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
 import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
+import 'package:ferrisfwt/product/widget/spacer/dynamic_horizontal_spacer.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +25,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+import '../../data/models/condition_image/condition_image_response_model.dart';
 
 class DamagesPage extends StatefulWidget {
   final int jobInspectionId;
@@ -47,7 +53,364 @@ class _DamagesPageState extends State<DamagesPage> {
   File? _selectedImage;
   File? _selectedContextImage;
 
-  Future<File?> _getImage(ImageSource source) async {
+  // Future<File?> _getImage(ImageSource source) async {
+  //   if (source == ImageSource.camera) {
+  //     PermissionStatus permissionStatus = await Permission.camera.status;
+  //     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //       final result = await showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Camera Permission'),
+  //             content: const Text(
+  //                 'This app needs camera access to take pictures. Please allow camera access in settings.'),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(false);
+  //                 },
+  //                 child: const Text('Cancel'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   context.read<CubitPermissions>().requestCamera();
+  //                   final permissionStatus = await Permission.camera.status;
+  //                   if (permissionStatus.isDenied ||
+  //                       permissionStatus.isPermanentlyDenied) {
+  //                     await openAppSettings();
+  //                   }
+  //                   context.pop();
+  //                 },
+  //                 child: const Text('Open Settings'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+
+  //       if (result != true) {
+  //         return null;
+  //       }
+  //     }
+
+  //     permissionStatus = await Permission.camera.status;
+  //     if (!permissionStatus.isGranted) {
+  //       BotToast.showText(text: 'Camera access denied');
+  //       return null;
+  //     }
+  //   }
+
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.pickImage(source: source);
+
+  //   if (pickedImage != null) {
+  //     File file = File(pickedImage.path);
+
+  //     final documentPath = (await getApplicationDocumentsDirectory()).path;
+  //     file = await file.copy('$documentPath/${path.basename(file.path)}');
+
+  //     File compressedImage = await _resizeImage(file);
+
+  //     return compressedImage;
+  //   } else {
+  //     return null;
+  //   }
+  // }
+
+  // Future<void> captureImages(InspectionsState state) async {
+  //   // Önce contextImage'ı çekmek için fonksiyonu çağır
+  //   // final contextImage = await _getImage(
+  //   //   ImageSource.camera,
+  //   //   state,
+  //   //   isDamage: 0, // Context Image için 0 veya başka bir değer
+  //   // );
+  //   print("GİRDİ KRAL cONTEXT");
+  //   final contextImage =
+  //       await _getImage(ImageSource.camera, state, isDamage: 0).then((value) {
+  //     if (value != null) {
+  //       setState(() {
+  //         _selectedContextImage = value;
+  //       });
+  //     }
+  //   });
+  //   print("GİRDİ KRAL");
+
+  //   if (contextImage == null) {
+  //     print("GİRDİ KRAL 2");
+  //     // Eğer kullanıcı contextImage'i çekmeyi iptal ederse, damageImage işlemini başlatma
+  //     return;
+  //   }
+
+  //   print("GİRDİ KRAL 3");
+
+  //   // Sonrasında damageImage'ı çekmek için fonksiyonu çağır
+  //   final damageImage =
+  //       await _getImage(ImageSource.camera, state, isDamage: 1).then((value) {
+  //     if (value != null) {
+  //       setState(() {
+  //         _selectedImage = value;
+  //       });
+  //     }
+  //   });
+
+  //   if (damageImage == null) {
+  //     // Eğer kullanıcı damageImage'i çekmeyi iptal ederse, işlemi burada bitir
+  //     return;
+  //   }
+
+  //   // Eğer her iki fotoğraf da başarılı bir şekilde çekildiyse, burada işlemlerinize devam edebilirsiniz
+  //   // Örneğin, contextImage ve damageImage'i state'e ekleyebilir veya API'ye gönderebilirsiniz.
+  //   print("Context Image Path: ${contextImage.path}");
+  //   print("Damage Image Path: ${damageImage.path}");
+  // }
+
+  void _submitDamageToAPI(InspectionsState state) {
+    if (_category.isEmpty) {
+      BotToast.showText(text: "Please select Category");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+
+      return;
+    }
+    if (_part.isEmpty) {
+      BotToast.showText(text: "Please select Part");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+      return;
+    }
+    if (_issue.isEmpty) {
+      BotToast.showText(text: "Please select Issue");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+      return;
+    }
+    if (_failure.isEmpty) {
+      BotToast.showText(text: "Please select Failure");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+      return;
+    }
+    if (_repair.isEmpty) {
+      BotToast.showText(text: "Please select Repair");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+      return;
+    }
+
+    if (_selectedImage == null || _selectedContextImage == null) {
+      BotToast.showText(text: "Please upload an image");
+      context
+          .read<InspectionsBloc>()
+          .add(const PostJobInspectionsDamagesControl());
+      return;
+    }
+
+    context.read<InspectionsBloc>().add(
+          PostJobInspectionsDamages(
+            isAsync: false,
+            jobInspectionId: widget.jobInspectionId,
+            data: InspectionDamagePostModel(
+              damageImage: _selectedImage,
+              contextImage: _selectedContextImage,
+              jobInspectionId: widget.jobInspectionId,
+              categoryId: state.getDamageCategoriesResponse
+                      .firstWhere((element) => element?.name == _category)!
+                      .id ??
+                  1,
+              partId: state.getDamagePartsResponse
+                      .firstWhere((element) => element.name == _part)
+                      .id ??
+                  1,
+              issueId: state.getDamageIssuesResponse
+                  .firstWhere((element) => element.name == _issue)
+                  .id!,
+              failureId: state.getDamageFailuresResponse
+                      .firstWhere((element) => element.name == _failure)
+                      .id ??
+                  1,
+              repairId: state.getDamageRepairsResponse
+                      .firstWhere((element) => element.name == _repair)
+                      .id ??
+                  1,
+            ),
+          ),
+        );
+
+    // state.getDamageCategoriesResponse.clear();
+    // state.getDamagePartsResponse.clear();
+    // state.getDamageIssuesResponse.clear();
+    // state.getDamageFailuresResponse.clear();
+    // state.getDamageRepairsResponse.clear();
+
+    showTopSnackBarFr(
+      context,
+      message: "Damage added successfully",
+    );
+    context.pop();
+  }
+
+  List<File> _imageFiles = [];
+  static const int maxImages = 2;
+  final List<ConditionImageResponseModel> _deletedImages = [];
+
+  Future<void> compressImage(File image) async {
+    final documentPath = (await getApplicationDocumentsDirectory()).path;
+    final newFile =
+        await image.copy('$documentPath/${path.basename(image.path)}');
+    File compressedImage = await _resizeImage(newFile);
+    setState(() {
+      _imageFiles.add(compressedImage);
+    });
+  }
+
+  Future<void> _getImageFromCamera(InspectionsState state) async {
+    PermissionStatus permissionStatus = await Permission.camera.status;
+    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+      final result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Camera Permission'),
+            content: const Text(
+                'This app needs camera access to take pictures. Please allow camera access in settings.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  context.read<CubitPermissions>().requestCamera();
+                  final permissionStatus = await Permission.camera.status;
+                  if (permissionStatus.isDenied ||
+                      permissionStatus.isPermanentlyDenied) {
+                    await openAppSettings();
+                  }
+                  context.pop();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (result != true) {
+        return;
+      }
+    }
+
+    final currentUploadedImages = _imageFiles.length +
+        state.conditionImageResponse.length -
+        _deletedImages.length;
+    final remainingImages = maxImages - currentUploadedImages;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraPageDamage(
+          submitDamageToAPI: () async {
+            // Implement the logic to submit damage to API
+            _submitDamageToAPI(state);
+          },
+          limit: remainingImages,
+          onCapture: (File image) async {
+            if (_imageFiles.length < 2) {
+              await compressImage(image);
+            } else {
+              BotToast.showText(text: 'You can only select 2 images in total');
+            }
+          },
+          capturedImages: _imageFiles,
+        ),
+      ),
+    );
+
+    if (result != null && result is List<File>) {
+      setState(() {
+        _imageFiles = result;
+
+        _selectedContextImage = _imageFiles[0];
+        _selectedImage = _imageFiles[1];
+      });
+    }
+
+    permissionStatus = await Permission.camera.status;
+    if (!permissionStatus.isGranted) {
+      BotToast.showText(text: 'Camera access denied');
+      return;
+    }
+  }
+
+  Future<void> captureImages(InspectionsState state) async {
+    // Context Image için kamera açılıyor
+    print("Context Image için kamera açılıyor...");
+
+    final contextImage =
+        await _getImage(ImageSource.camera, state, isDamage: 0);
+
+    if (contextImage != null) {
+      setState(() {
+        _selectedContextImage = contextImage;
+      });
+      print("Context Image çekildi: ${contextImage.path}");
+    } else {
+      print("Context Image çekme işlemi iptal edildi veya başarısız oldu.");
+      return; // Eğer iptal edildiyse veya başarısız olduysa devam etme.
+    }
+
+    // Context Image'ı çektikten sonra kullanıcıya bir onay mesajı gösterip devam etmek isteyip istemediğini sorabilirsiniz
+    // Eğer kullanıcı devam etmek istiyorsa, kamerayı yeniden açarak Damage Image'ı çekin.
+
+    // Örneğin, kullanıcıya bir diyalog ile "Devam etmek ister misiniz?" diye sorabilirsiniz
+    final shouldContinue = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("You also need to include the Damage Image."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text("Add"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldContinue == true) {
+      // Damage Image için kamera açılıyor
+      print("Damage Image için kamera açılıyor...");
+
+      final damageImage =
+          await _getImage(ImageSource.camera, state, isDamage: 1);
+
+      if (damageImage != null) {
+        setState(() {
+          _selectedImage = damageImage;
+        });
+        print("Damage Image çekildi: ${damageImage.path}");
+      } else {
+        print("Damage Image çekme işlemi iptal edildi veya başarısız oldu.");
+      }
+    } else {
+      print("Kullanıcı devam etmek istemedi.");
+    }
+  }
+
+  Future<File?> _getImage(ImageSource source, InspectionsState state,
+      {required int isDamage}) async {
     if (source == ImageSource.camera) {
       PermissionStatus permissionStatus = await Permission.camera.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
@@ -105,11 +468,97 @@ class _DamagesPageState extends State<DamagesPage> {
 
       File compressedImage = await _resizeImage(file);
 
+      // Eğer isDamage true ise ve fotoğraf çekme işlemi bittiyse
+      if (isDamage == 1) {
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            _submitDamageToAPI(state);
+          },
+        );
+      }
+
       return compressedImage;
     } else {
       return null;
     }
   }
+
+  // Future<File?> _getImage(ImageSource source, InspectionsState state,
+  //     {required int isDamage}) async {
+  //   if (source == ImageSource.camera) {
+  //     PermissionStatus permissionStatus = await Permission.camera.status;
+  //     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //       final result = await showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Camera Permission'),
+  //             content: const Text(
+  //                 'This app needs camera access to take pictures. Please allow camera access in settings.'),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(false);
+  //                 },
+  //                 child: const Text('Cancel'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   context.read<CubitPermissions>().requestCamera();
+  //                   final permissionStatus = await Permission.camera.status;
+  //                   if (permissionStatus.isDenied ||
+  //                       permissionStatus.isPermanentlyDenied) {
+  //                     await openAppSettings();
+  //                   }
+  //                   context.pop();
+  //                 },
+  //                 child: const Text('Open Settings'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+
+  //       if (result != true) {
+  //         return null;
+  //       }
+  //     }
+
+  //     permissionStatus = await Permission.camera.status;
+  //     if (!permissionStatus.isGranted) {
+  //       BotToast.showText(text: 'Camera access denied');
+  //       return null;
+  //     }
+  //   }
+
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.pickImage(source: source);
+
+  //   if (pickedImage != null) {
+  //     File file = File(pickedImage.path);
+
+  //     final documentPath = (await getApplicationDocumentsDirectory()).path;
+  //     file = await file.copy('$documentPath/${path.basename(file.path)}');
+
+  //     // Fotoğrafı sıkıştırıyoruz
+  //     File compressedImage = await _resizeImage(file);
+
+  //     // Eğer isDamage 1 ise ve fotoğraf çekme işlemi bittiyse
+  //     if (isDamage == 1) {
+  //       Future.delayed(
+  //         const Duration(seconds: 1),
+  //         () {
+  //           _submitDamageToAPI(state);
+  //         },
+  //       );
+  //     }
+
+  //     return compressedImage;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   Future<File> _resizeImage(File imageFile) async {
     Uint8List? imageBytes = await FlutterImageCompress.compressWithFile(
@@ -135,7 +584,6 @@ class _DamagesPageState extends State<DamagesPage> {
   @override
   void initState() {
     super.initState();
-
     context
         .read<InspectionsBloc>()
         .add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
@@ -212,9 +660,9 @@ class _DamagesPageState extends State<DamagesPage> {
                                 .id ??
                             1;
 
-                        // if (state.getDamagePartsResponse.isNotEmpty ||
-                        //     state.getDamageIssuesResponse.isNotEmpty ||
-                        //     state.getDamageFailuresResponse.isNotEmpty ||
+                        // if (state.getDamagePartsResponse.isNotEmpty &&
+                        //     state.getDamageIssuesResponse.isNotEmpty &&
+                        //     state.getDamageFailuresResponse.isNotEmpty &&
                         //     state.getDamageRepairsResponse.isNotEmpty) {
                         //   state.getDamagePartsResponse.clear();
                         //   state.getDamageIssuesResponse.clear();
@@ -222,7 +670,6 @@ class _DamagesPageState extends State<DamagesPage> {
                         //   state.getDamageRepairsResponse.clear();
                         // }
 
-                        // print("SELECT CATEGORY : $id");
                         context.read<InspectionsBloc>().add(
                             GetInspectionsDamagesPart(id, widget.standarIds));
                       }
@@ -252,13 +699,14 @@ class _DamagesPageState extends State<DamagesPage> {
                                 .id ??
                             1;
 
-                        // if (state.getDamageIssuesResponse.isNotEmpty ||
-                        //     state.getDamageFailuresResponse.isNotEmpty ||
+                        // if (state.getDamageIssuesResponse.isNotEmpty &&
+                        //     state.getDamageFailuresResponse.isNotEmpty &&
                         //     state.getDamageRepairsResponse.isNotEmpty) {
                         //   state.getDamageIssuesResponse.clear();
                         //   state.getDamageFailuresResponse.clear();
                         //   state.getDamageRepairsResponse.clear();
                         // }
+
                         context.read<InspectionsBloc>().add(
                               GetInspectionsDamagesIssue(
                                 id,
@@ -291,11 +739,13 @@ class _DamagesPageState extends State<DamagesPage> {
                         final int id = state.getDamageIssuesResponse
                             .firstWhere((element) => element.name == String)
                             .id!;
-                        // if (state.getDamageFailuresResponse.isNotEmpty ||
+
+                        // if (state.getDamageFailuresResponse.isNotEmpty &&
                         //     state.getDamageRepairsResponse.isNotEmpty) {
                         //   state.getDamageFailuresResponse.clear();
                         //   state.getDamageRepairsResponse.clear();
                         // }
+
                         context.read<InspectionsBloc>().add(
                               GetInspectionsDamagesFailure(
                                 id,
@@ -328,6 +778,10 @@ class _DamagesPageState extends State<DamagesPage> {
                         final int id = state.getDamageFailuresResponse
                             .firstWhere((element) => element.name == String)
                             .id!;
+                        // if (state.getDamageRepairsResponse.isNotEmpty) {
+                        //   state.getDamageRepairsResponse.clear();
+                        // }
+
                         // if (state.getDamageRepairsResponse.isNotEmpty) {
                         //   state.getDamageRepairsResponse.clear();
                         // }
@@ -364,270 +818,391 @@ class _DamagesPageState extends State<DamagesPage> {
                   ),
                   const VerticalSpace.small(),
                   // Column(
-                  //   mainAxisSize: MainAxisSize.min,
-                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
                   //   children: [
-                  //     SizedBox(
-                  //       width: context.dynamicWidth(1.0),
-                  //       child: ElevatedButton(
-                  //         style: ElevatedButton.styleFrom(
-                  //           padding: EdgeInsets.zero,
-                  //           backgroundColor:
-                  //               context.theme.colorScheme.primaryContainer,
-                  //           elevation: 0,
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(8.0),
-                  //           ),
-                  //         ),
-                  //         onPressed: () {
-                  //           context
-                  //               .read<InspectionsBloc>()
-                  //               .add(ToggleButtonsEvent());
-                  //         },
-                  //         child: Text(
-                  //           'Add Image',
-                  //           style: context.theme.textTheme.bodyMedium?.copyWith(
-                  //             color: context.theme.colorScheme.onSecondary,
-                  //             fontWeight: FontWeight.w600,
-                  //           ),
-                  //         ),
-                  //       ),
+                  //     Text(
+                  //       "Context Image",
+                  //       style: context.textTheme.bodyLarge?.copyWith(
+                  //           color: context.theme.colorScheme.primary,
+                  //           fontWeight: FontWeight.w600),
                   //     ),
-                  //     const SizedBox(height: 10.0),
-                  //     AnimatedSize(
-                  //       alignment: Alignment.center,
-                  //       duration: const Duration(milliseconds: 300),
-                  //       curve: Curves.easeInOut,
-                  //       child: Column(
-                  //         children: state.areButtonsVisible
-                  //             ? [
-                  //                 Padding(
-                  //                   padding: const EdgeInsets.symmetric(
-                  //                       horizontal: 16.0),
-                  //                   child: CustomGreyAppButton(
-                  //                     width: context.dynamicWidth(1.0),
-                  //                     textColor:
-                  //                         context.theme.colorScheme.primary,
-                  //                     text: "Damage",
-                  //                     containerColor:
-                  //                         context.theme.colorScheme.surface,
-                  //                     ontap: () {},
-                  //                   ),
-                  //                 ),
-                  //                 const SizedBox(height: 8.0),
-                  //                 Padding(
-                  //                   padding: const EdgeInsets.symmetric(
-                  //                       horizontal: 16.0),
-                  //                   child: CustomGreyAppButton(
-                  //                     width: context.dynamicWidth(1.0),
-                  //                     textColor:
-                  //                         context.theme.colorScheme.primary,
-                  //                     text: "Context",
-                  //                     containerColor:
-                  //                         context.theme.colorScheme.surface,
-                  //                     ontap: () {},
-                  //                   ),
-                  //                 ),
-                  //               ]
-                  //             : [],
+                  //     const VerticalSpace.small(),
+                  //     InkWell(
+                  //       child: Image.asset(
+                  //         width: context.width,
+                  //         "assets/images/fr_upload_image1.png",
                   //       ),
+                  //       onTap: () async {
+                  //         // _showImagePickerDialog(context, true);
+                  //         // _getImage(ImageSource.gallery, state, isDamage: 0)
+                  //         //     .then((value) {
+                  //         //   if (value != null) {
+                  //         //     setState(() {
+                  //         //       _selectedContextImage = value;
+                  //         //     });
+                  //         //   }
+                  //         // });
+
+                  //         await captureImages(state);
+                  //       },
                   //     ),
                   //   ],
                   // ),
-                  // const VerticalSpace.small(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Damage Image ",
-                        style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      const VerticalSpace.small(),
-                      InkWell(
-                        child: Image.asset(
-                          width: context.width,
-                          "assets/images/fr_upload_image1.png",
-                        ),
-                        onTap: () {
-                          _showImagePickerDialog(context, false);
-                        },
-                      ),
-                    ],
-                  ),
-                  const VerticalSpace.xSmall(),
-                  if (_selectedImage != null)
-                    Stack(
-                      children: [
-                        Container(
-                          height: context.dynamicHeight(0.15),
-                          width: context.dynamicWidth(0.35),
-                          decoration: BoxDecoration(
-                            color: context.theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              image: FileImage(_selectedImage!),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.cancel_outlined,
-                              color: context.theme.colorScheme.error,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _selectedImage = null;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
+                  InkWell(
+                    child: Image.asset(
+                      width: context.width,
+                      "assets/images/fr_upload_image1.png",
                     ),
-                  const VerticalSpace.xSmall(),
-                  Divider(
-                    color: context.theme.colorScheme.primary,
-                    thickness: 0.5,
-                  ),
-                  const VerticalSpace.xSmall(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Context Image",
-                        style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      const VerticalSpace.small(),
-                      InkWell(
-                        child: Image.asset(
-                          width: context.width,
-                          "assets/images/fr_upload_image1.png",
-                        ),
-                        onTap: () {
-                          _showImagePickerDialog(context, true);
-                        },
-                      ),
-                    ],
-                  ),
-                  const VerticalSpace.xSmall(),
-                  if (_selectedContextImage != null)
-                    Stack(
-                      children: [
-                        Container(
-                          height: context.dynamicHeight(0.15),
-                          width: context.dynamicWidth(0.35),
-                          decoration: BoxDecoration(
-                            color: context.theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              image: FileImage(_selectedContextImage!),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.cancel_outlined,
-                              color: context.theme.colorScheme.error,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _selectedContextImage = null;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  const VerticalSpace.large(),
-                  CustomAppButton(
-                    text: "Save",
-                    ontap: () {
-                      if (_category.isEmpty) {
-                        BotToast.showText(text: "Please select Category");
-                        return;
-                      }
-                      if (_part.isEmpty) {
-                        BotToast.showText(text: "Please select Part");
-                        return;
-                      }
-                      if (_issue.isEmpty) {
-                        BotToast.showText(text: "Please select Issue");
-                        return;
-                      }
-                      if (_failure.isEmpty) {
-                        BotToast.showText(text: "Please select Failure");
-                        return;
-                      }
-                      if (_repair.isEmpty) {
-                        BotToast.showText(text: "Please select Repair");
-                        return;
-                      }
+                    onTap: () async {
+                      // _showImagePickerDialog(context, true);
+                      // _getImage(ImageSource.gallery, state, isDamage: 0)
+                      //     .then((value) {
+                      //   if (value != null) {
+                      //     setState(() {
+                      //       _selectedContextImage = value;
+                      //     });
+                      //   }
+                      // });
 
-                      if (_selectedImage == null ||
-                          _selectedContextImage == null) {
-                        BotToast.showText(text: "Please upload an image");
-                        return;
-                      }
-
-                      context.read<InspectionsBloc>().add(
-                            PostJobInspectionsDamages(
-                              isAsync: false,
-                              data: InspectionDamagePostModel(
-                                damageImage: _selectedImage,
-                                contextImage: _selectedContextImage,
-                                jobInspectionId: widget.jobInspectionId,
-                                categoryId: state.getDamageCategoriesResponse
-                                        .firstWhere((element) =>
-                                            element?.name == _category)!
-                                        .id ??
-                                    1,
-                                partId: state.getDamagePartsResponse
-                                        .firstWhere(
-                                            (element) => element.name == _part)
-                                        .id ??
-                                    1,
-                                issueId: state.getDamageIssuesResponse
-                                    .firstWhere(
-                                        (element) => element.name == _issue)
-                                    .id!,
-                                failureId: state.getDamageFailuresResponse
-                                        .firstWhere((element) =>
-                                            element.name == _failure)
-                                        .id ??
-                                    1,
-                                repairId: state.getDamageRepairsResponse
-                                        .firstWhere((element) =>
-                                            element.name == _repair)
-                                        .id ??
-                                    1,
-                              ),
-                            ),
-                          );
-
-                      state.getDamageCategoriesResponse.clear();
-                      state.getDamagePartsResponse.clear();
-                      state.getDamageIssuesResponse.clear();
-                      state.getDamageFailuresResponse.clear();
-                      state.getDamageRepairsResponse.clear();
-
-                      showTopSnackBarFr(
-                        context,
-                        message: "Damage added successfully",
-                      );
-                      context.pop();
+                      // await captureImages(state);
+                      await _getImageFromCamera(state);
                     },
                   ),
+                  const VerticalSpace.xSmall(),
+                  if (_imageFiles.isNotEmpty)
+                    SizedBox(
+                      height: context.dynamicHeight(0.25),
+                      child: ListView.separated(
+                        padding: EdgeInsets.zero,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const HorizontalSpace.xSmall(),
+                        scrollDirection: Axis.horizontal,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _imageFiles.length - 1,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                index == 0 ? "Context Image" : "Damage Image",
+                                style: context.textTheme.bodyLarge?.copyWith(
+                                    color: context.theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              const VerticalSpace.xSmall(),
+                              Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      _imageFiles[index],
+                                      fit: BoxFit.cover,
+                                      height: context.dynamicHeight(0.20),
+                                      width: context.dynamicWidth(0.40),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: -5,
+                                    right: -5,
+                                    child: IconButton(
+                                      icon: Icon(Icons.cancel_outlined,
+                                          color:
+                                              context.theme.colorScheme.error),
+                                      onPressed: () {
+                                        setState(() {
+                                          _imageFiles.removeAt(index);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  // Row(
+                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     if (_selectedContextImage != null)
+                  //       Expanded(
+                  //         child: Column(
+                  //           mainAxisAlignment: MainAxisAlignment.start,
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               "Context Image",
+                  //               style: context.textTheme.bodyLarge?.copyWith(
+                  //                   color: context.theme.colorScheme.primary,
+                  //                   fontWeight: FontWeight.w600),
+                  //             ),
+                  //             const VerticalSpace.xSmall(),
+                  //             Stack(
+                  //               children: [
+                  //                 Container(
+                  //                   height: context.dynamicHeight(0.25),
+                  //                   width: context.dynamicWidth(0.45),
+                  //                   decoration: BoxDecoration(
+                  //                     color: context
+                  //                         .theme.colorScheme.primaryContainer,
+                  //                     borderRadius: BorderRadius.circular(10),
+                  //                     image: DecorationImage(
+                  //                       image: FileImage(_imageFiles[0]),
+                  //                       fit: BoxFit.cover,
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //                 Positioned(
+                  //                   top: 0,
+                  //                   right: 0,
+                  //                   child: IconButton(
+                  //                     icon: Icon(
+                  //                       Icons.cancel_outlined,
+                  //                       color: context.theme.colorScheme.error,
+                  //                     ),
+                  //                     onPressed: () {
+                  //                       setState(() {
+                  //                         _selectedContextImage = null;
+                  //                         _imageFiles.clear();
+                  //                       });
+                  //                     },
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     const HorizontalSpace.xSmall(),
+                  //     if (_selectedImage != null)
+                  //       Expanded(
+                  //         child: Column(
+                  //           mainAxisAlignment: MainAxisAlignment.start,
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               "Damage Image",
+                  //               style: context.textTheme.bodyLarge?.copyWith(
+                  //                   color: context.theme.colorScheme.primary,
+                  //                   fontWeight: FontWeight.w600),
+                  //             ),
+                  //             const VerticalSpace.xSmall(),
+                  //             Stack(
+                  //               children: [
+                  //                 Container(
+                  //                   height: context.dynamicHeight(0.25),
+                  //                   width: context.dynamicWidth(0.45),
+                  //                   decoration: BoxDecoration(
+                  //                     color: context
+                  //                         .theme.colorScheme.primaryContainer,
+                  //                     borderRadius: BorderRadius.circular(10),
+                  //                     image: DecorationImage(
+                  //                       image: FileImage(_imageFiles[1]),
+                  //                       fit: BoxFit.cover,
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //                 Positioned(
+                  //                   top: 0,
+                  //                   right: 0,
+                  //                   child: IconButton(
+                  //                     icon: Icon(
+                  //                       Icons.cancel_outlined,
+                  //                       color: context.theme.colorScheme.error,
+                  //                     ),
+                  //                     onPressed: () {
+                  //                       setState(() {
+                  //                         _selectedImage = null;
+                  //                         _imageFiles.clear();
+                  //                       });
+                  //                     },
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       )
+                  //   ],
+                  // ),
+
+                  // const VerticalSpace.xSmall(),
+                  // Divider(
+                  //   color: context.theme.colorScheme.primary,
+                  //   thickness: 0.5,
+                  // ),
+                  // const VerticalSpace.xSmall(),
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Text(
+                  //       "Damage Image ",
+                  //       style: context.textTheme.bodyLarge?.copyWith(
+                  //           color: context.theme.colorScheme.primary,
+                  //           fontWeight: FontWeight.w600),
+                  //     ),
+                  //     const VerticalSpace.small(),
+                  //     InkWell(
+                  //       child: Image.asset(
+                  //         width: context.width,
+                  //         "assets/images/fr_upload_image1.png",
+                  //       ),
+                  //       onTap: () {
+                  //         // _showImagePickerDialog(context, false);
+                  //         _getImage(ImageSource.gallery, state, isDamage: 1)
+                  //             .then((value) {
+                  //           if (value != null) {
+                  //             setState(() {
+                  //               _selectedImage = value;
+                  //             });
+                  //           }
+                  //         });
+
+                  //         // Future.delayed(
+                  //         //   const Duration(seconds: 2),
+                  //         //   () {
+                  //         //     _submitDamageToAPI(state);
+                  //         //   },
+                  //         // );
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
+                  // const VerticalSpace.xSmall(),
+                  // if (_selectedImage != null)
+                  //   Stack(
+                  //     children: [
+                  //       Container(
+                  //         height: context.dynamicHeight(0.15),
+                  //         width: context.dynamicWidth(0.35),
+                  //         decoration: BoxDecoration(
+                  //           color: context.theme.colorScheme.primaryContainer,
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           image: DecorationImage(
+                  //             image: FileImage(_selectedImage!),
+                  //             fit: BoxFit.cover,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Positioned(
+                  //         top: 0,
+                  //         right: 0,
+                  //         child: IconButton(
+                  //           icon: Icon(
+                  //             Icons.cancel_outlined,
+                  //             color: context.theme.colorScheme.error,
+                  //           ),
+                  //           onPressed: () {
+                  //             setState(() {
+                  //               _selectedImage = null;
+                  //             });
+                  //           },
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  const VerticalSpace.large(),
+                  if (state.isError)
+                    CustomAppButton(
+                      text: "Save",
+                      ontap: () {
+                        if (_category.isEmpty) {
+                          BotToast.showText(text: "Please select Category");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+                        if (_part.isEmpty) {
+                          BotToast.showText(text: "Please select Part");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+                        if (_issue.isEmpty) {
+                          BotToast.showText(text: "Please select Issue");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+                        if (_failure.isEmpty) {
+                          BotToast.showText(text: "Please select Failure");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+                        if (_repair.isEmpty) {
+                          BotToast.showText(text: "Please select Repair");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+
+                        if (_selectedImage == null ||
+                            _selectedContextImage == null) {
+                          BotToast.showText(text: "Please upload an image");
+                          context
+                              .read<InspectionsBloc>()
+                              .add(const PostJobInspectionsDamagesControl());
+                          return;
+                        }
+
+                        context.read<InspectionsBloc>().add(
+                              PostJobInspectionsDamages(
+                                isAsync: false,
+                                jobInspectionId: widget.jobInspectionId,
+                                data: InspectionDamagePostModel(
+                                  damageImage: _selectedImage,
+                                  contextImage: _selectedContextImage,
+                                  jobInspectionId: widget.jobInspectionId,
+                                  categoryId: state.getDamageCategoriesResponse
+                                          .firstWhere((element) =>
+                                              element?.name == _category)!
+                                          .id ??
+                                      1,
+                                  partId: state.getDamagePartsResponse
+                                          .firstWhere((element) =>
+                                              element.name == _part)
+                                          .id ??
+                                      1,
+                                  issueId: state.getDamageIssuesResponse
+                                      .firstWhere(
+                                          (element) => element.name == _issue)
+                                      .id!,
+                                  failureId: state.getDamageFailuresResponse
+                                          .firstWhere((element) =>
+                                              element.name == _failure)
+                                          .id ??
+                                      1,
+                                  repairId: state.getDamageRepairsResponse
+                                          .firstWhere((element) =>
+                                              element.name == _repair)
+                                          .id ??
+                                      1,
+                                ),
+                              ),
+                            );
+
+                        // state.getDamageCategoriesResponse.clear();
+                        // state.getDamagePartsResponse.clear();
+                        // state.getDamageIssuesResponse.clear();
+                        // state.getDamageFailuresResponse.clear();
+                        // state.getDamageRepairsResponse.clear();
+
+                        showTopSnackBarFr(
+                          context,
+                          message: "Damage added successfully",
+                        );
+                        context.pop();
+                      },
+                    ),
                 ],
               ),
             ),
@@ -637,94 +1212,324 @@ class _DamagesPageState extends State<DamagesPage> {
     );
   }
 
-  Future<void> _showImagePickerDialog(
-      BuildContext context, bool isContextImage) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          content: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: context.theme.colorScheme.surface,
-            ),
-            width: context.dynamicWidth(0.98),
-            height: context.dynamicHeight(0.38),
-            child: Padding(
-              padding: context.paddingAllDefault,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    'Select an image picker method',
-                    style: context.textTheme.headlineMedium?.copyWith(
-                        color: context.theme.colorScheme.primary, fontSize: 20),
-                  ),
-                  Column(
+  // Future<void> _showImagePickerDialog(
+  //     @override
+  // BuildContext context, bool isContextImage) async {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         contentPadding: EdgeInsets.zero,
+  //         content: Container(
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(10),
+  //             color: context.theme.colorScheme.surface,
+  //           ),
+  //           width: context.dynamicWidth(0.98),
+  //           height: context.dynamicHeight(0.38),
+  //           child: Padding(
+  //             padding: context.paddingAllDefault,
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //               children: [
+  //                 Text(
+  //                   'Select an image picker method',
+  //                   style: context.textTheme.headlineMedium?.copyWith(
+  //                       color: context.theme.colorScheme.primary, fontSize: 20),
+  //                 ),
+  //                 Column(
+  //                   children: [
+  //                     CustomGreyAppButton(
+  //                       textColor: context.theme.colorScheme.primary,
+  //                       text: "Open Camera",
+  //                       containerColor: context.theme.colorScheme.surface,
+  //                       ontap: () async {
+  //                         _getImage(ImageSource.camera).then((value) {
+  //                           if (value != null) {
+  //                             if (isContextImage) {
+  //                               setState(() {
+  //                                 _selectedContextImage = value;
+  //                               });
+  //                             } else {
+  //                               setState(() {
+  //                                 _selectedImage = value;
+  //                               });
+  //                             }
+  //                           }
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                       },
+  //                     ),
+  //                     const VerticalSpace.xxSmall(),
+  //                     CustomGreyAppButton(
+  //                       textColor: context.theme.colorScheme.primary,
+  //                       text: " Pick From Gallery",
+  //                       containerColor: context.theme.colorScheme.surface,
+  //                       ontap: () {
+  //                         _getImage(ImageSource.gallery).then((value) {
+  //                           if (value != null) {
+  //                             if (isContextImage) {
+  //                               setState(() {
+  //                                 _selectedContextImage = value;
+  //                               });
+  //                             } else {
+  //                               setState(() {
+  //                                 _selectedImage = value;
+  //                               });
+  //                             }
+  //                           }
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     context.pop();
+  //                   },
+  //                   child: Text(
+  //                     'Cancel',
+  //                     style: context.textTheme.bodyLarge?.copyWith(
+  //                       color: Colors.red,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+}
+
+class CameraPageDamage extends StatefulWidget {
+  final Function(File) onCapture;
+  final int limit;
+  final List<File> capturedImages;
+  final Future<void> Function() submitDamageToAPI;
+
+  const CameraPageDamage({
+    Key? key,
+    required this.onCapture,
+    required this.limit,
+    required this.capturedImages,
+    required this.submitDamageToAPI,
+  }) : super(key: key);
+
+  @override
+  _CameraPageDamageState createState() => _CameraPageDamageState();
+}
+
+class _CameraPageDamageState extends State<CameraPageDamage> {
+  late CameraController _cameraController;
+  late Future<void> _initializeControllerFuture;
+  late List<File> _capturedImages;
+
+  bool isDamage = false;
+
+  Future<void> initializeCamera() async {
+    setState(() {
+      isDamage = false;
+    });
+    final cameras = await availableCameras();
+    final camera = cameras.first;
+
+    _cameraController = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+
+    await _cameraController.initialize();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllerFuture = initializeCamera();
+    _capturedImages = List.from(widget.capturedImages);
+  }
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+  // Future<void> _captureImage() async {
+  //   try {
+  //     await _initializeControllerFuture;
+  //     final XFile image = await _cameraController.takePicture();
+  //     final File file = File(image.path);
+  //     widget.onCapture(file);
+  //     setState(() {
+  //       _capturedImages.add(file);
+  //     });
+  //   } catch (e) {
+  //     print("EROR CAMERA : $e");
+  //     BotToast.showText(text: 'Error capturing image: $e');
+  //   }
+  // }
+
+  bool _isTakingPicture = false;
+
+  Future<void> _captureImage() async {
+    if (_isTakingPicture) {
+      return; // Eğer bir fotoğraf çekme işlemi devam ediyorsa çıkış yap
+    }
+    setState(() {
+      _isTakingPicture = true; // Fotoğraf çekme işlemi başladı
+    });
+
+    try {
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        () {
+          setState(() {
+            isDamage = true;
+          });
+        },
+      );
+      await _initializeControllerFuture;
+      final XFile image = await _cameraController.takePicture();
+      final File file = File(image.path);
+      widget.onCapture(file);
+
+      if (_capturedImages.length < 2) {
+        setState(() {
+          _capturedImages.add(file);
+        });
+      }
+
+      print("LENGTH : ${_capturedImages.length}");
+
+      if (_capturedImages.length == 2) {
+        Navigator.pop(context, _capturedImages);
+        print("OKAY 2");
+        Future.delayed(
+          const Duration(seconds: 1),
+          () async {
+            await widget.submitDamageToAPI();
+          },
+        );
+      }
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
+      BotToast.showText(text: 'Error capturing image: $e');
+    } finally {
+      setState(() {
+        _isTakingPicture = false; // Fotoğraf çekme işlemi tamamlandı
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isDamage ? "Damage Image" : "Context Image"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pop(context, _capturedImages);
+          },
+        ),
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                SizedBox(
+                  height: context.height,
+                  child: CameraPreview(_cameraController),
+                ),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      CustomGreyAppButton(
-                        textColor: context.theme.colorScheme.primary,
-                        text: "Open Camera",
-                        containerColor: context.theme.colorScheme.surface,
-                        ontap: () async {
-                          _getImage(ImageSource.camera).then((value) {
-                            if (value != null) {
-                              if (isContextImage) {
-                                setState(() {
-                                  _selectedContextImage = value;
-                                });
-                              } else {
-                                setState(() {
-                                  _selectedImage = value;
-                                });
-                              }
-                            }
-                          });
-                          Navigator.of(context).pop();
-                        },
+                      InkWell(
+                        onTap: _captureImage,
+                        child: const CircleAvatar(
+                          radius: 30,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                          ),
+                        ),
                       ),
-                      const VerticalSpace.xxSmall(),
-                      CustomGreyAppButton(
-                        textColor: context.theme.colorScheme.primary,
-                        text: " Pick From Gallery",
-                        containerColor: context.theme.colorScheme.surface,
-                        ontap: () {
-                          _getImage(ImageSource.gallery).then((value) {
-                            if (value != null) {
-                              if (isContextImage) {
-                                setState(() {
-                                  _selectedContextImage = value;
-                                });
-                              } else {
-                                setState(() {
-                                  _selectedImage = value;
-                                });
-                              }
-                            }
-                          });
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                      const VerticalSpace.xSmall(),
+                      if (_capturedImages.isNotEmpty)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: context.theme.colorScheme.primaryContainer
+                                .withOpacity(0.2),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(10),
+                            ),
+                          ),
+                          width: context.width,
+                          height: 140,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.dynamicWidth(0.05),
+                              vertical: context.dynamicHeight(0.02),
+                            ),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _capturedImages.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: context.dynamicWidth(0.020)),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.file(
+                                          _capturedImages[index],
+                                        ),
+                                      ),
+                                      Positioned(
+                                          top: -12,
+                                          right: -10,
+                                          child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _capturedImages
+                                                      .removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                Icons.cancel_outlined,
+                                                color: Colors.red,
+                                              )))
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                     ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: Text(
-                      'Cancel',
-                      style: context.textTheme.bodyLarge?.copyWith(
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+                ),
+              ],
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
     );
   }
 }

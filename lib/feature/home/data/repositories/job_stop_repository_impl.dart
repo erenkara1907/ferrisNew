@@ -9,6 +9,8 @@ import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/stops/stop_post_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobStopRepositoryImpl implements JobStopRepository {
   JobStopRepositoryImpl({required JobStopRemoteDataSource dataSource})
       : _dataSource = dataSource;
@@ -22,12 +24,11 @@ final class JobStopRepositoryImpl implements JobStopRepository {
     try {
       final response = await _dataSource.getJobStops(jobId: jobId);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -43,12 +44,11 @@ final class JobStopRepositoryImpl implements JobStopRepository {
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -59,12 +59,11 @@ final class JobStopRepositoryImpl implements JobStopRepository {
     try {
       final response = await _dataSource.getStopCategories();
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }

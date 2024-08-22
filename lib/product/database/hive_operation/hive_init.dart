@@ -1,4 +1,9 @@
 import 'package:ferrisfwt/feature/auth/data/models/user_response_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade/grade_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/job_start/job_start_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_stop/stop_evidence_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_stop/stops_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_tracking_coordinates/tracking_coordinates_response_model_item.dart';
@@ -7,6 +12,7 @@ import 'package:ferrisfwt/feature/home/data/models/jobs/movement_type/feedback_i
 import 'package:ferrisfwt/feature/home/data/models/jobs/movement_type/movement_type_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/tracking_status_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/vehicle_model.dart';
+import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_abort_type_item.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_response_model_item.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_type.dart';
@@ -31,6 +37,7 @@ import 'package:ferrisfwt/product/state/base/model/post_models/stops/stop_post_m
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
+import '../../../feature/home/data/models/feedback_model.dart';
 import '../../../feature/home/data/models/jobs/gradle_item_model.dart';
 import 'models/expense/expense.dart';
 import 'models/job_update/job_update.dart';
@@ -64,14 +71,17 @@ abstract class HiveInit {
     Hive.registerAdapter(RoleAdapter());
     Hive.registerAdapter(FeedbackInputAvailabilityAdapter());
     Hive.registerAdapter(FeedbackInputAvailabilityEnumAdapter());
+    Hive.registerAdapter(JobStartModelAdapter());
     Hive.registerAdapter(LatLngAdapter());
     Hive.registerAdapter(StopPostModelAdapter());
+    Hive.registerAdapter(DamageModelAdapter());
+    Hive.registerAdapter(JobInspectionDamageCombinationModelAdapter());
     Hive.registerAdapter(JobUpdateAdapter());
     Hive.registerAdapter(InspectionChecklistPostModelAdapter());
-    Hive.registerAdapter(InspectionConditionImagePostModelAdapter());
+    // Hive.registerAdapter(ConditionImageResponseModelAdapter());
     Hive.registerAdapter(InspectionDamagePostModelAdapter());
     Hive.registerAdapter(InspectionCustomerSignPostModelAdapter());
-    Hive.registerAdapter(InspectionInspectorSignPostModelAdapter());
+    // Hive.registerAdapter(InspectionInspectorSignPostModelAdapter());
     Hive.registerAdapter(JobInspectionAbortTypeItemAdapter());
     Hive.registerAdapter(JobInspectionTypeAdapter());
     Hive.registerAdapter(InspectionDetailsPostModelAdapter());
@@ -79,6 +89,13 @@ abstract class HiveInit {
     Hive.registerAdapter(JobInspectionResponseModelItemAdapter());
     Hive.registerAdapter(GradeIdAdapter());
     Hive.registerAdapter(DamageAssetsModelAdapter());
+    Hive.registerAdapter(GradeModelAdapter());
+    Hive.registerAdapter(SubClientIdAdapter());
+    Hive.registerAdapter(GradeMainClientIdAdapter());
+    Hive.registerAdapter(DamageAssetsMainClientIdAdapter());
+    Hive.registerAdapter(GradeRuleModelAdapter());
+    Hive.registerAdapter(DamageCombinationModelAdapter());
+    Hive.registerAdapter(GradeRuleUpliftModelAdapter());
     Hive.registerAdapter(CategoriesAdapter());
     Hive.registerAdapter(PartsAdapter());
     Hive.registerAdapter(IssuesAdapter());

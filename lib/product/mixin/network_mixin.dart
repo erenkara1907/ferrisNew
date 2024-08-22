@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:async';
 
+import '../utility/error_handler/sentry_error_handler.dart';
+
 Future<bool> hasNetwork(
     {Duration timeout = const Duration(seconds: 3),
     int speedThresholdKbps = 35}) async {
@@ -17,9 +19,11 @@ Future<bool> hasNetwork(
 
     // Return based on speed check
     return speedIsAdequate;
-  } on SocketException catch (_) {
+  } on SocketException catch (e, s) {
+    await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
-  } on TimeoutException catch (_) {
+  } on TimeoutException catch (e, s) {
+    await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
   }
 }
@@ -50,7 +54,8 @@ Future<bool> _checkInternetSpeed(
     final speedKbps = (totalBytes / 1024) / downloadTimeSec;
     // print('Speed: $speedKbps KB/s');
     return speedKbps >= speedThresholdKbps;
-  } catch (e) {
+  } catch (e, s) {
+    await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
   }
 }

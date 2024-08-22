@@ -28,7 +28,7 @@ class _HistoryJobSearchPageState extends State<HistoryJobSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         title: Text(
           'Search',
           style: context.textTheme.bodyLarge
@@ -88,11 +88,8 @@ class HomeSearchTextfieldSearchWidget extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.only(
-            left: 10,
-            top: context.height * 0.015,
-          ),
           hintText: 'Reg Number',
           hintStyle: context.textTheme.bodyLarge?.copyWith(
             color: context.theme.colorScheme.outline,

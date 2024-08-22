@@ -24,6 +24,8 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:signature/signature.dart';
 
+import '../../data/models/condition_image/condition_image_response_model.dart';
+
 class SignInspectionPage extends StatefulWidget {
   final JobInspectionResponseModelItem inspection;
   const SignInspectionPage({super.key, required this.inspection});
@@ -39,7 +41,7 @@ class _SignInspectionPageState extends State<SignInspectionPage> {
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
-    exportBackgroundColor: Colors.yellowAccent,
+    exportBackgroundColor: Colors.white,
     exportPenColor: Colors.black,
     onDrawStart: () => log('onDrawStart called!'),
     onDrawEnd: () => log('onDrawEnd called!'),
@@ -429,7 +431,9 @@ class InspectionSignInfoWidget extends StatelessWidget {
                       ),
                       Text(
                         inspection.odoReading == null
-                            ? '-'
+                            ? state.odo == 0
+                                ? '-'
+                                : "${state.odo.toInt()} Miles"
                             : "${state.odo == 0 ? inspection.odoReading!.toInt() : state.odo.toInt()} Miles",
                         style: context.textTheme.bodyMedium,
                       ),
@@ -489,7 +493,7 @@ class InspectionSignInfoWidget extends StatelessWidget {
 class InspectionConditionImageWidget extends StatefulWidget {
   final InspectionsState state;
   final String? filePath;
-  List<InspectionConditionImagePostModel>? updateModel;
+  List<ConditionImageResponseModel>? updateModel;
   final int jobInspectionId;
   InspectionConditionImageWidget({
     required this.state,
@@ -542,7 +546,7 @@ class _InspectionConditionImageWidgetState
                           itemCount: widget.updateModel?.length ?? 0,
                           itemBuilder: (BuildContext context, int index) {
                             final pathImage =
-                                widget.updateModel![index].image.path;
+                                widget.updateModel![index].imageFile!.path;
                             int documentsIndex =
                                 pathImage.indexOf("Documents/");
                             String result = pathImage.substring(

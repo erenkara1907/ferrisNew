@@ -26,6 +26,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 class AddStop extends StatefulWidget {
   const AddStop({Key? key}) : super(key: key);
 
@@ -60,10 +62,78 @@ class _AddStopState extends State<AddStop> {
     });
   }
 
-  Future<void> _getImages(ImageSource source) async {
+  Future<void> _getImages(ImageSource source, StopJobState state) async {
     final picker = ImagePicker();
 
     if (source == ImageSource.camera) {
+      // PermissionStatus permissionStatus = await Permission.camera.status;
+      // if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+      //   final result = await showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return AlertDialog(
+      //         title: const Text('Camera Permission'),
+      //         content: const Text(
+      //             'This app needs camera access to take pictures. Please allow camera access in settings.'),
+      //         actions: [
+      //           TextButton(
+      //             onPressed: () {
+      //               Navigator.of(context).pop(false);
+      //             },
+      //             child: const Text('Cancel'),
+      //           ),
+      //           TextButton(
+      //             onPressed: () async {
+      //               context.read<CubitPermissions>().requestCamera();
+      //               final permissionStatus = await Permission.camera.status;
+      //               if (permissionStatus.isDenied ||
+      //                   permissionStatus.isPermanentlyDenied) {
+      //                 await openAppSettings();
+      //               }
+      //               context.pop();
+      //             },
+      //             child: const Text('Open Settings'),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   );
+
+      //   if (result == true) {
+      //     await openAppSettings();
+      //     permissionStatus = await Permission.camera.status;
+      //   } else {
+      //     return;
+      //   }
+      // }
+
+      // if (permissionStatus.isGranted) {
+      //   final result = await Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => CameraPage(
+      //         evidences: _evidences,
+      //         limit: limit,
+      //         onCapture: (File image) async {
+      //           if (_evidences.length < 12) {
+      //             await compressImage(image);
+      //           } else {
+      //             BotToast.showText(
+      //                 text: 'You can only select 12 images in total');
+      //           }
+      //         },
+      //       ),
+      //     ),
+      //   );
+
+      //   if (result != null && result is List<File>) {
+      //     setState(() {
+      //       _evidences = result;
+      //     });
+      //   }
+      // } else {
+      //   BotToast.showText(text: 'Camera access denied');
+      // }
       PermissionStatus permissionStatus = await Permission.camera.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
         final result = await showDialog(
@@ -111,13 +181,19 @@ class _AddStopState extends State<AddStop> {
           MaterialPageRoute(
             builder: (context) => CameraPage(
               evidences: _evidences,
-              limit: limit,
+              limit: 1, // Sadece bir resim çekmek için limit 1 olmalı
               onCapture: (File image) async {
-                if (_evidences.length < 12) {
+                if (_evidences.isEmpty) {
+                  context.pop();
                   await compressImage(image);
+                  // setState(() {
+                  //   _evidences.add(image);
+                  // });
+                  // Resim çekildikten sonra işlemleri başlat
+                  await handleImageSelectionAndSubmit(context, state);
                 } else {
                   BotToast.showText(
-                      text: 'You can only select 12 images in total');
+                      text: 'You can only select 1 images in total');
                 }
               },
             ),
@@ -133,36 +209,75 @@ class _AddStopState extends State<AddStop> {
         BotToast.showText(text: 'Camera access denied');
       }
     } else {
-      int remainingLimit = 12 - _evidences.length;
-      if (remainingLimit <= 0) {
-        BotToast.showText(text: 'You can only select 12 images in total');
-        return;
-      }
-      limit = remainingLimit < 2 ? 2 : remainingLimit;
+      final pickedImage =
+          await picker.pickImage(imageQuality: 90, source: source);
 
-      final pickedImages =
-          await picker.pickMultiImage(imageQuality: 90, limit: limit);
-
-      if (pickedImages != null && pickedImages.isNotEmpty) {
-        if (_evidences.length + pickedImages.length > 12) {
-          BotToast.showText(text: 'You can only select 12 images in total');
+      if (pickedImage != null) {
+        if (_evidences.isNotEmpty) {
+          BotToast.showText(text: 'You can only select 1 images in total');
           return;
         }
-        for (var pickedImage in pickedImages) {
-          File file = File(pickedImage.path);
 
-          final documentPath = (await getApplicationDocumentsDirectory()).path;
-          final newFile =
-              await file.copy('$documentPath/${path.basename(file.path)}');
-          File compressedImage = await _resizeImage(newFile);
+        File file = File(pickedImage.path);
 
-          setState(() {
-            _evidences.add(compressedImage);
-          });
-        }
+        final documentPath = (await getApplicationDocumentsDirectory()).path;
+        final newFile =
+            await file.copy('$documentPath/${path.basename(file.path)}');
+        File compressedImage = await _resizeImage(newFile);
+
+        setState(() {
+          _evidences.add(compressedImage);
+        });
+
+        await handleImageSelectionAndSubmit(context, state);
       } else {
-        BotToast.showText(text: 'No images selected');
+        BotToast.showText(text: 'No image selected');
       }
+    }
+  }
+
+  Future<void> handleImageSelectionAndSubmit(
+      BuildContext context, StopJobState state) async {
+    if (_evidences.isEmpty) {
+      BotToast.showText(text: "Please upload image of locked vehicle");
+      context.read<StopJobBloc>().add(const PostJobStopsControl());
+      return;
+    }
+    if (_selectedLevelAtHub == null) {
+      BotToast.showText(text: "Please enter the reason for stop category");
+      context.read<StopJobBloc>().add(const PostJobStopsControl());
+      return;
+    }
+
+    Position? position;
+    try {
+      position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      position = null;
+      await _showLocationPermissionDialog(context);
+    }
+
+    if (position != null) {
+      // BotToast.showLoading();
+      context.read<StopJobBloc>().add(PostJobStops(
+          isAsync: false,
+          jobId: context.read<HomeBloc>().state.showJob!.id,
+          data: StopPostModel(
+            categoryId: state.getStopCategoriesResponse
+                .firstWhere((element) => element.name == _selectedLevelAtHub)
+                .id,
+            // reason: _reasonController.text,
+            jobId: context.read<HomeBloc>().state.showJob!.id,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            evidences: _evidences.map((file) => file).toList(),
+          )));
+      // BotToast.closeAllLoading();
+    } else {
+      BotToast.showText(text: "Failed to get location");
     }
   }
 
@@ -209,15 +324,15 @@ class _AddStopState extends State<AddStop> {
             body: Center(
               child: CircleAvatar(
                 radius: 60,
-                child: const LoadingProgress(),
                 backgroundColor: context.theme.colorScheme.outlineVariant,
+                child: const LoadingProgress(),
               ),
             ),
           );
         }
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: IconButton(
               icon: Icon(
                 Icons.cancel_outlined,
@@ -239,6 +354,7 @@ class _AddStopState extends State<AddStop> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const VerticalSpace.standard(),
                     Row(
                       children: [
                         Text(
@@ -253,8 +369,8 @@ class _AddStopState extends State<AddStop> {
                       hintText: "Choose the reason for stop",
                       items: state.getStopCategoriesResponse
                           .map((e) => DropdownMenuItem(
-                                child: Text(e.name),
                                 value: e.name,
+                                child: Text(e.name),
                               ))
                           .toList(),
                       text: "Reason for stop category",
@@ -266,15 +382,15 @@ class _AddStopState extends State<AddStop> {
                       textSpanEnable: true,
                     ),
                     const VerticalSpace.small(),
-                    Container(
-                      height: context.dynamicHeight(0.15),
-                      width: context.dynamicWidth(0.90),
-                      child: CustomJobTextfield(
-                          controller: _reasonController,
-                          text: "Reason for stop ",
-                          hintText: "Enter the reason for stop"),
-                    ),
-                    const VerticalSpace.small(),
+                    // SizedBox(
+                    //   height: context.dynamicHeight(0.15),
+                    //   width: context.dynamicWidth(0.90),
+                    //   child: CustomJobTextfield(
+                    //       controller: _reasonController,
+                    //       text: "Reason for stop ",
+                    //       hintText: "Enter the reason for stop"),
+                    // ),
+                    // const VerticalSpace.small(),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -288,10 +404,10 @@ class _AddStopState extends State<AddStop> {
                         InkWell(
                           child: Image.asset(
                             width: context.width,
-                            "assets/images/fr_upload_image12.png",
+                            "assets/images/fr_upload_image1.png",
                           ),
                           onTap: () {
-                            _showImagePickerDialog(context);
+                            _showImagePickerDialog(context, state);
                           },
                         ),
                       ],
@@ -356,58 +472,65 @@ class _AddStopState extends State<AddStop> {
                         ),
                       ),
                     const VerticalSpace.small(),
-                    CustomAppButton(
-                      text: "Save",
-                      ontap: () async {
-                        if (_reasonController.text.isEmpty) {
-                          BotToast.showText(
-                              text: "Please enter the reason for stop");
-                          return;
-                        }
-                        if (_evidences.isEmpty) {
-                          BotToast.showText(
-                              text: "Please upload image of locked vehicle");
-                          return;
-                        }
-                        if (_selectedLevelAtHub == null) {
-                          BotToast.showText(
-                              text:
-                                  "Please enter the reason for stop category");
-                          return;
-                        }
-                        Position? position;
-                        try {
-                          position = await Geolocator.getCurrentPosition(
-                            desiredAccuracy: LocationAccuracy.high,
-                          );
-                        } catch (e) {
-                          position = null;
-                          await _showLocationPermissionDialog(context);
-                        }
-                        if (position != null) {
-                          BotToast.showLoading();
-                          context.read<StopJobBloc>().add(PostJobStops(
-                              isAsync: false,
-                              jobId: context.read<HomeBloc>().state.showJob!.id,
-                              data: StopPostModel(
-                                categoryId: state.getStopCategoriesResponse
-                                    .firstWhere((element) =>
-                                        element.name == _selectedLevelAtHub)
-                                    .id,
-                                reason: _reasonController.text,
+                    if (state.isError)
+                      CustomAppButton(
+                        text: "Save",
+                        ontap: () async {
+                          // if (_reasonController.text.isEmpty) {
+                          //   BotToast.showText(
+                          //       text: "Please enter the reason for stop");
+                          //   return;
+                          // }
+                          if (_evidences.isEmpty) {
+                            BotToast.showText(
+                                text: "Please upload image of locked vehicle");
+                            return;
+                          }
+                          if (_selectedLevelAtHub == null) {
+                            BotToast.showText(
+                                text:
+                                    "Please enter the reason for stop category");
+                            return;
+                          }
+                          Position? position;
+                          try {
+                            position = await Geolocator.getCurrentPosition(
+                              desiredAccuracy: LocationAccuracy.high,
+                            );
+                          } catch (e, s) {
+                            await SentryErrorHandler.instance
+                                .capture(e, stackTrace: s);
+                            position = null;
+                            await _showLocationPermissionDialog(context);
+                          }
+                          if (position != null) {
+                            BotToast.showLoading();
+                            context.read<StopJobBloc>().add(PostJobStops(
+                                isAsync: false,
                                 jobId:
                                     context.read<HomeBloc>().state.showJob!.id,
-                                latitude: position.latitude,
-                                longitude: position.longitude,
-                                evidences:
-                                    _evidences.map((file) => file).toList(),
-                              )));
-                          BotToast.closeAllLoading();
-                        } else {
-                          BotToast.showText(text: "Failed to get location");
-                        }
-                      },
-                    ),
+                                data: StopPostModel(
+                                  categoryId: state.getStopCategoriesResponse
+                                      .firstWhere((element) =>
+                                          element.name == _selectedLevelAtHub)
+                                      .id,
+                                  // reason: _reasonController.text,
+                                  jobId: context
+                                      .read<HomeBloc>()
+                                      .state
+                                      .showJob!
+                                      .id,
+                                  latitude: position.latitude,
+                                  longitude: position.longitude,
+                                  evidences:
+                                      _evidences.map((file) => file).toList(),
+                                )));
+                            BotToast.closeAllLoading();
+                          } else {
+                            BotToast.showText(text: "Failed to get location");
+                          }
+                        },
+                      ),
                     const VerticalSpace.small(),
                   ],
                 ),
@@ -419,7 +542,8 @@ class _AddStopState extends State<AddStop> {
     );
   }
 
-  Future<void> _showImagePickerDialog(BuildContext context) async {
+  Future<void> _showImagePickerDialog(
+      BuildContext context, StopJobState state) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -449,13 +573,13 @@ class _AddStopState extends State<AddStop> {
                           text: "Open Camera",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () {
-                            if (_evidences.length >= 12) {
+                            if (_evidences.isNotEmpty) {
                               BotToast.showText(
                                   text:
-                                      'You can only select 12 images in total');
+                                      'You can only select 1 images in total');
                               context.pop();
                             } else {
-                              _getImages(ImageSource.camera);
+                              _getImages(ImageSource.camera, state);
                               Navigator.of(context).pop();
                             }
                           }),
@@ -465,7 +589,7 @@ class _AddStopState extends State<AddStop> {
                           text: "Pick From Gallery",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () {
-                            _getImages(ImageSource.gallery);
+                            _getImages(ImageSource.gallery, state);
                             Navigator.of(context).pop();
                           }),
                     ],
@@ -654,7 +778,7 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
-  List<File> _capturedImages = [];
+  final List<File> _capturedImages = [];
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -690,7 +814,8 @@ class _CameraPageState extends State<CameraPage> {
         _capturedImages.add(file);
       });
       widget.onCapture(file); // Fotoğrafı onCapture ile gönder
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: 'Error capturing image: $e');
     }
   }
@@ -706,14 +831,6 @@ class _CameraPageState extends State<CameraPage> {
             Navigator.pop(context, [_capturedImages + widget.evidences]);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.done),
-            onPressed: () {
-              Navigator.pop(context, [_capturedImages + widget.evidences]);
-            },
-          ),
-        ],
       ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
@@ -721,7 +838,7 @@ class _CameraPageState extends State<CameraPage> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                Container(
+                SizedBox(
                   height: context.height,
                   child: CameraPreview(_cameraController),
                 ),
@@ -734,7 +851,8 @@ class _CameraPageState extends State<CameraPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: _captureImage,
+                        onTap:
+                            _capturedImages.isNotEmpty ? null : _captureImage,
                         child: const CircleAvatar(
                           radius: 30,
                           child: Icon(
@@ -743,60 +861,60 @@ class _CameraPageState extends State<CameraPage> {
                           ),
                         ),
                       ),
-                      const VerticalSpace.xSmall(),
-                      if (_capturedImages.isNotEmpty)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: context.theme.colorScheme.primaryContainer
-                                .withOpacity(0.2),
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                          ),
-                          width: context.width,
-                          height: 140,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.dynamicWidth(0.05),
-                              vertical: context.dynamicHeight(0.02),
-                            ),
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _capturedImages.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: context.dynamicWidth(0.020)),
-                                  child: Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.file(
-                                          _capturedImages[index],
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: -12,
-                                        right: -10,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _capturedImages.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.cancel_outlined,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                      // const VerticalSpace.xSmall(),
+                      // if (_capturedImages.isNotEmpty)
+                      //   Container(
+                      //     decoration: BoxDecoration(
+                      //       color: context.theme.colorScheme.primaryContainer
+                      //           .withOpacity(0.2),
+                      //       borderRadius: const BorderRadius.vertical(
+                      //         top: Radius.circular(10),
+                      //       ),
+                      //     ),
+                      //     width: context.width,
+                      //     height: 140,
+                      //     child: Padding(
+                      //       padding: EdgeInsets.symmetric(
+                      //         horizontal: context.dynamicWidth(0.05),
+                      //         vertical: context.dynamicHeight(0.02),
+                      //       ),
+                      //       child: ListView.builder(
+                      //         scrollDirection: Axis.horizontal,
+                      //         itemCount: _capturedImages.length,
+                      //         itemBuilder: (context, index) {
+                      //           return Padding(
+                      //             padding: EdgeInsets.symmetric(
+                      //                 horizontal: context.dynamicWidth(0.020)),
+                      //             child: Stack(
+                      //               children: [
+                      //                 ClipRRect(
+                      //                   borderRadius: BorderRadius.circular(10),
+                      //                   child: Image.file(
+                      //                     _capturedImages[index],
+                      //                   ),
+                      //                 ),
+                      //                 Positioned(
+                      //                   top: -12,
+                      //                   right: -10,
+                      //                   child: IconButton(
+                      //                     onPressed: () {
+                      //                       setState(() {
+                      //                         _capturedImages.removeAt(index);
+                      //                       });
+                      //                     },
+                      //                     icon: const Icon(
+                      //                       Icons.cancel_outlined,
+                      //                       color: Colors.red,
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //               ],
+                      //             ),
+                      //           );
+                      //         },
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                 ),

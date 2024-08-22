@@ -22,6 +22,14 @@ final class UCGetJobInspectionsDamages {
     );
   }
 
+  Future<Either<Failure, List<DamageResponseModel>>> getDamages({
+    required int jobInspectionId,
+  }) {
+    return _repository.getDamages(
+      jobInspectionId: jobInspectionId,
+    );
+  }
+
   Future<Either<Failure, void>> deleteRecordedDamage({
     required int damageId,
   }) {

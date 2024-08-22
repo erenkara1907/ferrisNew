@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
@@ -9,10 +11,13 @@ import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/c
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+import 'package:http/http.dart' as http;
+
 abstract interface class JobInspectionsConditionImagesRemoteDataSource {
   Future<ConditionImageResponseModel> postConditionImage({
     int? jobInspectionId,
-    required InspectionConditionImagePostModel data,
+    required ConditionImageResponseModel data,
   });
 
   Future<String> deleteConditionImage({
@@ -38,7 +43,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   @override
   Future<ConditionImageResponseModel> postConditionImage({
     int? jobInspectionId,
-    required InspectionConditionImagePostModel data,
+    required ConditionImageResponseModel data,
   }) async {
     try {
       final formData = FormData(); // Create a FormData instance
@@ -46,9 +51,9 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
           .add(MapEntry('jobInspectionId', jobInspectionId.toString()));
 
       final documentPath = (await getApplicationDocumentsDirectory()).path;
-      int documentsIndex = data.image.path.indexOf("Documents/");
+      int documentsIndex = data.imageFile!.path.indexOf("Documents/");
       String result =
-          data.image.path.substring(documentsIndex + "Documents/".length);
+          data.imageFile!.path.substring(documentsIndex + "Documents/".length);
 
       final path = '$documentPath/$result';
       formData.files.add(MapEntry(
@@ -74,14 +79,17 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
+
+      print("CONDITION DATA : ${response.data["data"]}");
       // print('****** condition formadata ******* $formData');
       // print('****** condition formadata files ******* ${formData.files}');
       return ConditionImageResponseModel.fromMap(response.data["data"]);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -90,24 +98,39 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   Future<String> deleteConditionImage({
     required int imageId,
   }) async {
+    print("IMAGE ID : $imageId");
     try {
-      final response = await _networkClient.delete(
-        "${ServicePath.jobConditionImage.value}/$imageId",
-        options: Options(headers: headers),
+      final response = await http.delete(
+        Uri.parse(
+            "https://dev.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        },
       );
-      if (response.data == null || response.data == null) {
+      // final response = await _networkClient.delete(
+      //   "${ServicePath.jobConditionImage.value}/$imageId",
+      //   options: Options(headers: headers),
+      // );
+
+      final responseData = jsonDecode(response.body);
+      if (responseData == null || responseData == null) {
         throw NullResponseException();
       }
-      if (response.data['newAccessToken'] != null) {
+      if (responseData['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+            .setToken(responseData['newAccessToken']);
       }
-      return response.data['message'];
-    } on DioException catch (e) {
+      print("DELETE CONDITIOn : $responseData");
+      return responseData['message'];
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

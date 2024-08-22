@@ -675,8 +675,9 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                           text: "Open Camera",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () async {
-                            await _getImage(ImageSource.camera);
                             Navigator.of(context).pop();
+
+                            await _getImage(ImageSource.camera);
                           }),
                       const VerticalSpace.xxSmall(),
                       CustomGreyAppButton(
@@ -684,8 +685,9 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                           text: "Pick From Gallery",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () async {
-                            await _getImage(ImageSource.gallery);
                             Navigator.of(context).pop();
+
+                            await _getImage(ImageSource.gallery);
                           }),
                     ],
                   ),

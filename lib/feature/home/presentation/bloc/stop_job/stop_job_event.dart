@@ -22,6 +22,13 @@ class PostJobStops extends StopJobEvent {
   List<Object> get props => [jobId, data, isAsync];
 }
 
+class PostJobStopsControl extends StopJobEvent {
+  const PostJobStopsControl();
+
+  @override
+  List<Object> get props => [];
+}
+
 class GetJobStopsCategories extends StopJobEvent {
   const GetJobStopsCategories();
 

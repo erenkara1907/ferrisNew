@@ -7,6 +7,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/end_job_post
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/start_job_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_status_post_model.dart';
 
+import '../../data/models/job_start/job_start_model.dart';
+
 final class UCGetJob {
   UCGetJob({required JobRepository repository}) : _repository = repository;
 
@@ -28,7 +30,7 @@ final class UCGetJob {
     return _repository.getJobShow(id: id);
   }
 
-  Future<Either<Failure, String>> startJob({
+  Future<Either<Failure, List<JobStartModel>>> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) {
@@ -72,5 +74,13 @@ final class UCGetJob {
 
   Future<Either<Failure, String>> confirmJob({required int id}) {
     return _repository.confirmJob(id: id);
+  }
+
+  Future<Either<Failure, List<JobStartModel>>> getJobPrice({
+    required int jobId,
+  }) {
+    return _repository.getJobPrice(
+      jobId: jobId,
+    );
   }
 }

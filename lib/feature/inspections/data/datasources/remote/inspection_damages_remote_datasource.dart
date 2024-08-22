@@ -17,9 +17,15 @@ import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobInspectionsDamagesRemoteDataSource {
   Future<DamageResponseModel> postDamage({
     required InspectionDamagePostModel data,
+  });
+
+  Future<List<DamageResponseModel>> getDamages({
+    required int jobInspectionId,
   });
 
   Future<DamageUpdateResponseModel> patchDamage({
@@ -91,10 +97,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
         data: formData,
       );
 
-      print(
-          "POST DATA ITEM : ${response.data["data"]['jobInspectionId']['gradeId']}");
-
-      if (response.data == null || response.data == null) {
+      if (response.data == null) {
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
@@ -103,18 +106,54 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       }
 
       return DamageResponseModel.fromMap(response.data["data"]);
-    } on DioException catch (e) {
-      print("HATA : ${e.message}");
-      print("DioException Detayları: ");
-      print("Response Data: ${e.response?.data}");
-      print("Response Data 2: ${e.response?.data["data"]}");
-      print("Request Path: ${e.requestOptions.path}");
-      print("Error Type: ${e.type}");
-      print("Error: ${e.error}");
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
+      throw UnknownException();
+    }
+  }
+
+  @override
+  Future<List<DamageResponseModel>> getDamages({
+    required int jobInspectionId,
+  }) async {
+    try {
+      final response = await _networkClient.get(
+        "https://dev.fwtsolutions.co.uk/api/v1/damages",
+        options: Options(headers: headers),
+        queryParameters: {
+          'jobInspectionId': jobInspectionId.toString(),
+        },
+      );
+
+      if (response.data == null) {
+        throw NullResponseException();
+      }
+
+      if (response.data['newAccessToken'] != null) {
+        ProductStateItems.hiveDatabaseManager
+            .setToken(response.data['newAccessToken']);
+      }
+
+      // List<DamageResponseModel> responseList = [];
+      // for (var item in response.data["data"]) {
+      //   responseList.add(DamageResponseModel.fromMap(item));
+      // }
+
+      // return responseList;
+
+      final List<dynamic> productData = response.data["data"];
+
+      return productData.map((e) => DamageResponseModel.fromMap(e)).toList();
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      throw DioException(requestOptions: e.requestOptions, message: e.message);
+    } catch (e, stackTrace) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -124,27 +163,39 @@ class JobInspectionsDamagesRemoteDataSourceImpl
     required int damageId,
   }) async {
     try {
-      final response = await _networkClient.delete(
-        "${ServicePath.damageDelete.value}/$damageId",
-        options: Options(headers: headers),
+      final response = await http.delete(
+        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/damages/$damageId"),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        },
       );
+      // final response = await http.delete(
+      //   "${ServicePath.damageDelete.value}/$damageId",
+      //   options: Options(headers: headers),
+      // );
 
-      if (response.data == null || response.data == null) {
+      final responseData = jsonDecode(response.body);
+
+      if (responseData == null || responseData == null) {
         throw NullResponseException();
       }
 
-      if (response.data['newAccessToken'] != null) {
+      if (responseData['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+            .setToken(responseData['newAccessToken']);
       }
 
       // Veri dönüşümünü burada yaparak, modelinizin doğru şekilde oluşturulduğundan emin olun.
       return;
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -167,11 +218,12 @@ class JobInspectionsDamagesRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return DamageUpdateResponseModel.fromMap(response.data);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

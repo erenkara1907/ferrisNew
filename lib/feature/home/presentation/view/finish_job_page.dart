@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 class FinishJobPage extends StatefulWidget {
   final bool? isFuelView;
   final bool? isFeedBackView;
@@ -228,8 +230,9 @@ class _FinishJobPageState extends State<FinishJobPage> {
             await userHiveOperation.clearAllSignCustomerPostModels();
             await userHiveOperation.clearAllSignInspectorPostModels();
           }
-        } catch (e) {
-          print('Error occurred: $e');
+        } catch (e, s) {
+          await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
           // Hata meydana gelirse, devam edebilir veya döngüyü durdurabilirsiniz.
           // Burada nasıl davranmak istediğinize karar verin.
         }
@@ -505,24 +508,31 @@ class _FinishJobPageState extends State<FinishJobPage> {
                         textSpanEnable: true,
                       ),
                       const VerticalSpace.small(),
-                      DropdownButtonWidget(
-                        value: _selectedValletStandart,
-                        hintText: "Select Level at Part",
-                        items: state.jobsValet
-                            .map((e) => DropdownMenuItem(
-                                  value: e.name,
-                                  child: Text(e.name),
-                                ))
-                            .toList(),
-                        text: "Valet Standard",
-                        onChanged: (String) {
-                          setState(() {
-                            _selectedValletStandart = String;
-                          });
-                        },
-                        textSpanEnable: true,
-                      ),
-                      const VerticalSpace.small(),
+                      if (state.showJob?.movementTypeId!
+                              .isAvailableValetStandardInput ==
+                          true)
+                        Column(
+                          children: [
+                            DropdownButtonWidget(
+                              value: _selectedValletStandart,
+                              hintText: "Select Level at Part",
+                              items: state.jobsValet
+                                  .map((e) => DropdownMenuItem(
+                                        value: e.name,
+                                        child: Text(e.name),
+                                      ))
+                                  .toList(),
+                              text: "Valet Standard",
+                              onChanged: (String) {
+                                setState(() {
+                                  _selectedValletStandart = String;
+                                });
+                              },
+                              textSpanEnable: true,
+                            ),
+                            const VerticalSpace.small(),
+                          ],
+                        ),
                       CustomGreyAppButton(
                           textColor: Colors.white,
                           text: "Finish Job",
@@ -533,7 +543,10 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                   text: "Time spent charging is required");
                               return;
                             }
-                            if (_selectedValletStandart == null) {
+                            if (_selectedValletStandart == null &&
+                                state.showJob?.movementTypeId!
+                                        .isAvailableValetStandardInput ==
+                                    true) {
                               BotToast.showText(
                                   text: "Valet Standard is required");
                               return;
@@ -551,11 +564,16 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                       BotToast.showLoading();
                                       await checkInternetConnection();
                                       await _onCheck();
-                                      final id = state.jobsValet
-                                          .firstWhere((element) =>
-                                              element.name ==
-                                              _selectedValletStandart)
-                                          .id;
+                                      int? valetStandardId;
+                                      if (state.showJob?.movementTypeId!
+                                              .isAvailableValetStandardInput ==
+                                          true) {
+                                        valetStandardId = state.jobsValet
+                                            .firstWhere((element) =>
+                                                element.name ==
+                                                _selectedValletStandart)
+                                            .id;
+                                      }
 
                                       DateTime now = DateTime.now();
                                       final date =
@@ -588,7 +606,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                               departedCustomerTime: date,
                                               endDate: currentTime,
                                               spendCharging: _spendCharging,
-                                              valetStandardId: id,
+                                              valetStandardId: valetStandardId,
                                             ),
                                           ));
                                       context.pop();

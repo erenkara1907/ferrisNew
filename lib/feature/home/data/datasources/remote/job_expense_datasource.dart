@@ -13,6 +13,8 @@ import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobExpenseRemoteDataSource {
   Future<List<ExpensesResponseModelItem>> jobExpenses({
     required int jobId,
@@ -61,17 +63,18 @@ final class JobExpenseRemoteDataSourceImpl
       return productData
           .map((e) => ExpensesResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -119,17 +122,18 @@ final class JobExpenseRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return ExpensesResponseModelItem.fromMap(response.data["data"]);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -177,7 +181,8 @@ final class JobExpenseRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return ExpensePatchResponseModel.fromMap(response.data["data"]);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
@@ -186,7 +191,7 @@ final class JobExpenseRemoteDataSourceImpl
       }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -214,17 +219,18 @@ final class JobExpenseRemoteDataSourceImpl
       return productData
           .map((e) => ExpenseCategoriesResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../../utility/error_handler/sentry_error_handler.dart';
+
 @immutable
 final class FileOperation {
   const FileOperation._();
@@ -30,7 +32,8 @@ final class FileOperation {
         await newDirectory.create();
       }
       return newDirectory.path;
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       throw Exception(e);
     }
   }
@@ -43,7 +46,8 @@ final class FileOperation {
         await newDirectory.delete();
       }
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return false;
     }
   }

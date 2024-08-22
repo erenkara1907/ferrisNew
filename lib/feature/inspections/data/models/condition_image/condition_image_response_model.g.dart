@@ -9,7 +9,7 @@ part of 'condition_image_response_model.dart';
 class ConditionImageResponseModelAdapter
     extends TypeAdapter<ConditionImageResponseModel> {
   @override
-  final int typeId = 164;
+  final int typeId = 192;
 
   @override
   ConditionImageResponseModel read(BinaryReader reader) {
@@ -18,9 +18,9 @@ class ConditionImageResponseModelAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ConditionImageResponseModel(
-      id: fields[0] as int,
+      id: fields[0] as int?,
       jobInspectionId: fields[1] as int,
-      imagePath: fields[2] as String,
+      imagePath: fields[2] as String?,
     );
   }
 

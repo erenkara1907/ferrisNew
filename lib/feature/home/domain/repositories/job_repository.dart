@@ -6,6 +6,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/end_job_post
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/start_job_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_status_post_model.dart';
 
+import '../../data/models/job_start/job_start_model.dart';
+
 abstract interface class JobRepository {
   Future<Either<Failure, List<JobsResponseModelItem>>> getJob({
     String date,
@@ -16,8 +18,12 @@ abstract interface class JobRepository {
     required String id,
   });
 
-  Future<Either<Failure, String>> startJob({
+  Future<Either<Failure, List<JobStartModel>>> startJob({
     required StartJobPostModel data,
+    required int jobId,
+  });
+
+  Future<Either<Failure, List<JobStartModel>>> getJobPrice({
     required int jobId,
   });
 

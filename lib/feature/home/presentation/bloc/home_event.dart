@@ -72,6 +72,17 @@ class StartJob extends HomeEvent {
       ];
 }
 
+class PriceJob extends HomeEvent {
+  final int jobId;
+
+  const PriceJob(this.jobId);
+
+  @override
+  List<Object> get props => [
+        jobId,
+      ];
+}
+
 class EndJob extends HomeEvent {
   final String id;
   final EndJobPostModel data;
@@ -124,18 +135,18 @@ class GetJobTracingCordinates extends HomeEvent {
   List<Object> get props => [jobId];
 }
 
-class GetTrackingCoordinate extends HomeEvent {
-  final int id;
+// class GetTrackingCoordinate extends HomeEvent {
+//   final int id;
 
-  const GetTrackingCoordinate(
-    this.id,
-  );
+//   const GetTrackingCoordinate(
+//     this.id,
+//   );
 
-  @override
-  List<Object> get props => [
-        id,
-      ];
-}
+//   @override
+//   List<Object> get props => [
+//         id,
+//       ];
+// }
 
 class SetJob extends HomeEvent {
   final JobsResponseModelItem jobModel;
@@ -199,6 +210,22 @@ class UpdateTrackingCoordinate extends HomeEvent {
         jobId,
         latitude,
         longitude,
+      ];
+}
+
+class UpdateTrackingCoordinateBulk extends HomeEvent {
+  final int jobId;
+  final List<Map<String, dynamic>> cordinates;
+
+  const UpdateTrackingCoordinateBulk({
+    required this.jobId,
+    required this.cordinates,
+  });
+
+  @override
+  List<Object> get props => [
+        jobId,
+        cordinates,
       ];
 }
 

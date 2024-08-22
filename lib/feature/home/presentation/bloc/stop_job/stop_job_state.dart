@@ -8,6 +8,7 @@ final class StopJobState extends Equatable {
     this.getStopsResponse = const [],
     this.selectedStop,
     this.totalStop = 0,
+    this.isError = false,
   });
 
   final ViewStatus? status;
@@ -16,6 +17,7 @@ final class StopJobState extends Equatable {
   final StopsResponseModelItem? selectedStop;
   final List<StopCategoriesResponseModelItem> getStopCategoriesResponse;
   final int totalStop;
+  final bool isError;
 
   @override
   List<Object?> get props => [
@@ -25,6 +27,7 @@ final class StopJobState extends Equatable {
         selectedStop,
         getStopCategoriesResponse,
         totalStop,
+        isError,
       ];
 
   StopJobState copyWith({
@@ -34,9 +37,11 @@ final class StopJobState extends Equatable {
     List<StopCategoriesResponseModelItem>? getStopCategoriesResponse,
     Failure? failure,
     int? totalStop,
+    bool? isError,
   }) {
     return StopJobState(
       failure: failure ?? this.failure,
+      isError: isError ?? this.isError,
       status: status ?? this.status,
       getStopsResponse: getStopsResponse ?? this.getStopsResponse,
       selectedStop: selectedStop ?? this.selectedStop,

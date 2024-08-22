@@ -230,10 +230,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   Future<void> _launchMap() async {
-    job ??= context.read<HomeBloc>().state.showJob;
+    job = context.read<HomeBloc>().state.showJob;
 
-    _trackingCoordinate =
-        await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
+    // _trackingCoordinate =
+    //     await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
     // print("trackingCoordinate: $_trackingCoordinate");
 
     final googleMapAvailable = await MapLauncher.isMapAvailable(MapType.google);
@@ -268,10 +268,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
           setState(() {
             isStarted = true;
           });
-          context
-              .read<HomeBloc>()
-              .add(GetTrackingCoordinate(state.showJob!.id));
-          showTopSnackBarFr(context, message: 'Job created successfully');
+          // context
+          //     .read<HomeBloc>()
+          //     .add(GetTrackingCoordinate(state.showJob!.id));
+          showTopSnackBarFr(context, message: 'Job Started Successfully');
           context.read<HomeBloc>().add(GetJob(state.showJob!.id.toString()));
           context.read<InspectionsBloc>().add(GetJobInspections(
                 jobId: state.showJob!.id,
@@ -535,6 +535,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                   context
                                       .read<HomeBloc>()
                                       .add(StartJob(state.showJob!, context));
+
+                                  context
+                                      .read<HomeBloc>()
+                                      .add(PriceJob(state.showJob!.id));
                                 }
                               }
                             })

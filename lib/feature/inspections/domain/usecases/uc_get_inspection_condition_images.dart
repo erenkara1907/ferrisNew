@@ -13,7 +13,7 @@ final class UCGetJobInspectionsConditionImages {
 
   Future<Either<Failure, ConditionImageResponseModel>> postConditionImage({
     int? jobInspectionId,
-    required InspectionConditionImagePostModel data,
+    required ConditionImageResponseModel data,
   }) {
     return _repository.postConditionImage(
       jobInspectionId: jobInspectionId,

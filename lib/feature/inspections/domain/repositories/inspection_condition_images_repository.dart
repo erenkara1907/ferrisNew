@@ -6,7 +6,7 @@ import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/c
 abstract interface class JobInspectionsConditionImagesRepository {
   Future<Either<Failure, ConditionImageResponseModel>> postConditionImage({
     int? jobInspectionId,
-    required InspectionConditionImagePostModel data,
+    required ConditionImageResponseModel data,
   });
 
   Future<Either<Failure, String>> deleteConditionImage({

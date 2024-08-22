@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
 
+import 'jobs/movement_type/feedback_input_availability.dart';
+
 part 'feedback_model.g.dart';
 
 @HiveType(typeId: 111)

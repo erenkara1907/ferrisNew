@@ -4,14 +4,14 @@ import 'package:hive/hive.dart';
 
 part 'job_inspection_abort_type_item.g.dart';
 
-@HiveType(typeId: 199)
+@HiveType(typeId: 203)
 class JobInspectionAbortTypeItem extends Equatable {
   @HiveField(0)
   final int id;
   @HiveField(1)
   final String? name;
 
-  JobInspectionAbortTypeItem({
+  const JobInspectionAbortTypeItem({
     required this.id,
     this.name,
   });

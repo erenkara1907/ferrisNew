@@ -26,6 +26,8 @@ import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
 import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 class ExpenseDetails extends StatefulWidget {
   final int jobId;
   const ExpenseDetails({
@@ -111,8 +113,9 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
       } else {
         // print('No image selected.');
       }
-    } catch (e) {
-      print('Error: $e');
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
       BotToast.showText(text: 'An error occurred while selecting an image.');
     }
   }
@@ -417,8 +420,9 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                           text: "Open Camera",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () async {
+                            context.pop();
+
                             await _getImage(ImageSource.camera);
-                            Navigator.of(context).pop();
                           }),
                       const VerticalSpace.xxSmall(),
                       CustomGreyAppButton(
@@ -426,8 +430,8 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                           text: "Pick From Gallery",
                           containerColor: context.theme.colorScheme.surface,
                           ontap: () async {
+                            context.pop();
                             await _getImage(ImageSource.gallery);
-                            Navigator.of(context).pop();
                           }),
                     ],
                   ),

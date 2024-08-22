@@ -10,6 +10,8 @@ import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 part 'landing_event.dart';
 part 'landing_state.dart';
 
@@ -35,12 +37,13 @@ class LandingBloc extends Bloc<LandingEvent, LandingState> {
       } else {
         emit(state.copyWith(networkResult: true, status: ViewStatus.success));
       }
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       emit(
         state.copyWith(
           networkResult: false,
           status: ViewStatus.failure,
-          failure: NetworkFailure(),
+          // failure: NetworkFailure(),
         ),
       );
     }

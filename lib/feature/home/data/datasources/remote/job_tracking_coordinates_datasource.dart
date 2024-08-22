@@ -10,6 +10,8 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobTrackingCoordinatesRemoteDataSource {
   Future<List<TrackingCoordinatesResponseModelItem>>
       getJobTrackingCoordinatess({
@@ -24,6 +26,11 @@ abstract interface class JobTrackingCoordinatesRemoteDataSource {
     required int jobId,
     required double latitude,
     required double longitude,
+  });
+
+  Future<void> updateTrackingCoordinateBulk({
+    required int jobId,
+    required List<Map<String, dynamic>> cordinates,
   });
 }
 
@@ -41,7 +48,6 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       getJobTrackingCoordinatess({
     required int jobId,
   }) async {
-    print("GİRDİ 1");
     try {
       final response = await _networkClient.get(
         "${ServicePath.jobTrackings.value}/$jobId",
@@ -62,17 +68,18 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       return productData
           .map((e) => TrackingCoordinatesResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -83,7 +90,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
   }) async {
     try {
       final response = await _networkClient.get(
-        "${ServicePath.jobTrackings.value}/$id",
+        "${ServicePath.jobTrackings.value}?jobId=$id",
         options: Options(headers: {
           'Content-Type': 'application/json',
           'Authorization':
@@ -91,9 +98,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
         }),
       );
 
-      print("GET JOB : ${response.data['data']}");
-
-      if (response.data == null || response.data == null) {
+      if (response.data == null) {
         throw Exception('No data found');
       }
       if (response.data['newAccessToken'] != null) {
@@ -102,14 +107,9 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       }
       final productData = response.data["data"];
       return TrackingCoordinatesResponseModelItem.fromMap(productData);
-    } on DioException catch (e) {
-      print("HATA : ${e.message}");
-      print("DioException Detayları: ");
-      print("Response Data: ${e.response?.data}");
-      print("Response Data 2: ${e.response?.data["data"]}");
-      print("Request Path: ${e.requestOptions.path}");
-      print("Error Type: ${e.type}");
-      print("Error: ${e.error}");
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
@@ -119,7 +119,7 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -148,17 +148,57 @@ final class JobTrackingCoordinatesRemoteDataSourceImpl
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: "HATA VAR");
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
+      throw UnknownException();
+    }
+  }
+
+  @override
+  Future<void> updateTrackingCoordinateBulk(
+      {required int jobId,
+      required List<Map<String, dynamic>> cordinates}) async {
+    try {
+      final data = {
+        "jobId": jobId,
+        "cordinates": cordinates,
+      };
+
+      final response = await _networkClient.post(
+        ServicePath.jobTrackingsBulk.value,
+        data: jsonEncode(data),
+        options: Options(headers: {
+          'Accept': 'application/json',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        }),
+      );
+
+      if (response.data == null || response.data == null) {
+        throw Exception('No data found');
+      }
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e.message, stackTrace: s);
+      if (e.response?.data["message"] == "Not authenticated") {
+        ProductStateItems.hiveDatabaseManager.deleteUserToken();
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/sign_in_page');
+      }
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      throw DioException(requestOptions: e.requestOptions, message: "HATA VAR");
+    } catch (e, stackTrace) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

@@ -25,7 +25,8 @@ mixin ExpenseOperationsMixin {
         await box.put(item.id, item);
       }
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return false;
     }
   }
@@ -47,7 +48,8 @@ mixin ExpenseOperationsMixin {
     try {
       await box.put(expense.id, expense);
       return expense;
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return null;
     }
   }
@@ -58,7 +60,8 @@ mixin ExpenseOperationsMixin {
     try {
       await box.put(expense.id, expense);
       return expense;
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return null;
     }
   }

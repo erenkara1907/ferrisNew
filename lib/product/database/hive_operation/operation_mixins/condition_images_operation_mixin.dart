@@ -1,26 +1,19 @@
 part of hive_storage_manager;
 
 mixin ConditionImageOperationMixin {
-  static final _conditionImagesBox =
-      Hive.box<InspectionConditionImagePostModel>(
-          HiveDatabaseConstants.conditionImage);
+  static final _conditionImagesBox = Hive.box<ConditionImageResponseModel>(
+      HiveDatabaseConstants.conditionImage);
 
   /// Get all condition images for a specific jobInspectionId
-  List<InspectionConditionImagePostModel> getConditionImages(
-      int jobInspectionId) {
+  List<ConditionImageResponseModel> getConditionImages(int jobInspectionId) {
     return _conditionImagesBox.values
         .where((image) => image.jobInspectionId == jobInspectionId)
         .toList();
   }
 
   /// Add a new condition image to the box
-  Future<void> addConditionImage(
-      InspectionConditionImagePostModel userModel) async {
-    if (userModel.jobInspectionId != null) {
-      await _conditionImagesBox.add(userModel);
-    } else {
-      throw ArgumentError('jobInspectionId cannot be null');
-    }
+  Future<void> addConditionImage(ConditionImageResponseModel userModel) async {
+    await _conditionImagesBox.add(userModel);
   }
 
   /// Delete a condition image by jobInspectionId and model

@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/home/presentation/view/tab_view/today_jobs_view.dart';
@@ -18,6 +19,7 @@ import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../auth/data/models/user_model.dart';
 
@@ -137,12 +139,14 @@ class HomeTextfieldSearchWidget extends StatelessWidget {
               color: context.theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
             ),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Row(
               children: [
                 Icon(
                   Icons.search,
                   color: context.theme.colorScheme.outline,
                 ),
+                const HorizontalSpace.xxSmall(),
                 Text(
                   "Search a Job",
                   style: context.textTheme.bodyLarge?.copyWith(
@@ -262,11 +266,16 @@ class CustomCard extends StatelessWidget {
     return InkWell(
       onTap: isToday
           ? () async {
+              Sentry.metrics().set(
+                'job_item', // key
+                stringValue: '${jobModel.regNumber}',
+                unit: CustomSentryMeasurementUnit('username'),
+                tags: {'page': 'home'},
+              );
               BotToast.showLoading();
               final result = await hasNetwork();
               if (context.mounted) {
                 if (jobModel.status == 1) {
-                  print("GİRİRİR");
                   // ignore: no_leading_underscores_for_local_identifiers
                   final HiveDatabaseManager _hiveDatabaseManager =
                       HiveDatabaseManager();
@@ -276,6 +285,8 @@ class CustomCard extends StatelessWidget {
                       jobModel.id.toString(), jobModel.regNumber!);
                   hiveStorageManager.setJobWorkingOn(jobModel);
                 }
+
+                print("JOB ID : ${jobModel.id}");
                 context.push('/job_detail_page', extra: {
                   'jobId': jobModel.id.toString(),
                   'asyncJob': !result,
@@ -298,33 +309,32 @@ class CustomCard extends StatelessWidget {
         child: Padding(
           padding: context.paddingAllDefault,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(
-                    jobModel.vehicleId!.name.toString(),
-                    style: context.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w400,
-                        color: isDetail
-                            ? context.theme.colorScheme.onSurface
-                            : determineTextColor(
-                                context,
-                                jobModel,
-                              )),
-                  ),
-                  const Spacer(),
-                  Text(
-                    jobModel.regNumber.toString(),
-                    style: context.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isDetail
-                            ? context.theme.colorScheme.onSurface
-                            : determineTextColor(
-                                context,
-                                jobModel,
-                              )),
-                  ),
-                ],
+              Text(
+                jobModel.regNumber.toString().toUpperCase(),
+                style: context.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: isDetail
+                        ? context.theme.colorScheme.onSurface
+                        : determineTextColor(
+                            context,
+                            jobModel,
+                          )),
+              ),
+
+              const VerticalSpace.xxSmall(),
+              Text(
+                jobModel.vehicleId!.name.toString(),
+                style: context.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: isDetail
+                        ? context.theme.colorScheme.onSurface
+                        : determineTextColor(
+                            context,
+                            jobModel,
+                          )),
               ),
               const VerticalSpace.xxSmall(),
               Row(
@@ -362,6 +372,8 @@ class CustomCard extends StatelessWidget {
                       !jobModel.isVisibleCheckpoint2Address! &&
                       !jobModel.isVisibleCheckpoint3Address! &&
                       !jobModel.isVisibleEndAddress!,
+                  date: jobModel.predictedStartLocationTime,
+                  addressLabel: jobModel.startAddressLabel,
                 ),
               if (jobModel.isVisibleCheckpoint1Address == true &&
                   jobModel.checkpoint1Address != null)
@@ -372,6 +384,8 @@ class CustomCard extends StatelessWidget {
                   isLast: !jobModel.isVisibleCheckpoint2Address! &&
                       !jobModel.isVisibleCheckpoint3Address! &&
                       !jobModel.isVisibleEndAddress!,
+                  date: jobModel.predictedCheckpoint1ArrivedTime,
+                  addressLabel: jobModel.checkpoint1AddressLabel,
                 ),
               if (jobModel.isVisibleCheckpoint2Address == true &&
                   jobModel.checkpoint2Address != null)
@@ -381,6 +395,8 @@ class CustomCard extends StatelessWidget {
                   jobModel.checkpoint2AddressPostalCode!,
                   isLast: !jobModel.isVisibleCheckpoint3Address! &&
                       !jobModel.isVisibleEndAddress!,
+                  date: jobModel.predictedCheckpoint2ArrivedTime,
+                  addressLabel: jobModel.checkpoint2AddressLabel,
                 ),
               if (jobModel.isVisibleCheckpoint3Address == true &&
                   jobModel.checkpoint3Address != null)
@@ -389,6 +405,8 @@ class CustomCard extends StatelessWidget {
                   jobModel.checkpoint3Address!,
                   jobModel.checkpoint3AddressPostalCode!,
                   isLast: !jobModel.isVisibleEndAddress!,
+                  date: jobModel.predictedCheckpoint3ArrivedTime,
+                  addressLabel: jobModel.checkpoint3AddressLabel,
                 ),
               if (jobModel.isVisibleEndAddress == true &&
                   jobModel.endAddress != null)
@@ -397,6 +415,8 @@ class CustomCard extends StatelessWidget {
                   jobModel.endAddress!,
                   jobModel.endAddressPostalCode!,
                   isLast: true,
+                  date: jobModel.predictedEndLocationTime,
+                  addressLabel: jobModel.endAddressLabel,
                 ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1194,9 +1214,23 @@ class CustomCard extends StatelessWidget {
     );
   }
 
+  String _formatDate(String date) {
+    // DateTime'i UTC olarak parseliyoruz
+    DateTime dateTime = DateTime.parse(date).toUtc();
+
+    // UTC'yi yerel saate dönüştürüyoruz
+    DateTime localDateTime = dateTime.toLocal();
+
+    // DateFormat'i kullanarak tarih formatını belirtiyoruz
+    DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+
+    // Yerel saate göre formatlıyoruz
+    return dateFormat.format(localDateTime);
+  }
+
   Widget buildAddressRow(
       BuildContext context, String address, String postalCode,
-      {required bool isLast}) {
+      {required bool isLast, String? date, String? addressLabel}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1204,6 +1238,52 @@ class CustomCard extends StatelessWidget {
         children: [
           Column(
             children: [
+              if (date != null && date.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        addressLabel ?? "",
+                        style: context.textTheme.bodySmall?.copyWith(
+                          fontSize: 10.0,
+                          color: isDetail
+                              ? context.theme.colorScheme.onSurface
+                              : determineTextColor(
+                                  context,
+                                  jobModel,
+                                ),
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
+                        _formatDate(date),
+                        style: context.textTheme.bodySmall?.copyWith(
+                          fontSize: 10.0,
+                          color: isDetail
+                              ? context.theme.colorScheme.onSurface
+                              : determineTextColor(
+                                  context,
+                                  jobModel,
+                                ),
+                        ),
+                      ),
+                      const SizedBox(
+                          height:
+                              2.0), // Tarih ve saat arasında küçük bir boşluk
+                      Text(
+                        DateFormat('HH:mm').format(DateTime.parse(date)),
+                        style: context.textTheme.bodySmall?.copyWith(
+                          fontSize: 10.0,
+                          color: isDetail
+                              ? context.theme.colorScheme.onSurface
+                              : determineTextColor(context, jobModel),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Container(
                 height: 10,
                 width: 10,
@@ -1230,7 +1310,7 @@ class CustomCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(width: 8),
+          const HorizontalSpace.small(),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1254,6 +1334,7 @@ class CustomCard extends StatelessWidget {
                 ),
                 SizedBox(width: context.width * 0.1),
                 Expanded(
+                  flex: 2,
                   child: Text(
                     postalCode,
                     maxLines: 1,

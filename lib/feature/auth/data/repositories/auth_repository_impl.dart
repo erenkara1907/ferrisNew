@@ -8,6 +8,8 @@ import 'package:ferrisfwt/feature/auth/domain/repositories/auth_repository.dart'
 import 'package:ferrisfwt/product/errors/exceptions/exceptions.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required AuthRemoteDataSource dataSource})
       : _dataSource = dataSource;
@@ -20,11 +22,13 @@ final class AuthRepositoryImpl implements AuthRepository {
       final response =
           await _dataSource.login(email: email, password: password);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
+      // } on DioException {
+      //   return left(NetworkFailure());
+      // } on NullResponseException {
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -41,11 +45,10 @@ final class AuthRepositoryImpl implements AuthRepository {
         code: code,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -59,11 +62,10 @@ final class AuthRepositoryImpl implements AuthRepository {
         newPassword: newPassword,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -73,11 +75,10 @@ final class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await _dataSource.logout(deviceToken: deviceToken);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -88,11 +89,10 @@ final class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await _dataSource.setDeviceId(deviceId: deviceId);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -102,11 +102,10 @@ final class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await _dataSource.getUserInfo();
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }

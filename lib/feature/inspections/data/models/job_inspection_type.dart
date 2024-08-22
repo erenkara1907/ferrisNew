@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'job_inspection_type.g.dart';
 
-@HiveType(typeId: 198)
+@HiveType(typeId: 202)
 class JobInspectionType extends Equatable {
   @HiveField(0)
   final int id;

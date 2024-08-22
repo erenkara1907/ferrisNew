@@ -23,7 +23,7 @@ class StopsResponseModelItemAdapter
       reason: fields[2] as String?,
       longitude: fields[3] as double?,
       latitude: fields[4] as double?,
-      evidences: (fields[6] as List).cast<StopEvidenceModel>(),
+      evidence: fields[6] as String?,
       categoryId: fields[7] as StopCategoriesResponseModelItem?,
     );
   }
@@ -43,7 +43,7 @@ class StopsResponseModelItemAdapter
       ..writeByte(4)
       ..write(obj.latitude)
       ..writeByte(6)
-      ..write(obj.evidences)
+      ..write(obj.evidence)
       ..writeByte(7)
       ..write(obj.categoryId);
   }

@@ -7,6 +7,8 @@ import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_customer_sign_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobInspectionsSignRepositoryImpl
     implements JobInspectionsSignRepository {
   JobInspectionsSignRepositoryImpl(
@@ -15,6 +17,7 @@ final class JobInspectionsSignRepositoryImpl
 
   final JobInspectionsSignRemoteDataSource _dataSource;
 
+  @override
   Future<Either<Failure, String>> postCustomerSign({
     required int inspectionId,
     required InspectionCustomerSignPostModel data,
@@ -25,15 +28,15 @@ final class JobInspectionsSignRepositoryImpl
         inspectionId: inspectionId,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
 
+  @override
   Future<Either<Failure, String>> postInspectorSign({
     required int inspectionId,
     required InspectionInspectorSignPostModel data,
@@ -44,15 +47,15 @@ final class JobInspectionsSignRepositoryImpl
         inspectionId: inspectionId,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
 
+  @override
   Future<Either<Failure, String>> patchCustomerSign({
     required InspectionCustomerSignPostModel data,
   }) async {
@@ -61,15 +64,15 @@ final class JobInspectionsSignRepositoryImpl
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
 
+  @override
   Future<Either<Failure, String>> patchInspectorSign({
     required InspectionInspectorSignPostModel data,
   }) async {
@@ -78,11 +81,10 @@ final class JobInspectionsSignRepositoryImpl
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }

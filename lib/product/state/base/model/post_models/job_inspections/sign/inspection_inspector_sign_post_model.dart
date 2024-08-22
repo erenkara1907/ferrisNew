@@ -5,6 +5,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/i_network_sent_da
 
 import 'package:hive/hive.dart';
 
+import '../../../../../../utility/error_handler/sentry_error_handler.dart';
+
 part 'inspection_inspector_sign_post_model.g.dart';
 
 @HiveType(typeId: 196)
@@ -44,7 +46,7 @@ class InspectionInspectorSignPostModel extends INetworkSentDataModel {
       // Verify if the file exists
       File file = File(evidencePath.path);
       if (!file.existsSync()) {
-        print('File not found at path: $evidencePath');
+        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -57,9 +59,10 @@ class InspectionInspectorSignPostModel extends INetworkSentDataModel {
       );
 
       return multipartFile;
-    } catch (e) {
-      print('Error processing file at path: $evidencePath');
-      print(e.toString());
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // print('Error processing file at path: $evidencePath');
+
       return null;
     }
   }

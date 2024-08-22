@@ -4,10 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_parts/damage_part.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_repairs/damage_repair.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade/grade_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';
 import 'package:ferrisfwt/feature/home/domain/usecases/uc_get_job_damage.dart';
 import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
@@ -25,25 +29,29 @@ part 'job_damage_state.dart';
 class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
   JobDamageBloc({
     required UCGetJobDamage ucGetJobDamage,
-    required UCGetJobInspectionsDamages ucGetInspectionsDamage,
+    // required UCGetJobInspectionsDamages ucGetInspectionsDamage,
   })  : _ucGetJobDamage = ucGetJobDamage,
-        _ucGetJobInspectionsDamages = ucGetInspectionsDamage,
+        // _ucGetJobInspectionsDamages = ucGetInspectionsDamage,
         super(const JobDamageState()) {
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
     on<GetAllDamageAssets>(_onGetAllDamageAssets);
+    on<GetAllDamageCombination>(_onGetAllDamageCombination);
+    on<GetAllGrade>(_onGetAllGrade);
+    on<GetAllGradeRule>(_onGetAllGradeRule);
+    on<GetAllGradeRuleUplift>(_onGetAllGradeRuleUplift);
     on<GetDamageCategories>(_onGetDamageCategories);
     on<GetDamageIssues>(_onGetDamageIssues);
     on<GetDamageParts>(_onGetDamageParts);
     on<GetDamageRepairs>(_onGetDamageRepairs);
     on<GetDamageFailures>(_onGetDamageFailures);
     on<SetDamageCategories>(_onSetDamageRepairs);
-    on<PostJobDamages>(_postJobDamages);
+    // on<PostJobDamages>(_postJobDamages);
   }
 
   final UCGetJobDamage _ucGetJobDamage;
   late final HiveStorageManager _hiveStorageManager;
 
-  final UCGetJobInspectionsDamages _ucGetJobInspectionsDamages;
+  // final UCGetJobInspectionsDamages _ucGetJobInspectionsDamages;
 
   Future<void> _onGetAllDamageAssets(
       GetAllDamageAssets event, Emitter<JobDamageState> emit) async {
@@ -59,6 +67,79 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         emit(state.copyWith(
           status: ViewStatus.success,
           damageAssetsModel: data,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onGetAllDamageCombination(
+      GetAllDamageCombination event, Emitter<JobDamageState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result = await _ucGetJobDamage.getAllDamageCombination();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      },
+      (data) {
+        _hiveStorageManager.addDamageCombinationToTable(data);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          damageCombinationModel: data,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onGetAllGrade(
+      GetAllGrade event, Emitter<JobDamageState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result = await _ucGetJobDamage.getAllGrade();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      },
+      (data) {
+        print("GRADE BLOC : ${data.length}");
+        _hiveStorageManager.addGradeToTable(data);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          gradeModel: data,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onGetAllGradeRule(
+      GetAllGradeRule event, Emitter<JobDamageState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result = await _ucGetJobDamage.getAllGradeRule();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      },
+      (data) {
+        _hiveStorageManager.addGradeRuleToTable(data);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          gradeRuleModel: data,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onGetAllGradeRuleUplift(
+      GetAllGradeRuleUplift event, Emitter<JobDamageState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    final result = await _ucGetJobDamage.getAllGradeRuleUplift();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      },
+      (data) {
+        _hiveStorageManager.addGradeRuleUpliftToTable(data);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          gradeRuleUpliftModel: data,
         ));
       },
     );
@@ -165,130 +246,130 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     emit(state.copyWith(getDamageCategoriesResponse: data));
   }
 
-  Future<void> _postJobDamages(
-      PostJobDamages event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await hasNetwork();
-    if (result) {
-      final result = await _ucGetJobInspectionsDamages.postDamage(
-        data: event.data,
-      );
+  // Future<void> _postJobDamages(
+  //     PostJobDamages event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await hasNetwork();
+  //   if (result) {
+  //     final result = await _ucGetJobInspectionsDamages.postDamage(
+  //       data: event.data,
+  //     );
 
-      result.fold(
-        (failure) {
-          emit(state.copyWith(status: ViewStatus.failure, failure: failure));
-        },
-        (data) {
-          emit(state.copyWith(
-            status: ViewStatus.success,
-          ));
-        },
-      );
-      if (!event.isAsync) {
-        _hiveStorageManager.setDamagePostModel(event.data);
-        await Future.delayed(const Duration(seconds: 2));
-        final categoryNmae = state.getDamageCategoriesResponse
-            .firstWhere((element) => element?.id == event.data.categoryId);
+  //     result.fold(
+  //       (failure) {
+  //         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+  //       },
+  //       (data) {
+  //         emit(state.copyWith(
+  //           status: ViewStatus.success,
+  //         ));
+  //       },
+  //     );
+  //     if (!event.isAsync) {
+  //       _hiveStorageManager.setDamagePostModel(event.data);
+  //       await Future.delayed(const Duration(seconds: 2));
+  //       final categoryNmae = state.getDamageCategoriesResponse
+  //           .firstWhere((element) => element?.id == event.data.categoryId);
 
-        final partName = state.getDamagePartsResponse
-            .firstWhere((element) => element.id == event.data.partId);
+  //       final partName = state.getDamagePartsResponse
+  //           .firstWhere((element) => element.id == event.data.partId);
 
-        final issueName = state.getDamageIssuesResponse
-            .firstWhere((element) => element.id == event.data.issueId);
+  //       final issueName = state.getDamageIssuesResponse
+  //           .firstWhere((element) => element.id == event.data.issueId);
 
-        final failureName = state.getDamageFailuresResponse
-            .firstWhere((element) => element.id == event.data.failureId);
+  //       final failureName = state.getDamageFailuresResponse
+  //           .firstWhere((element) => element.id == event.data.failureId);
 
-        final repairName = state.getDamageRepairsResponse
-            .firstWhere((element) => element.id == event.data.repairId);
+  //       final repairName = state.getDamageRepairsResponse
+  //           .firstWhere((element) => element.id == event.data.repairId);
 
-        final DamageResponseModel data = DamageResponseModel(
-            id: Random().nextInt(10000),
-            jobInspectionId: event.data.jobInspectionId,
-            categoryId: DamagesCategory(
-                id: event.data.categoryId, name: categoryNmae?.name ?? ''),
-            partId: DamagesPart(
-                id: event.data.partId,
-                name: partName.name ?? '',
-                categoryId: event.data.categoryId),
-            issueId: DamagesIssue(
-                id: event.data.issueId,
-                name: issueName.name,
-                partId: event.data.partId),
-            failureId: DamagesFailure(
-                id: event.data.failureId,
-                name: failureName.name,
-                issueId: event.data.issueId),
-            repairId: DamagesRepair(
-                id: event.data.repairId,
-                name: repairName.name,
-                failureId: event.data.failureId),
-            damageImage: event.data.damageImage?.path ?? '',
-            contextImage: event.data.contextImage?.path ?? '',
-            price: 0.0);
-        _hiveStorageManager.setGetDamage(data);
-        await Future.delayed(const Duration(seconds: 2));
-        _hiveStorageManager.setRecordedDamage(event.data);
+  //       final DamageResponseModel data = DamageResponseModel(
+  //           id: Random().nextInt(10000),
+  //           jobInspectionId: event.data.jobInspectionId,
+  //           categoryId: DamagesCategory(
+  //               id: event.data.categoryId, name: categoryNmae?.name ?? ''),
+  //           partId: DamagesPart(
+  //               id: event.data.partId,
+  //               name: partName.name ?? '',
+  //               categoryId: event.data.categoryId),
+  //           issueId: DamagesIssue(
+  //               id: event.data.issueId,
+  //               name: issueName.name,
+  //               partId: event.data.partId),
+  //           failureId: DamagesFailure(
+  //               id: event.data.failureId,
+  //               name: failureName.name,
+  //               issueId: event.data.issueId),
+  //           repairId: DamagesRepair(
+  //               id: event.data.repairId,
+  //               name: repairName.name,
+  //               failureId: event.data.failureId),
+  //           damageImage: event.data.damageImage?.path ?? '',
+  //           contextImage: event.data.contextImage?.path ?? '',
+  //           price: 0.0);
+  //       _hiveStorageManager.setGetDamage(data);
+  //       await Future.delayed(const Duration(seconds: 2));
+  //       _hiveStorageManager.setRecordedDamage(event.data);
 
-        emit(state.copyWith(
-          status: ViewStatus.success,
-          damageResponse: [data, ...state.damageResponse],
-        ));
-        return;
-      }
-    } else {
-      if (event.isAsync) {
-        emit(state.copyWith(status: ViewStatus.failure));
-        return;
-      }
-      _hiveStorageManager.setDamagePostModel(event.data);
-      await Future.delayed(const Duration(seconds: 2));
-      final categoryNmae = state.getDamageCategoriesResponse
-          .firstWhere((element) => element?.id == event.data.categoryId);
+  //       emit(state.copyWith(
+  //         status: ViewStatus.success,
+  //         damageResponse: [data, ...state.damageResponse],
+  //       ));
+  //       return;
+  //     }
+  //   } else {
+  //     if (event.isAsync) {
+  //       emit(state.copyWith(status: ViewStatus.failure));
+  //       return;
+  //     }
+  //     _hiveStorageManager.setDamagePostModel(event.data);
+  //     await Future.delayed(const Duration(seconds: 2));
+  //     final categoryNmae = state.getDamageCategoriesResponse
+  //         .firstWhere((element) => element?.id == event.data.categoryId);
 
-      final partName = state.getDamagePartsResponse
-          .firstWhere((element) => element.id == event.data.partId);
+  //     final partName = state.getDamagePartsResponse
+  //         .firstWhere((element) => element.id == event.data.partId);
 
-      final issueName = state.getDamageIssuesResponse
-          .firstWhere((element) => element.id == event.data.issueId);
+  //     final issueName = state.getDamageIssuesResponse
+  //         .firstWhere((element) => element.id == event.data.issueId);
 
-      final failureName = state.getDamageFailuresResponse
-          .firstWhere((element) => element.id == event.data.failureId);
+  //     final failureName = state.getDamageFailuresResponse
+  //         .firstWhere((element) => element.id == event.data.failureId);
 
-      final repairName = state.getDamageRepairsResponse
-          .firstWhere((element) => element.id == event.data.repairId);
+  //     final repairName = state.getDamageRepairsResponse
+  //         .firstWhere((element) => element.id == event.data.repairId);
 
-      final DamageResponseModel data = DamageResponseModel(
-          id: Random().nextInt(10000),
-          jobInspectionId: event.data.jobInspectionId,
-          categoryId: DamagesCategory(
-              id: event.data.categoryId, name: categoryNmae?.name ?? ''),
-          partId: DamagesPart(
-              id: event.data.partId,
-              name: partName.name ?? '',
-              categoryId: event.data.categoryId),
-          issueId: DamagesIssue(
-              id: event.data.issueId,
-              name: issueName.name,
-              partId: event.data.partId),
-          failureId: DamagesFailure(
-              id: event.data.failureId,
-              name: failureName.name,
-              issueId: event.data.issueId),
-          repairId: DamagesRepair(
-              id: event.data.repairId,
-              name: repairName.name,
-              failureId: event.data.failureId),
-          damageImage: event.data.damageImage?.path ?? '',
-          contextImage: event.data.contextImage?.path ?? '',
-          price: 0.0);
-      _hiveStorageManager.setGetDamage(data);
-      await Future.delayed(const Duration(seconds: 2));
-      _hiveStorageManager.setRecordedDamage(event.data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        damageResponse: [data, ...state.damageResponse],
-      ));
-    }
-  }
+  //     final DamageResponseModel data = DamageResponseModel(
+  //         id: Random().nextInt(10000),
+  //         jobInspectionId: event.data.jobInspectionId,
+  //         categoryId: DamagesCategory(
+  //             id: event.data.categoryId, name: categoryNmae?.name ?? ''),
+  //         partId: DamagesPart(
+  //             id: event.data.partId,
+  //             name: partName.name ?? '',
+  //             categoryId: event.data.categoryId),
+  //         issueId: DamagesIssue(
+  //             id: event.data.issueId,
+  //             name: issueName.name,
+  //             partId: event.data.partId),
+  //         failureId: DamagesFailure(
+  //             id: event.data.failureId,
+  //             name: failureName.name,
+  //             issueId: event.data.issueId),
+  //         repairId: DamagesRepair(
+  //             id: event.data.repairId,
+  //             name: repairName.name,
+  //             failureId: event.data.failureId),
+  //         damageImage: event.data.damageImage?.path ?? '',
+  //         contextImage: event.data.contextImage?.path ?? '',
+  //         price: 0.0);
+  //     _hiveStorageManager.setGetDamage(data);
+  //     await Future.delayed(const Duration(seconds: 2));
+  //     _hiveStorageManager.setRecordedDamage(event.data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       damageResponse: [data, ...state.damageResponse],
+  //     ));
+  //   }
+  // }
 }

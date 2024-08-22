@@ -39,6 +39,8 @@ final class InspectionsState extends Equatable {
     this.damageCategoryId = 1,
     this.damagePartId = 1,
     this.damageIssueId = 1,
+    this.isError = false,
+    this.gradeId = "",
   });
 
   final ViewStatus? status;
@@ -78,6 +80,8 @@ final class InspectionsState extends Equatable {
   final int damageCategoryId;
   final int damagePartId;
   final int damageIssueId;
+  final bool isError;
+  final String gradeId;
 
   @override
   List<Object?> get props => [
@@ -85,6 +89,7 @@ final class InspectionsState extends Equatable {
         status,
         failure,
         checklists,
+        gradeId,
         inspections,
         inspectionAbortTypes,
         isSetInspection,
@@ -100,6 +105,7 @@ final class InspectionsState extends Equatable {
         selectedDamageCategory,
         selectedDamageFailure,
         selectedDamageIssue,
+        isError,
         selectedDamagePart,
         areButtonsVisible,
         selectedDamageRepair,
@@ -157,9 +163,13 @@ final class InspectionsState extends Equatable {
     int? damageCategoryId,
     int? damagePartId,
     int? damageIssueId,
+    bool? isError,
+    String? gradeId,
   }) {
     return InspectionsState(
       status: status ?? this.status,
+      gradeId: gradeId ?? this.gradeId,
+      isError: isError ?? this.isError,
       damageCategoryId: damageCategoryId ?? this.damageCategoryId,
       damagePartId: damagePartId ?? this.damagePartId,
       damageIssueId: damageIssueId ?? this.damageIssueId,

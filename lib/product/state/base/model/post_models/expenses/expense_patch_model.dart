@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/i_network_sent_data_model.dart';
 import 'package:hive/hive.dart';
 
+import '../../../../../utility/error_handler/sentry_error_handler.dart';
+
 part 'expense_patch_model.g.dart';
 
 @HiveType(typeId: 222)
@@ -58,9 +60,10 @@ class ExpensePatchModel extends INetworkSentDataModel {
       );
 
       return multipartFile;
-    } catch (e) {
-      print('Error processing file at path: $evidencePath');
-      print(e.toString());
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // print('Error processing file at path: $evidencePath');
+
       return null;
     }
   }

@@ -30,6 +30,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
 
   Future<void> verificationsComplete(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 1));
+
     context.read<HomeBloc>().add(const GetJobs());
     context.read<AuthBloc>().add(const SetDeviceIdEvent());
     context.read<HomeBloc>().add(const GetJobsValet());
@@ -37,6 +38,10 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     context.read<StopJobBloc>().add(const GetJobStopsCategories());
     context.read<JobExpenseBloc>().add(const GetExpenseCategories());
     context.read<JobDamageBloc>().add(const GetAllDamageAssets());
+    context.read<JobDamageBloc>().add(const GetAllDamageCombination());
+    context.read<JobDamageBloc>().add(const GetAllGrade());
+    context.read<JobDamageBloc>().add(const GetAllGradeRule());
+    context.read<JobDamageBloc>().add(const GetAllGradeRuleUplift());
     // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
     // context.read<JobDamageBloc>().add(const GetDamageIssues(1, 1));
     // context.read<JobDamageBloc>().add(const GetDamageFailures(1, 1));

@@ -18,4 +18,9 @@ abstract interface class JobTrackingCoordinatesRepository {
     required double latitude,
     required double longitude,
   });
+
+  Future<Either<Failure, void>> updateTrackingCoordinateBulk({
+    required int jobId,
+    required List<Map<String, dynamic>> cordinates,
+  });
 }

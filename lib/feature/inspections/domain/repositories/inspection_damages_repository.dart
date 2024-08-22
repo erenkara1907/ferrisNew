@@ -10,6 +10,10 @@ abstract interface class JobInspectionsDamagesRepository {
     required InspectionDamagePostModel data,
   });
 
+  Future<Either<Failure, List<DamageResponseModel>>> getDamages({
+    required int jobInspectionId,
+  });
+
   Future<Either<Failure, DamageUpdateResponseModel>> patchDamage({
     required int damageId,
     required InspectionDamagePatchModel data,
@@ -18,5 +22,4 @@ abstract interface class JobInspectionsDamagesRepository {
   Future<Either<Failure, void>> deleteRecordedDamage({
     required int damageId,
   });
-
 }

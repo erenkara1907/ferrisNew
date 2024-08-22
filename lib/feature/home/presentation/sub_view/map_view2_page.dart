@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
@@ -16,6 +17,9 @@ import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permissionhandler;
+
+import '../../../../product/state/container/product_state_items.dart';
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 class MapViewPage2 extends StatefulWidget {
   const MapViewPage2({super.key});
@@ -39,7 +43,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
   late Location location;
   google.Marker? currentLocationMarker;
   google.GoogleMapController? _mapController;
-  ValueNotifier<String> _duration = ValueNotifier<String>("");
+  final ValueNotifier<String> _duration = ValueNotifier<String>("");
 
   ValueNotifier<BitmapDescriptor> sourceIcon =
       ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
@@ -75,10 +79,19 @@ class _MapViewPage2State extends State<MapViewPage2> {
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> points = [];
 
-    points.add(PointLatLng(
-      job!.startAddressCordinates!.latitude,
-      job!.startAddressCordinates!.longitude,
-    ));
+    if (job != null) {
+      if (job!.startAddressCordinates != null && job!.startAddress != null) {
+        points.add(PointLatLng(
+          job!.startAddressCordinates!.latitude,
+          job!.startAddressCordinates!.longitude,
+        ));
+      } else {
+        BotToast.showText(text: "Address Not Found");
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/job_detail_page');
+      }
+    }
 
     if (checkpoint1Coordinates != null) {
       points.add(PointLatLng(
@@ -101,10 +114,19 @@ class _MapViewPage2State extends State<MapViewPage2> {
       ));
     }
 
-    points.add(PointLatLng(
-      job!.endAddressCordinates!.latitude,
-      job!.endAddressCordinates!.longitude,
-    ));
+    if (job != null) {
+      if (job!.endAddress != null && job!.endAddressCordinates != null) {
+        points.add(PointLatLng(
+          job!.endAddressCordinates!.latitude,
+          job!.endAddressCordinates!.longitude,
+        ));
+      } else {
+        BotToast.showText(text: "Address Not Found");
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/job_detail_page');
+      }
+    }
 
     for (int i = 0; i < points.length - 1; i++) {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
@@ -167,30 +189,61 @@ class _MapViewPage2State extends State<MapViewPage2> {
     try {
       String baseUrl =
           "https://maps.googleapis.com/maps/api/distancematrix/json";
-      String parameters =
-          "units=imperial&origins=${job!.startAddressCordinates!.latitude},${job!.startAddressCordinates!.longitude}&destinations=${job!.endAddressCordinates!.latitude},${job!.endAddressCordinates!.longitude}&key=${googleApiKey}";
-      Response response = await Dio().get("$baseUrl?$parameters");
-      _duration.value =
-          response.data['rows'][0]['elements'][0]['duration']['text'];
+      if (job != null) {
+        if (job!.startAddress != null &&
+            job!.startAddressCordinates != null &&
+            job!.endAddressCordinates != null &&
+            job!.endAddress != null) {
+          String parameters =
+              "units=imperial&origins=${job!.startAddressCordinates!.latitude},${job!.startAddressCordinates!.longitude}&destinations=${job!.endAddressCordinates!.latitude},${job!.endAddressCordinates!.longitude}&key=$googleApiKey";
+          Response response = await Dio().get("$baseUrl?$parameters");
+          _duration.value =
+              response.data['rows'][0]['elements'][0]['duration']['text'];
+        } else {
+          BotToast.showText(text: "Address Not Found");
+          ProductStateItems
+              .appRouter.router.routerDelegate.navigatorKey.currentContext
+              ?.go('/job_detail_page');
+        }
+      }
+
       setState(() {
         if (_mapController != null) {
           _mapController?.showMarkerInfoWindow(const MarkerId('destination'));
         }
       });
-    } catch (e) {
-      print("Travel time fetch error: $e");
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 
   void _initializeMap() {
-    toCoordinates = google.LatLng(
-      job!.endAddressCordinates!.latitude,
-      job!.endAddressCordinates!.longitude,
-    );
-    fromCoordinates = google.LatLng(
-      job!.startAddressCordinates!.latitude,
-      job!.startAddressCordinates!.longitude,
-    );
+    if (job != null) {
+      if (job!.endAddress != null && job!.endAddressCordinates != null) {
+        toCoordinates = google.LatLng(
+          job!.endAddressCordinates!.latitude,
+          job!.endAddressCordinates!.longitude,
+        );
+      } else {
+        BotToast.showText(text: "Address Not Found");
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/job_detail_page');
+      }
+
+      if (job!.startAddress != null && job!.startAddressCordinates != null) {
+        fromCoordinates = google.LatLng(
+          job!.startAddressCordinates!.latitude,
+          job!.startAddressCordinates!.longitude,
+        );
+      } else {
+        BotToast.showText(text: "Address Not Found");
+        ProductStateItems
+            .appRouter.router.routerDelegate.navigatorKey.currentContext
+            ?.go('/job_detail_page');
+      }
+    }
+
     checkpoint1Coordinates = job!.checkpoint1AddressCordinates != null
         ? google.LatLng(
             job!.checkpoint1AddressCordinates!.latitude,
@@ -212,29 +265,29 @@ class _MapViewPage2State extends State<MapViewPage2> {
   }
 
   void _initCurrentLocation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         context.push('/check_location_page', extra: {'location': location});
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         context.push('/check_location_page', extra: {'location': location});
         return;
       }
     }
 
-    final _locationData = await location.getLocation();
-    _updateCurrentLocation(_locationData);
+    final locationData = await location.getLocation();
+    _updateCurrentLocation(locationData);
 
     _locationSubscription =
         location.onLocationChanged.listen((LocationData currentLocation) {
@@ -271,48 +324,50 @@ class _MapViewPage2State extends State<MapViewPage2> {
 
   @override
   Widget build(BuildContext context) {
-    if (fromCoordinates == null ||
-        toCoordinates == null ||
-        job!.startAddress == null ||
-        job!.endAddress == null ||
-        job!.startAddressCordinates == null ||
-        job!.endAddressCordinates == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Map View', style: context.textTheme.titleSmall),
-          leading: IconButton(
-            icon: Icon(
-              Icons.cancel_outlined,
-              color: Theme.of(context).colorScheme.primary,
-              size: 24,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: Padding(
-          padding:
-              context.paddingHorizontalHigh + context.paddingHorizontalHigh,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/no_location.png',
-                height: context.dynamicHeight(0.18),
-                width: context.dynamicWidth(2),
+    if (job == null) {
+      if (fromCoordinates == null ||
+          toCoordinates == null ||
+          job!.startAddress == null ||
+          job!.endAddress == null ||
+          job!.startAddressCordinates == null ||
+          job!.endAddressCordinates == null) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Map View', style: context.textTheme.titleSmall),
+            leading: IconButton(
+              icon: Icon(
+                Icons.cancel_outlined,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
               ),
-              const VerticalSpace.small(),
-              Text(
-                textAlign: TextAlign.center,
-                'The address and location cannot be found',
-                style: context.textTheme.bodyLarge,
-              )
-            ],
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           ),
-        ),
-      );
+          body: Padding(
+            padding:
+                context.paddingHorizontalHigh + context.paddingHorizontalHigh,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/no_location.png',
+                  height: context.dynamicHeight(0.18),
+                  width: context.dynamicWidth(2),
+                ),
+                const VerticalSpace.small(),
+                Text(
+                  textAlign: TextAlign.center,
+                  'The address and location cannot be found',
+                  style: context.textTheme.bodyLarge,
+                )
+              ],
+            ),
+          ),
+        );
+      }
     }
     return Scaffold(
       appBar: AppBar(
@@ -391,7 +446,8 @@ class _MapViewPage2State extends State<MapViewPage2> {
             polylines: Set<Polyline>.of(polylines),
             onMapCreated: (controller) {
               _mapController = controller;
-              _mapController?.showMarkerInfoWindow(const MarkerId('destination'));
+              _mapController
+                  ?.showMarkerInfoWindow(const MarkerId('destination'));
             },
           ),
           Positioned(
@@ -405,7 +461,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.background,
+                      color: context.theme.colorScheme.surface,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -424,7 +480,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.background,
+                      color: context.theme.colorScheme.surface,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -443,7 +499,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.background,
+                      color: context.theme.colorScheme.surface,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -471,7 +527,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
 class LocationSettingsPage extends StatefulWidget {
   final Location location;
 
-  const LocationSettingsPage({required this.location});
+  const LocationSettingsPage({super.key, required this.location});
 
   @override
   _LocationSettingsPageState createState() => _LocationSettingsPageState();

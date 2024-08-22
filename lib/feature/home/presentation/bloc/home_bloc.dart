@@ -42,16 +42,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetJobsValet>(_onGetJobsValet);
     on<GetJobShowValetByType>(_onGetJobShowValetByType);
     on<GetJobTracingCordinates>(_onGetJobTracingCordinates);
-    on<GetTrackingCoordinate>(_onGetTrackingCoordinate);
+    // on<GetTrackingCoordinate>(_onGetTrackingCoordinate);
     on<SetJob>(_onSetJob);
     on<GetJobTomorrow>(_getJobTomorrow);
     on<GetJobHistory>(_getJobHistory);
     on<ClearJob>(_onClearJob);
     on<SetValetJob>(_onSetValetJob);
+    on<PriceJob>(_onPriceJob);
     on<SetTrackingCoordinate>(_onSetTrackingCoordinate);
     on<SetExpenseCount>(_onSetExpenseCount);
     on<SetStopCount>(_onSetStopCount);
     on<UpdateTrackingCoordinate>(_onUpdateTrackingCoordinate);
+    on<UpdateTrackingCoordinateBulk>(_onUpdateTrackingCoordinateBulk);
     on<ConfirmJob>(_onConfirmJob);
     on<FinishJobResetHome>(_resetHomeFinishJob);
   }
@@ -70,6 +72,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
     if (id == null || id == "") {
+      print("GİRDİ INTERNET");
       // // İlk API çağrısı: Bugünkü jobları al
       final todayJobsResult = await _ucGetJob.getJob(
         status: "0",
@@ -122,33 +125,52 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       return;
     }
+
+    print("GİRDİ INTERNET NO");
     final jobWorkingOn = await _hiveStorageManager
         .getJobWorkingOnModel(int.parse(id.toString()));
 
-    final result = await _ucGetJob.getJob(
-        status: "0",
-        date:
-            "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}");
+    final todayJobsResult = await _ucGetJob.getJob(
+      status: "0",
+      date:
+          "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}",
+    );
 
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      bool jobExists = false;
-      if (jobWorkingOn != null) {
-        for (var element in data) {
-          if (element.id == jobWorkingOn.id) {
-            jobExists = true;
-          }
-        }
-        if (!jobExists) {
-          final List<JobsResponseModelItem> jobs = [jobWorkingOn, ...data];
-          emit(state.copyWith(status: ViewStatus.success, jobs: jobs));
-        } else {
-          emit(state.copyWith(status: ViewStatus.success, jobs: data));
-        }
-      }
-    });
+    final activeJobsResult = await _ucGetJob.getJob(
+      status: "1",
+    );
+
+// Her iki sonuç için de hata kontrolü yap
+    if (todayJobsResult.isLeft() || activeJobsResult.isLeft()) {
+      final failure = todayJobsResult.fold((failure) => failure, (_) => null) ??
+          activeJobsResult.fold((failure) => failure, (_) => null);
+      emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      return;
+    }
+
+    final todayJobs = todayJobsResult.getOrElse(() => []);
+    final activeJobs = activeJobsResult.getOrElse(() => []);
+
+// Tüm job'ları tek bir Map'te birleştirmek için Map yapısını kullan
+    final Map<int, JobsResponseModelItem> jobsMap = {
+      for (var job in todayJobs) job.id: job,
+      for (var job in activeJobs) job.id: job,
+    };
+
+// Eğer jobWorkingOn mevcutsa, onu job'lara ekle (zaten varsa günceller)
+    if (jobWorkingOn != null) {
+      jobsMap[jobWorkingOn.id] = jobWorkingOn;
+    }
+
+// Map'teki değerleri (job'ları) listeye çevir
+    final allJobs = jobsMap.values.toList();
+
+// Sonuçları sıralamaları yap
+    allJobs.sort((a, b) => a.date!.compareTo(b.date ?? ""));
+    allJobs.sort((a, b) => b.status!.compareTo(a.status ?? 1));
+
+// Elde edilen job'ları state'e aktar
+    emit(state.copyWith(status: ViewStatus.success, jobs: allJobs));
   }
 
   Future<void> _onGetJob(GetJob event, Emitter<HomeState> emit) async {
@@ -163,9 +185,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onStartJob(StartJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
+    // print("START DATE : ${event.jobShowModel.startDate}");
+    // Şu anki tarih ve zaman
+    DateTime now = DateTime.now();
 
+    // UNIX zaman damgası (saniye cinsinden)
+    int unixTimestamp = now.millisecondsSinceEpoch ~/ 1000;
     final result = await _ucGetJob.startJob(
-        data: StartJobPostModel(startDate: event.jobShowModel.startDate ?? 0),
+        data: StartJobPostModel(startDate: unixTimestamp),
         jobId: event.jobShowModel.id);
     result.fold((failure) {
       emit(state.copyWith(status: ViewStatus.failure, failure: failure));
@@ -175,6 +202,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       _hiveDatabaseManager.saveJob(event.jobShowModel.id.toString(),
           event.jobShowModel.startDate.toString());
       _hiveStorageManager.setJobWorkingOn(event.jobShowModel);
+      emit(state.copyWith(
+        status: ViewStatus.success,
+        isStarted: true,
+      ));
+    });
+  }
+
+  Future<void> _onPriceJob(PriceJob event, Emitter<HomeState> emit) async {
+    emit(state.copyWith(status: ViewStatus.loading));
+    // print("START DATE : ${event.jobShowModel.startDate}");
+    // Şu anki tarih ve zaman
+
+    // UNIX zaman damgası (saniye cinsinden)
+    final result = await _ucGetJob.getJobPrice(jobId: event.jobId);
+    result.fold((failure) {
+      emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+    }, (data) async {
+      // _hiveDatabaseManager.saveUserModel(
+      //     UserModel(currentJobId: event.jobShowModel.id.toString()));
+      _hiveStorageManager.addJobToTable(data);
+
       emit(state.copyWith(
         status: ViewStatus.success,
         isStarted: true,
@@ -319,24 +367,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  Future<void> _onGetTrackingCoordinate(
-      GetTrackingCoordinate event, Emitter<HomeState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJobTrackingCoordinates.getTrackingCoordinate(
-      id: event.id,
-    );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.setTrackingCoordinate(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        selectedTrackingCoordinate: data,
-        isStarted: false,
-      ));
-    });
-  }
+  // Future<void> _onGetTrackingCoordinate(
+  //     GetTrackingCoordinate event, Emitter<HomeState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _ucGetJobTrackingCoordinates.getTrackingCoordinate(
+  //     id: event.id,
+  //   );
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.setTrackingCoordinate(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       selectedTrackingCoordinate: data,
+  //       isStarted: false,
+  //     ));
+  //   });
+  // }
 
   void _onSetJob(SetJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(
@@ -426,6 +474,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         jobId: event.jobId,
         latitude: event.latitude,
         longitude: event.longitude,
+      );
+    } else {}
+  }
+
+  Future<void> _onUpdateTrackingCoordinateBulk(
+      UpdateTrackingCoordinateBulk event, Emitter<HomeState> emit) async {
+    final result = await hasNetwork();
+    if (result) {
+      await _ucGetJobTrackingCoordinates.updateTrackingCoordinateBulk(
+        jobId: event.jobId,
+        cordinates: event.cordinates,
       );
     } else {}
   }

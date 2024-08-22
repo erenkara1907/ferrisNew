@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
+import '../error_handler/sentry_error_handler.dart';
+
 List<MultipartFile> convertToMultipartFileList(List<String> evidencePaths) {
   List<MultipartFile> multipartFiles = [];
 
@@ -10,7 +12,7 @@ List<MultipartFile> convertToMultipartFileList(List<String> evidencePaths) {
       // Verify if the file exists
       File file = File(path);
       if (!file.existsSync()) {
-        print('File not found at path: $path');
+        // print('File not found at path: $path');
         continue; // Skip this path and proceed to the next one
       }
 
@@ -22,9 +24,11 @@ List<MultipartFile> convertToMultipartFileList(List<String> evidencePaths) {
 
       // Add the MultipartFile to the list
       multipartFiles.add(multipartFile);
-    } catch (e) {
-      print('Error processing file at path: $path');
-      print(e.toString());
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
+
+      // print('Error processing file at path: $path');
+
       // Handle the error as needed
     }
   }

@@ -13,9 +13,9 @@ final class NetworkClient {
         _baseUrl = baseUrl {
     _dio.options.baseUrl = _baseUrl;
 
-    _dio.options.connectTimeout = const Duration(seconds: 25);
-    _dio.options.sendTimeout = const Duration(seconds: 25);
-    _dio.options.receiveTimeout = const Duration(seconds: 25);
+    _dio.options.connectTimeout = const Duration(minutes: 2);
+    _dio.options.sendTimeout = const Duration(minutes: 2);
+    _dio.options.receiveTimeout = const Duration(minutes: 2);
 
     _dio.interceptors.add(RetryInterceptor(dio: _dio));
     _dio.interceptors.add(

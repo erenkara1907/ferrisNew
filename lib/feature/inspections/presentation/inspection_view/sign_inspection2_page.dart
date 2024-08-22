@@ -45,7 +45,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
-    exportBackgroundColor: Colors.yellowAccent,
+    exportBackgroundColor: Colors.white,
     exportPenColor: Colors.black,
   );
 
@@ -667,7 +667,7 @@ class _SignMapViewState extends State<SignMapView> {
     bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!isLocationServiceEnabled) {
-      // print("User has not enabled location services");
+      print("User has not enabled location services");
     }
 
     locationPermission = await Geolocator.checkPermission();
@@ -675,12 +675,12 @@ class _SignMapViewState extends State<SignMapView> {
     if (locationPermission == LocationPermission.denied) {
       locationPermission = await Geolocator.requestPermission();
       if (locationPermission == LocationPermission.denied) {
-        // print('User denied location permissions');
+        print('User denied location permissions');
       }
     }
 
     if (locationPermission == LocationPermission.deniedForever) {
-      // print('User denied location permissions permanently');
+      print('User denied location permissions permanently');
     }
 
     return await Geolocator.getCurrentPosition(

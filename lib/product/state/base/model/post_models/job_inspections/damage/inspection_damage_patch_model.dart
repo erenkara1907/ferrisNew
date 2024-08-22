@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/i_network_sent_data_model.dart';
 
+import '../../../../../../utility/error_handler/sentry_error_handler.dart';
+
 class InspectionDamagePatchModel extends INetworkSentDataModel {
   final int? categoryId;
   final int? partId;
@@ -48,7 +50,7 @@ class InspectionDamagePatchModel extends INetworkSentDataModel {
       // Verify if the file exists
       File file = File(evidencePath.path);
       if (!file.existsSync()) {
-        print('File not found at path: $evidencePath');
+        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -61,9 +63,10 @@ class InspectionDamagePatchModel extends INetworkSentDataModel {
       );
 
       return multipartFile;
-    } catch (e) {
-      print('Error processing file at path: $evidencePath');
-      print(e.toString());
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // print('Error processing file at path: $evidencePath');
+
       return null;
     }
   }

@@ -361,7 +361,7 @@ class AuthUserAdapter extends TypeAdapter<AuthUser> {
       id: fields[0] as int?,
       name: fields[1] as String?,
       email: fields[2] as String?,
-      mainClientId: fields[3] as MainClientId?,
+      mainClientId: fields[3] as DamageAssetsMainClientId?,
     );
   }
 
@@ -390,23 +390,24 @@ class AuthUserAdapter extends TypeAdapter<AuthUser> {
           typeId == other.typeId;
 }
 
-class MainClientIdAdapter extends TypeAdapter<MainClientId> {
+class DamageAssetsMainClientIdAdapter
+    extends TypeAdapter<DamageAssetsMainClientId> {
   @override
-  final int typeId = 129;
+  final int typeId = 133;
 
   @override
-  MainClientId read(BinaryReader reader) {
+  DamageAssetsMainClientId read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return MainClientId(
+    return DamageAssetsMainClientId(
       id: fields[0] as int?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, MainClientId obj) {
+  void write(BinaryWriter writer, DamageAssetsMainClientId obj) {
     writer
       ..writeByte(1)
       ..writeByte(0)
@@ -419,7 +420,7 @@ class MainClientIdAdapter extends TypeAdapter<MainClientId> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MainClientIdAdapter &&
+      other is DamageAssetsMainClientIdAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -14,42 +16,33 @@ import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/theme/custom_dark_theme.dart';
 import 'package:ferrisfwt/product/theme/theme_notifer.dart';
+import 'package:ferrisfwt/product/utility/error_handler/sentry_error_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
-  await ApplicationInitialize().make();
-  FlutterError.onError = (FlutterErrorDetails details) {
-    //FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+  runZonedGuarded(() async {
+    await dotenv.load(fileName: ".env");
+    await ApplicationInitialize().make();
 
-    if (details.library == 'image resource service' &&
-        (details.exception.toString().contains('404') ||
-            details.exception.toString().contains("Invalid"))) {
-      return;
-    }
-    Sentry.captureException(details.exception, stackTrace: details.stack);
-    FlutterError.presentError(details);
-  };
-  await SentryFlutter.init(
-    (options) {
-      options.dsn =
-          'https://5a101e43010540dc8fb5247780c8b7f8@o4507728913956864.ingest.de.sentry.io/4507743999492176';
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-      options.attachScreenshot = true;
-      // options.beforeScreenshot = (event, {hint}) {
-      //   // Return false if you don't want to attach the screenshot based on some condition.
-      //   return true;
-      // };
-      // The sampling rate for profiling is relative to tracesSampleRate
-      // Setting to 1.0 will profile 100% of sampled transactions:
-      options.attachViewHierarchy = true;
-      options.enableAutoPerformanceTracing = true;
-    },
-    appRunner: () => runApp(
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = dotenv.env['SENTRY_DSN'];
+        options.tracesSampleRate = 1.0;
+        options.attachScreenshot = true;
+        options.recordHttpBreadcrumbs = true;
+        options.enableAutoSessionTracking = true;
+        options.enableMetrics = true;
+        options.attachViewHierarchy = true;
+        options.enableAutoPerformanceTracing = true;
+      },
+    );
+
+    runApp(
       SentryWidget(
         child: ProductLocalization(
           child: const StateInitialize(
@@ -57,8 +50,64 @@ Future<void> main() async {
           ),
         ),
       ),
-    ),
+    );
+  }, (exception, stackTrace) async {
+    await Sentry.captureException(exception, stackTrace: stackTrace);
+  });
+}
+
+Future<void> mains() async {
+  // BindingBase.debugZoneErrorsAreFatal = true;
+  // WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = dotenv.env['SENTRY_DSN'];
+      options.tracesSampleRate = 1.0;
+      options.attachScreenshot = true;
+      options.recordHttpBreadcrumbs = true;
+      options.enableAutoSessionTracking = true;
+      options.enableMetrics = true;
+      options.attachViewHierarchy = true;
+      options.enableAutoPerformanceTracing = true;
+    },
+    appRunner: () async {
+      // Zone guard için runZonedGuarded burada kullanılıyor
+      runZonedGuarded(
+        () {
+          runApp(
+            SentryWidget(
+              child: ProductLocalization(
+                child: const StateInitialize(
+                  child: _MyApp(),
+                ),
+              ),
+            ),
+          );
+
+          FlutterError.onError = (FlutterErrorDetails details) {
+            FlutterError.presentError(details);
+            Sentry.captureException(details.exception,
+                stackTrace: details.stack);
+          };
+        },
+        (error, stackTrace) async {
+          await Sentry.captureException(error, stackTrace: stackTrace);
+        },
+      );
+    },
   );
+
+  // FlutterError.onError, Sentry'nin init işleminden sonra yapılandırılır
+  // FlutterError.onError = (FlutterErrorDetails details) {
+  //   if (details.library == 'image resource service' &&
+  //       (details.exception.toString().contains('404') ||
+  //           details.exception.toString().contains("Invalid"))) {
+  //     return;
+  //   }
+  //   Sentry.captureException(details.exception, stackTrace: details.stack);
+  //   FlutterError.presentError(details);
+  // };
 }
 
 class _MyApp extends StatefulWidget {
@@ -80,7 +129,7 @@ class _MyAppState extends State<_MyApp> {
     _userHiveOperation = ProductStateItems.hiveStorageManager;
     _userHiveDatabase = ProductStateItems.hiveDatabaseManager;
 
-    timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       checkInternetConnection();
     });
 
@@ -97,16 +146,48 @@ class _MyAppState extends State<_MyApp> {
       return;
     }
     try {
+      // var connectivityResult = await hasNetwork();
+      // final position = await Geolocator.getCurrentPosition(
+      //     desiredAccuracy: LocationAccuracy.high);
+      // if (connectivityResult) {
+      //   final currentJobId =
+      //       ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
+
+      //   print("currentJob Id : $currentJobId");
+
+      //   if (currentJobId != null && context.mounted) {
+      //     await Future.delayed(const Duration(seconds: 1));
+      //     context.read<HomeBloc>().add(UpdateTrackingCoordinate(
+      //           jobId: int.parse(currentJobId),
+      //           latitude: position.latitude,
+      //           longitude: position.longitude,
+      //         ));
+      //   }
+      // } else {}
+      final HiveStorageManager _hiveStorageManager = HiveStorageManager();
       var connectivityResult = await hasNetwork();
+      final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      final currentJobId =
+          ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
       if (connectivityResult) {
-        final currentJobId =
-            ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
+        List<Map<String, double>> _locations =
+            await _hiveStorageManager.getLocationsFromTable();
+        if (_locations.isNotEmpty && currentJobId != null) {
+          print("LOCATIONS : $_locations");
+          // API Request
+          context.read<HomeBloc>().add(UpdateTrackingCoordinateBulk(
+                jobId: int.parse(currentJobId),
+                cordinates: _locations,
+              ));
+
+          await _hiveStorageManager.clearLocationTable();
+          return;
+        }
 
         print("currentJob Id : $currentJobId");
 
         if (currentJobId != null && context.mounted) {
-          final position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high);
           await Future.delayed(const Duration(seconds: 1));
           context.read<HomeBloc>().add(UpdateTrackingCoordinate(
                 jobId: int.parse(currentJobId),
@@ -114,13 +195,31 @@ class _MyAppState extends State<_MyApp> {
                 longitude: position.longitude,
               ));
         }
-      } else {}
-    } on PermissionDeniedException catch (_) {
-      // print('permission');
-    } on LocationServiceDisabledException catch (_) {
-      // print('location');
-    } catch (e) {
-      // print('catchhh $e');
+      } else {
+        // Şu anki tarih ve zaman
+        DateTime _now = DateTime.now();
+
+        // UNIX zaman damgası (saniye cinsinden)
+        int _addedTime = _now.millisecondsSinceEpoch ~/ 1000;
+        // Lokasyon verilerini eklemek için kodlar
+        List<Map<String, dynamic>> locationData = [
+          {
+            "latitude": position.latitude,
+            "longitude": position.longitude,
+            "addedTime": _addedTime,
+          },
+        ];
+
+        await _hiveStorageManager.addLocationsToTable(locationData);
+
+        print("No network connection. Location saved locally: $locationData");
+      }
+    } on PermissionDeniedException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+    } on LocationServiceDisabledException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 
@@ -268,21 +367,18 @@ class _MyAppState extends State<_MyApp> {
             });
             await _userHiveOperation.removeInspectionDetailsRecord(id);
           }
-/*
+
           final resultInspectionEdit =
               await _userHiveOperation.getDamagePostModel(id);
-          print('resultInspectionDamage $resultInspectionEdit');
-          if (resultInspectionEdit != null && resultInspectionEdit.isNotEmpty) {
+          print('resultInspectionDamage MAIN ${resultInspectionEdit.length}');
+          if (resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(PostJobInspectionsDamages(data: item!, isAsync: true));
+              context.read<InspectionsBloc>().add(
+                  PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
               await Future.delayed(const Duration(seconds: 2));
             });
             await _userHiveOperation.deleteDamagePostModel(id);
           }
-
-          */
 
           final resultInspectionCustomerSign =
               await _userHiveOperation.getSignCustomerPostModel(id);
@@ -308,8 +404,8 @@ class _MyAppState extends State<_MyApp> {
             await _userHiveOperation.clearAllSignCustomerPostModels();
             await _userHiveOperation.clearAllSignInspectorPostModels();
           }
-        } catch (e) {
-          print('Error occurred: $e');
+        } catch (e, s) {
+          await SentryErrorHandler.instance.capture(e, stackTrace: s);
           // Hata meydana gelirse, devam edebilir veya döngüyü durdurabilirsiniz.
           // Burada nasıl davranmak istediğinize karar verin.
         }

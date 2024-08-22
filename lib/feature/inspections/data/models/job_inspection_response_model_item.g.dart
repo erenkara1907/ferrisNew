@@ -23,6 +23,7 @@ class JobInspectionResponseModelItemAdapter
       gradleItem: fields[28] as GradeId?,
       typeId: fields[2] as JobInspectionType?,
       reportSigned: fields[3] as dynamic,
+      damages: (fields[30] as List?)?.cast<DamageModel>(),
       conditionImagesAdded: fields[4] as int?,
       reportNumber: fields[5] as String?,
       paymentMade: fields[6] as dynamic,
@@ -54,7 +55,7 @@ class JobInspectionResponseModelItemAdapter
   @override
   void write(BinaryWriter writer, JobInspectionResponseModelItem obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(31)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -114,7 +115,9 @@ class JobInspectionResponseModelItemAdapter
       ..writeByte(28)
       ..write(obj.gradleItem)
       ..writeByte(29)
-      ..write(obj.damageStandards);
+      ..write(obj.damageStandards)
+      ..writeByte(30)
+      ..write(obj.damages);
   }
 
   @override
@@ -124,6 +127,93 @@ class JobInspectionResponseModelItemAdapter
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is JobInspectionResponseModelItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class DamageModelAdapter extends TypeAdapter<DamageModel> {
+  @override
+  final int typeId = 198;
+
+  @override
+  DamageModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return DamageModel(
+      id: fields[0] as int,
+      damageCombinationId: fields[1] as JobInspectionDamageCombinationModel,
+      chargeable: fields[2] as int,
+      contextImage: fields[3] as String,
+      damageImage: fields[4] as String,
+      price: fields[5] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, DamageModel obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.damageCombinationId)
+      ..writeByte(2)
+      ..write(obj.chargeable)
+      ..writeByte(3)
+      ..write(obj.contextImage)
+      ..writeByte(4)
+      ..write(obj.damageImage)
+      ..writeByte(5)
+      ..write(obj.price);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DamageModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class JobInspectionDamageCombinationModelAdapter
+    extends TypeAdapter<JobInspectionDamageCombinationModel> {
+  @override
+  final int typeId = 199;
+
+  @override
+  JobInspectionDamageCombinationModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return JobInspectionDamageCombinationModel(
+      id: fields[0] as int,
+      damageStandards: (fields[1] as List).cast<int>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, JobInspectionDamageCombinationModel obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.damageStandards);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is JobInspectionDamageCombinationModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

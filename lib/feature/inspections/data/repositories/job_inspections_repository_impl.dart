@@ -7,6 +7,8 @@ import 'package:ferrisfwt/feature/inspections/domain/repositories/job_inspection
 import 'package:ferrisfwt/product/errors/exceptions/exceptions.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobInspectionsRepositoryImpl implements JobInspectionsRepository {
   JobInspectionsRepositoryImpl(
       {required JobInspectionsRemoteDataSource dataSource})
@@ -24,11 +26,10 @@ final class JobInspectionsRepositoryImpl implements JobInspectionsRepository {
       );
 
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -39,11 +40,10 @@ final class JobInspectionsRepositoryImpl implements JobInspectionsRepository {
     try {
       final response = await _dataSource.getJobInspectionAbortTypes();
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -61,11 +61,10 @@ final class JobInspectionsRepositoryImpl implements JobInspectionsRepository {
         inspectionId: inspectionId,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }

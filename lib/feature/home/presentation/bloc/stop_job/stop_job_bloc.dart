@@ -23,6 +23,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
     on<GetJobStops>(_onGetJobStops);
     on<PostJobStops>(_onPostJobStops);
+    on<PostJobStopsControl>(_onPostJobStopsControl);
     on<GetJobStopsCategories>(_onGetJobStopsCategories);
     on<SetJobStopCategories>(_onSetJobStopCategories);
     on<SetJobStop>(_onSetJobStop);
@@ -54,6 +55,11 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
     );
   }
 
+  void _onPostJobStopsControl(
+      PostJobStopsControl event, Emitter<StopJobState> emit) async {
+    emit(state.copyWith(isError: true));
+  }
+
   void _onPostJobStops(PostJobStops event, Emitter<StopJobState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final resultHasNetwork = await hasNetwork();
@@ -64,17 +70,23 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       );
       result.fold(
         (failure) {
-          emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+          emit(state.copyWith(
+            status: ViewStatus.failure,
+            failure: failure,
+            isError: true,
+          ));
         },
         (data) {
           if (event.isAsync) {
             emit(state.copyWith(
               status: ViewStatus.success,
+              isError: false,
             ));
             return;
           }
           emit(state.copyWith(
               status: ViewStatus.success,
+              isError: false,
               selectedStop: data,
               totalStop: state.totalStop + 1));
 
@@ -83,7 +95,10 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       );
     } else {
       if (event.isAsync) {
-        emit(state.copyWith(status: ViewStatus.failure));
+        emit(state.copyWith(
+          status: ViewStatus.failure,
+          isError: true,
+        ));
         return;
       }
       _hiveStorageManager.setJobStopAsync(event.data);
@@ -92,6 +107,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       emit(state.copyWith(
         status: ViewStatus.success,
         totalStop: state.totalStop + 1,
+        isError: true,
       ));
 
       _hiveDatabaseManager.saveTotalStop(state.totalStop);

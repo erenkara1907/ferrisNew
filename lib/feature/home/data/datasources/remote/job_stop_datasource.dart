@@ -11,6 +11,8 @@ import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobStopRemoteDataSource {
   Future<List<StopsResponseModelItem>> getJobStops({
     required int jobId,
@@ -56,17 +58,18 @@ final class JobStopRemoteDataSourceImpl
       }
       final List<dynamic> productData = response.data["data"];
       return productData.map((e) => StopsResponseModelItem.fromMap(e)).toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -81,17 +84,36 @@ final class JobStopRemoteDataSourceImpl
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
       formData.fields.add(MapEntry('latitude', data.latitude.toString()));
       formData.fields.add(MapEntry('longitude', data.longitude.toString()));
-      formData.fields.add(MapEntry('reason', data.jobId.toString()));
+      // formData.fields.add(MapEntry('reason', data.jobId.toString()));
       formData.fields.add(MapEntry('jobId', data.jobId.toString()));
       final documentPath = (await getApplicationDocumentsDirectory()).path;
-      for (var evidence in data.evidences) {
+      // for (var evidence in data.evidences) {
+      //   int documentsIndex = evidence.path.indexOf("Documents/");
+      //   String result =
+      //       evidence.path.substring(documentsIndex + "Documents/".length);
+
+      //   final path = '$documentPath/$result';
+      //   formData.files.add(MapEntry(
+      //     'evidences[]',
+      //     MultipartFile.fromFileSync(path),
+      //   ));
+      // }
+
+      // Verilen kodda tek bir dosyayı 'evidence' key ile API'ye gönderme
+      if (data.evidences.isNotEmpty) {
+        // Listenin ilk elemanını al
+        var evidence = data.evidences.first;
+
+        // Dosyanın yolunu al
         int documentsIndex = evidence.path.indexOf("Documents/");
         String result =
             evidence.path.substring(documentsIndex + "Documents/".length);
 
         final path = '$documentPath/$result';
+
+        // Dosyayı 'evidence' key ile formData'ya ekle
         formData.files.add(MapEntry(
-          'evidences[]',
+          'evidence',
           MultipartFile.fromFileSync(path),
         ));
       }
@@ -113,18 +135,21 @@ final class JobStopRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
+
+      print("DATA STOP : ${response.data["data"]}");
       return StopsResponseModelItem.fromMap(response.data["data"]);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -151,17 +176,18 @@ final class JobStopRemoteDataSourceImpl
       return productData
           .map((e) => StopCategoriesResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems
             .appRouter.router.routerDelegate.navigatorKey.currentContext
             ?.go('/sign_in_page');
       }
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

@@ -8,6 +8,8 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobInspectionsRemoteDataSource {
   Future<List<JobInspectionResponseModelItem>> getJobInspections({
     int? jobId,
@@ -48,28 +50,31 @@ class JobInspectionsRemoteDataSourceImpl
         queryParameters: {
           'jobId': jobId,
         },
-        options: Options(headers: headers),
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+        }),
       );
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
-
       // print("Access Token : ${response.data['newAccessToken']}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
       }
-
       final List<dynamic> productData = response.data["data"];
 
       return productData
           .map((e) => JobInspectionResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -93,11 +98,12 @@ class JobInspectionsRemoteDataSourceImpl
       return productData
           .map((e) => JobInspectionAbortTypeItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -108,17 +114,16 @@ class JobInspectionsRemoteDataSourceImpl
     required int fuelLevel,
     required int inspectionId,
   }) async {
-    print("insp id : $inspectionId");
     try {
       final response = await _networkClient.post(
         "${ServicePath.jobInspectionsUpdate.value}/$inspectionId",
         data: {
-          'odoReading': odoReading,
-          'fuelLevel': fuelLevel,
+          'odoReading': odoReading.toString(),
+          'fuelLevel': fuelLevel.toString(),
         },
         options: Options(headers: {
           'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
           'Authorization':
               'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
@@ -131,16 +136,13 @@ class JobInspectionsRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
 
-      print("EDIT DETAIL DATA : ${response.data['data']}");
-
-      // print(
-      //     '******** inspection remote data source ********* ${response.data}');
       return JobInspectionResponseModelItem.fromMap(response.data['data']);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

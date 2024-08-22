@@ -2,10 +2,15 @@ library hive_storage_manager;
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_patch_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expenses_response_model_item.dart';
+import 'package:ferrisfwt/feature/home/data/models/job_start/job_start_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_tracking_coordinates/tracking_coordinates_response_model_item.dart';
+import 'package:ferrisfwt/feature/home/data/models/jobs/gradle_item_model.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/checklist/checklist_response_model_item.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_response_model_item.dart';
@@ -31,16 +36,24 @@ import 'package:ferrisfwt/feature/home/data/models/expenses/expense_categories_r
 import 'package:ferrisfwt/feature/home/data/models/job_stop/stop_categories_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/valet_standard/valet_standard_response_model_item.dart';
-import 'package:ferrisfwt/product/database/hive_operation/models/inspection_condition_image/inspection_condition_image.dart';
 import 'package:ferrisfwt/product/database/hive_operation/models/inspection_damage/inspection_damage.dart';
 import 'package:ferrisfwt/product/database/hive_operation/models/inspection_sign/inspection_sign.dart';
-import 'package:ferrisfwt/product/database/hive_operation/models/job_to_finish/job_to_finish.dart';
 import 'package:ferrisfwt/product/database/hive_operation/models/stop/stop.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_repairs/damage_repair.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../feature/home/data/models/damages/grade/grade_model.dart';
+import '../../utility/error_handler/sentry_error_handler.dart';
+
 part 'operation_mixins/damage/damage_assets_operation_mixin.dart';
+part 'operation_mixins/job/job_start_operation_mixin.dart';
+part 'operation_mixins/damage/damage_combination_operation_mixin.dart';
+part 'operation_mixins/damage/grade_operation_mixin.dart';
+part 'operation_mixins/damage/grade_rule_operation_mixin.dart';
+part 'operation_mixins/damage/grade_rule_uplift_operation_mixin.dart';
+
+part 'operation_mixins/location/location_operation_mixin.dart';
 
 part 'operation_mixins/stop_operations_mixin.dart';
 
@@ -123,8 +136,14 @@ class HiveStorageManager
         DamageRepairOperationMixin,
         DamageCategoryOperationMixin,
         DamageAssetsOperationMixin,
+        DamageCombinationOperationMixin,
+        GradeOperationMixin,
+        GradeRuleOperationMixin,
+        GradeRuleUpliftOperationMixin,
+        LocationOperationMixin,
         DamageIssueOperationMixin,
         DamagePartOperationMixin,
+        JobStartOperationMixin,
         DamageFailureOperationMixin,
         ValetStandardOperationMixin,
         ExpenseCategoriesOperationsMixin,

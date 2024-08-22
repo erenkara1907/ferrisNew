@@ -2,9 +2,36 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHandlerManager {
+  // Future<bool> requestLocationPermission() async {
+  //   PermissionStatus status = await Permission.location.request();
+  //   if (status.isGranted || status.isLimited || status.isRestricted) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
+
   Future<bool> requestLocationPermission() async {
-    PermissionStatus status = await Permission.location.request();
+    // İlk önce location izni isteyin (when in use).
+    PermissionStatus status = await Permission.locationWhenInUse.request();
+
     if (status.isGranted || status.isLimited || status.isRestricted) {
+      // Eğer izin verildiyse, always iznini istemek için bir kontrol yapın.
+      return await requestLocationAlwaysPermission();
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> requestLocationAlwaysPermission() async {
+    print("Always izni isteniyor...");
+
+    // Always izni isteyin.
+    PermissionStatus status = await Permission.locationAlways.request();
+
+    print("Always izni durumu: $status");
+
+    if (status.isGranted) {
       return true;
     } else {
       return false;
@@ -37,7 +64,15 @@ class PermissionHandlerManager {
   }
 
   Future<bool> checkLocationAlways() async {
-    return await Permission.locationAlways.isGranted;
+    print("Always Girdi");
+    PermissionStatus status = await Permission.locationAlways.request();
+
+    print("Always Girdi Status : $status");
+    if (status.isGranted) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<bool> checkCamera() async {

@@ -11,6 +11,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_
 import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_post_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobExpenseRepositoryImpl implements JobExpenseRepository {
   JobExpenseRepositoryImpl({required JobExpenseRemoteDataSource dataSource})
       : _dataSource = dataSource;
@@ -23,11 +25,10 @@ final class JobExpenseRepositoryImpl implements JobExpenseRepository {
     try {
       final response = await _dataSource.jobExpenses(jobId: jobId);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       debugPrint(e.toString());
       return left(UnknownFailure());
     }
@@ -42,11 +43,10 @@ final class JobExpenseRepositoryImpl implements JobExpenseRepository {
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       debugPrint(e.toString());
       return left(UnknownFailure());
     }
@@ -61,11 +61,10 @@ final class JobExpenseRepositoryImpl implements JobExpenseRepository {
         data: data,
       );
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       debugPrint(e.toString());
       return left(UnknownFailure());
     }
@@ -77,11 +76,10 @@ final class JobExpenseRepositoryImpl implements JobExpenseRepository {
     try {
       final response = await _dataSource.getExpenseCategories();
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       debugPrint(e.toString());
       return left(UnknownFailure());
     }

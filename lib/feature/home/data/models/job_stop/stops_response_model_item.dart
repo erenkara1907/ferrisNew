@@ -28,7 +28,7 @@ class StopsResponseModelItem implements IResponseModel {
   double? latitude;
 
   @HiveField(6)
-  List<StopEvidenceModel> evidences;
+  String? evidence;
 
   @HiveField(7)
   StopCategoriesResponseModelItem? categoryId;
@@ -39,7 +39,7 @@ class StopsResponseModelItem implements IResponseModel {
     this.reason,
     this.longitude,
     this.latitude,
-    required this.evidences,
+    required this.evidence,
     this.categoryId,
   });
 
@@ -58,10 +58,7 @@ class StopsResponseModelItem implements IResponseModel {
       latitude: map['latitude'] != null
           ? double.parse(map['latitude'].toString())
           : null,
-      evidences: (map['evidences'] as List<dynamic>?)
-              ?.map((e) => StopEvidenceModel.fromMap(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      evidence: map['evidencePath']?.toString(),
       categoryId: map['categoryId'] is Map
           ? StopCategoriesResponseModelItem.fromMap(map['categoryId'])
           : null,
@@ -75,7 +72,7 @@ class StopsResponseModelItem implements IResponseModel {
       'reason': reason,
       'longitude': longitude,
       'latitude': latitude,
-      'evidences': evidences.map((e) => e.toMap()).toList(),
+      // 'evidences': evidences.map((e) => e.toMap()).toList(),
       'categoryId': categoryId?.toMap(),
     };
   }

@@ -7,6 +7,8 @@ import 'package:ferrisfwt/product/errors/exceptions/exceptions.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobTrackingCoordinatesRepositoryImpl
     implements JobTrackingCoordinatesRepository {
   JobTrackingCoordinatesRepositoryImpl(
@@ -24,12 +26,11 @@ final class JobTrackingCoordinatesRepositoryImpl
       final response =
           await _dataSource.getJobTrackingCoordinatess(jobId: jobId);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -42,12 +43,11 @@ final class JobTrackingCoordinatesRepositoryImpl
     try {
       final response = await _dataSource.getTrackingCoordinate(id: id);
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }
@@ -65,12 +65,30 @@ final class JobTrackingCoordinatesRepositoryImpl
         longitude: longitude,
       );
       return right(null);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
+      return left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateTrackingCoordinateBulk(
+      {required int jobId,
+      required List<Map<String, dynamic>> cordinates}) async {
+    try {
+      await _dataSource.updateTrackingCoordinateBulk(
+        jobId: jobId,
+        cordinates: cordinates,
+      );
+      return right(null);
+    } on NullResponseException {
+      return left(NullResponseFailure());
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      // debugPrint(e.toString());
       return left(UnknownFailure());
     }
   }

@@ -35,4 +35,12 @@ final class UCGetJobTrackingCoordinates {
       longitude: longitude,
     );
   }
+
+  Future<Either<Failure, void>> updateTrackingCoordinateBulk(
+      {required int jobId, required List<Map<String, dynamic>> cordinates}) {
+    return _repository.updateTrackingCoordinateBulk(
+      jobId: jobId,
+      cordinates: cordinates,
+    );
+  }
 }

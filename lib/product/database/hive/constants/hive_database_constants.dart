@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 @immutable
 final class HiveDatabaseConstants {
   static const String userModelBox = 'userModelBox';
+  static const String jobStartModelBox = 'jobStartModelBox';
   static const String userModel = 'userModel';
   static const String themeModeBox = 'themeModeBox';
   static const String themeModeKey = 'themeModeKey';
@@ -11,6 +12,10 @@ final class HiveDatabaseConstants {
   static const String jobExpenseBox = 'jobExpenseBox';
   static const String damageCategoryBox = 'damageCategoryBox';
   static const String damageAssetsBox = 'damageAssetsBox';
+  static const String damageCombinationBox = 'damageCombination';
+  static const String gradeBox = 'grade';
+  static const String gradeRuleBox = 'gradeRule';
+  static const String gradeRuleUpliftBox = 'gradeRuleUplift';
   static const String damageIssueBox = 'damageIssueBox';
   static const String damageFailureBox = 'damageFailureBox';
   static const String damagePartBox = 'damagePartBox';
@@ -27,4 +32,5 @@ final class HiveDatabaseConstants {
   static const String recordedDamages = 'recordedDamages';
   static const String postExpenseSaveImage = 'postExpenseSaveImage';
   static const String inspectEditDetail = 'inspectEditDetail';
+  static const String location = 'location';
 }

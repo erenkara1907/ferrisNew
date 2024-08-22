@@ -33,14 +33,21 @@ mixin GetDamageOperationMixin {
       );
 
       if (key != null) {
-        debugPrint(
-            'Deleting damage with id: $damageId and inspectionId: $inspectionId');
+        await SentryErrorHandler.instance.capture(
+            "Deleting damage with id: $damageId and inspectionId: $inspectionId",
+            stackTrace: StackTrace.current);
+        // debugPrint(
+        //     'Deleting damage with id: $damageId and inspectionId: $inspectionId');
         await _valetStandardBox.delete(key);
       } else {
-        debugPrint(
-            'No damage found with id: $damageId and inspectionId: $inspectionId');
+        await SentryErrorHandler.instance.capture(
+            "No damage found with id: $damageId and inspectionId: $inspectionId",
+            stackTrace: StackTrace.current);
+        // debugPrint(
+        //     'No damage found with id: $damageId and inspectionId: $inspectionId');
       }
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       debugPrint('Error deleting damage: $e');
     }
   }

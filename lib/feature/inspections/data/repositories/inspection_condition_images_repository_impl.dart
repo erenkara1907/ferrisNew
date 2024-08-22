@@ -7,6 +7,8 @@ import 'package:ferrisfwt/product/errors/exceptions/exceptions.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/condition_image/inspection_condition_image_post_model.dart';
 
+import '../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 final class JobInspectionsConditionImagesRepositoryImpl
     implements JobInspectionsConditionImagesRepository {
   JobInspectionsConditionImagesRepositoryImpl(
@@ -18,7 +20,7 @@ final class JobInspectionsConditionImagesRepositoryImpl
   @override
   Future<Either<Failure, ConditionImageResponseModel>> postConditionImage({
     int? jobInspectionId,
-    required InspectionConditionImagePostModel data,
+    required ConditionImageResponseModel data,
   }) async {
     try {
       final response = await _dataSource.postConditionImage(
@@ -27,11 +29,10 @@ final class JobInspectionsConditionImagesRepositoryImpl
       );
 
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }
@@ -46,11 +47,10 @@ final class JobInspectionsConditionImagesRepositoryImpl
       );
 
       return right(response);
-    } on DioException {
-      return left(NetworkFailure());
     } on NullResponseException {
       return left(NullResponseFailure());
-    } catch (e) {
+    } catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       return left(UnknownFailure());
     }
   }

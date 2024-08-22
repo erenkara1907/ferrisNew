@@ -37,18 +37,6 @@ class InspectionCustomInfoCard extends StatelessWidget {
         ? damageResponse!.gradeId
         : (inspection.gradleItem != null ? inspection.gradleItem!.name : "-");
 
-    String? odoText = (inspectionState.odo != 0)
-        ? "${inspectionState.odo.toInt()} Miles"
-        : (inspection.odoReading != null
-                ? "${inspection.odoReading!.toInt()} Miles"
-                : "-")
-            .toString();
-
-    String? fuelLevel = (inspectionState.fuelLevel != 0)
-        ? "${inspectionState.fuelLevel}%"
-        : (inspection.fuelLevel != null ? "${inspection.fuelLevel}%" : "-")
-            .toString();
-
     final bool isSigned =
         ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
                 null &&
@@ -81,13 +69,16 @@ class InspectionCustomInfoCard extends StatelessWidget {
                   'damageResponse': damageResponse,
                 },
               );
-              inspectionState.damageResponse.clear();
+
+              if (inspectionState.damageResponse.isNotEmpty) {
+                inspectionState.damageResponse.clear();
+              }
             },
             child: Padding(
               padding: context.paddingAllDefault,
               child: Container(
                 decoration: BoxDecoration(
-                  color: inspection.reportSigned == 1 || isSigned
+                  color: isSigned || inspection.reportSigned == true
                       ? const Color.fromARGB(255, 71, 214, 66)
                       : context.theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
@@ -216,11 +207,11 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            inspection.reportSigned == 1 || isSigned
+                            inspection.reportSigned == true || isSigned
                                 ? 'Signed'
                                 : 'Unsigned',
                             style: context.textTheme.bodySmall?.copyWith(
-                              color: inspection.reportSigned == 1 || isSigned
+                              color: inspection.reportSigned == true || isSigned
                                   ? Colors.purple
                                   : Colors.red,
                             ),

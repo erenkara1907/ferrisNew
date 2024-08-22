@@ -83,16 +83,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           failure: failure,
         ));
       },
-      (data) {
-        if (ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
-          if (ProductStateItems.hiveDatabaseManager
-                      .getUserModel()!
-                      .currentJobId !=
-                  null &&
-              ProductStateItems.hiveDatabaseManager
-                      .getUserModel()!
-                      .currentJobId !=
-                  "") {
+      (data) async {
+        if (_hiveDatabaseManager.getUserModel() != null) {
+          if (_hiveDatabaseManager.getUserModel()!.currentJobId != null &&
+              _hiveDatabaseManager.getUserModel()!.currentJobId != "") {
             ProductStateItems
                 .appRouter.router.routerDelegate.navigatorKey.currentContext
                 ?.pop();
@@ -101,9 +95,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             return;
           }
         }
-        if (ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
-          ProductStateItems.hiveDatabaseManager.deleteUserModel();
-        }
+        await _hiveDatabaseManager.deleteUserModel();
         emit(state.copyWith(
           status: ViewStatus.success,
         ));

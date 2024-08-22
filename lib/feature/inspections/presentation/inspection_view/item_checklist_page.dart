@@ -157,7 +157,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                 'Item Checklist',
                 style: context.textTheme.titleSmall,
               ),
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
             ),
             body: const Center(
               child: LoadingProgress(),
@@ -184,7 +184,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                 context.pop();
               },
             ),
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             title: Text('Item Checklist', style: context.textTheme.titleSmall),
           ),
           body: Scaffold(
@@ -300,7 +300,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                             offset: Offset(2, 0),
                           ),
                         ],
-                        color: context.theme.colorScheme.background,
+                        color: context.theme.colorScheme.surface,
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(10)),
                       ),
@@ -311,6 +311,9 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                         child: CustomAppButton(
                           text: 'Save',
                           ontap: () async {
+                            final checkList = _hiveStorageManager
+                                .getItemCheckList(widget.inspectionId);
+                            print("CHECKLIST : $checkList");
                             final bool result = isChecklistCompleted();
                             if (!result) {
                               BotToast.showText(
@@ -320,7 +323,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                             setState(() {
                               checkListisSaved = true;
                             });
-                            await _saveChecklist();
+                            // await _saveChecklist();
                             context.read<InspectionsBloc>().add(
                                   PostJobInspectionsCheckList(
                                     InspectionChecklistPostModel(

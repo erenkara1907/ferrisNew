@@ -75,6 +75,8 @@ class JobInspectionResponseModelItem extends Equatable {
   final GradeId? gradleItem;
   @HiveField(29)
   final List<int>? damageStandards;
+  @HiveField(30)
+  final List<DamageModel>? damages;
 
   const JobInspectionResponseModelItem({
     required this.id,
@@ -82,6 +84,7 @@ class JobInspectionResponseModelItem extends Equatable {
     this.gradleItem,
     this.typeId,
     this.reportSigned,
+    this.damages,
     this.conditionImagesAdded,
     this.reportNumber,
     this.paymentMade,
@@ -157,6 +160,10 @@ class JobInspectionResponseModelItem extends Equatable {
       typeId: map['typeId'] == null
           ? null
           : JobInspectionType.fromMap(map['typeId'] as Map<String, dynamic>),
+      damages: map['damages'] != null
+          ? List<DamageModel>.from(
+              map['damages']?.map((x) => DamageModel.fromMap(x)))
+          : null,
       reportSigned: map['reportSigned'],
       conditionImagesAdded: map['conditionImagesAdded'],
       reportNumber: map['reportNumber'],
@@ -204,6 +211,7 @@ class JobInspectionResponseModelItem extends Equatable {
         id,
         jobId,
         gradleItem,
+        damages,
         typeId,
         reportSigned,
         conditionImagesAdded,
@@ -301,4 +309,88 @@ class JobInspectionResponseModelItem extends Equatable {
           customerSignedLongitude ?? this.customerSignedLongitude,
     );
   }
+}
+
+@HiveType(typeId: 198)
+class DamageModel extends Equatable {
+  @HiveField(0)
+  final int id;
+  @HiveField(1)
+  final JobInspectionDamageCombinationModel damageCombinationId;
+  @HiveField(2)
+  final int chargeable;
+  @HiveField(3)
+  final String contextImage;
+  @HiveField(4)
+  final String damageImage;
+  @HiveField(5)
+  final String price;
+
+  const DamageModel({
+    required this.id,
+    required this.damageCombinationId,
+    required this.chargeable,
+    required this.contextImage,
+    required this.damageImage,
+    required this.price,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'damageCombinationId': damageCombinationId.toMap(),
+      'chargeable': chargeable,
+      'contextImage': contextImage,
+      'damageImage': damageImage,
+      'price': price,
+    };
+  }
+
+  factory DamageModel.fromMap(Map<String, dynamic> map) {
+    return DamageModel(
+      id: map['id'],
+      damageCombinationId: JobInspectionDamageCombinationModel.fromMap(
+          map['damageCombinationId']),
+      chargeable: map['chargeable'],
+      contextImage: map['contextImage'],
+      damageImage: map['damageImage'],
+      price: map['price'],
+    );
+  }
+
+  @override
+  List<Object?> get props =>
+      [id, damageCombinationId, chargeable, contextImage, damageImage, price];
+}
+
+@HiveType(typeId: 199)
+class JobInspectionDamageCombinationModel extends Equatable {
+  @HiveField(0)
+  final int id;
+
+  @HiveField(1)
+  final List<int> damageStandards;
+
+  const JobInspectionDamageCombinationModel({
+    required this.id,
+    required this.damageStandards,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'damageStandards': damageStandards,
+    };
+  }
+
+  factory JobInspectionDamageCombinationModel.fromMap(
+      Map<String, dynamic> map) {
+    return JobInspectionDamageCombinationModel(
+      id: map['id'],
+      damageStandards: List<int>.from(map['damageStandards']),
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, damageStandards];
 }

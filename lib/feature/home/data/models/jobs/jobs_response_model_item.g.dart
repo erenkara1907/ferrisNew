@@ -19,6 +19,11 @@ class JobsResponseModelItemAdapter extends TypeAdapter<JobsResponseModelItem> {
     return JobsResponseModelItem(
       id: fields[0] as int,
       clientId: fields[1] as ClientResponseModel?,
+      startAddressLabel: fields[53] as String?,
+      endAddressLabel: fields[54] as String?,
+      checkpoint1AddressLabel: fields[55] as String?,
+      checkpoint2AddressLabel: fields[56] as String?,
+      checkpoint3AddressLabel: fields[57] as String?,
       driverId: fields[2] as UserResponseModel?,
       vehicleId: fields[3] as VehicleModel?,
       movementTypeId: fields[4] as MovementTypeModel?,
@@ -62,14 +67,22 @@ class JobsResponseModelItemAdapter extends TypeAdapter<JobsResponseModelItem> {
       isVisibleEndAddress: fields[41] as bool?,
       checkpoint1AddressPostalCode: fields[42] as String?,
       checkpoint2AddressPostalCode: fields[43] as String?,
+      billableHoursStartTime: fields[45] as String?,
+      billableHoursEndTime: fields[46] as String?,
       checkpoint3AddressPostalCode: fields[44] as String?,
+      predictedCheckpoint1ArrivedTime: fields[47] as String?,
+      predictedCheckpoint1DepartedTime: fields[48] as String?,
+      predictedCheckpoint2ArrivedTime: fields[49] as String?,
+      predictedCheckpoint2DepartedTime: fields[50] as String?,
+      predictedCheckpoint3ArrivedTime: fields[51] as String?,
+      predictedCheckpoint3DepartedTime: fields[52] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, JobsResponseModelItem obj) {
     writer
-      ..writeByte(45)
+      ..writeByte(58)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -159,7 +172,33 @@ class JobsResponseModelItemAdapter extends TypeAdapter<JobsResponseModelItem> {
       ..writeByte(43)
       ..write(obj.checkpoint2AddressPostalCode)
       ..writeByte(44)
-      ..write(obj.checkpoint3AddressPostalCode);
+      ..write(obj.checkpoint3AddressPostalCode)
+      ..writeByte(45)
+      ..write(obj.billableHoursStartTime)
+      ..writeByte(46)
+      ..write(obj.billableHoursEndTime)
+      ..writeByte(47)
+      ..write(obj.predictedCheckpoint1ArrivedTime)
+      ..writeByte(48)
+      ..write(obj.predictedCheckpoint1DepartedTime)
+      ..writeByte(49)
+      ..write(obj.predictedCheckpoint2ArrivedTime)
+      ..writeByte(50)
+      ..write(obj.predictedCheckpoint2DepartedTime)
+      ..writeByte(51)
+      ..write(obj.predictedCheckpoint3ArrivedTime)
+      ..writeByte(52)
+      ..write(obj.predictedCheckpoint3DepartedTime)
+      ..writeByte(53)
+      ..write(obj.startAddressLabel)
+      ..writeByte(54)
+      ..write(obj.endAddressLabel)
+      ..writeByte(55)
+      ..write(obj.checkpoint1AddressLabel)
+      ..writeByte(56)
+      ..write(obj.checkpoint2AddressLabel)
+      ..writeByte(57)
+      ..write(obj.checkpoint3AddressLabel);
   }
 
   @override

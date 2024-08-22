@@ -15,6 +15,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 part 'job_expense_event.dart';
 part 'job_expense_state.dart';
 
@@ -293,7 +295,6 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
             emit(state.copyWith(status: ViewStatus.failure, failure: failure));
           },
           (data) async {
-            print("EXPENSES : $data");
             if (cachedExpenses.isEmpty) {
               _hiveStorageManager.deleteExpenses();
               _hiveStorageManager.addExpense(data);
@@ -308,8 +309,9 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
                 expenses: data,
                 totalExpense: totalExpense.toString(),
               ));
-            } catch (e) {
-              print("Error: $e");
+            } catch (e, s) {
+              await SentryErrorHandler.instance.capture(e, stackTrace: s);
+
               emit(state.copyWith(
                 status: ViewStatus.failure,
               ));
@@ -321,7 +323,8 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
           status: ViewStatus.success,
         ));
       }
-    } catch (error) {
+    } catch (error, s) {
+      await SentryErrorHandler.instance.capture(error, stackTrace: s);
       // Handle any errors that may occur during the process
       emit(state.copyWith(
         status: ViewStatus.failure,

@@ -11,6 +11,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/c
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/checklist/inspection_checklist_post_model.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 
+import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
+
 abstract interface class JobInspectionsCheckListRemoteDataSource {
   Future<List<ChecklistResponseModelItem>> getChecklists({
     required int? inspectionId,
@@ -70,11 +72,12 @@ class JobInspectionsCheckListRemoteDataSourceImpl
       return productData
           .map((e) => ChecklistResponseModelItem.fromMap(e))
           .toList();
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -83,7 +86,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<String> postChecklist({
     required InspectionChecklistPostModel data,
   }) async {
-    // print("POST DATA : girdi");
+    print("POST DATA : girdi");
     try {
       final response = await _networkClient.post(
         ServicePath.jobInspectionsCheckList.value,
@@ -91,7 +94,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         data: data.toMap(),
       );
 
-      // print("POST DATA : ${response.data}");
+      print("POST DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -100,11 +103,12 @@ class JobInspectionsCheckListRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return response.data['message'];
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }
@@ -114,6 +118,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
     required InspectionChecklistPostModel data,
     required int checklistId,
   }) async {
+    print("PATCH DATA : girdi");
     try {
       final response = await _networkClient.post(
         "${ServicePath.jobInspectionsCheckList.value}/$checklistId",
@@ -121,6 +126,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         data: data.toMap(),
       );
 
+      print("PATCH DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -131,11 +137,12 @@ class JobInspectionsCheckListRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       return ChecklistUpdateResponseModel.fromMap(response.data["data"]);
-    } on DioException catch (e) {
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      print('Error: $e, StackTrace: $stackTrace');
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }
   }

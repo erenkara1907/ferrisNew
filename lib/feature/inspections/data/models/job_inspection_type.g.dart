@@ -8,7 +8,7 @@ part of 'job_inspection_type.dart';
 
 class JobInspectionTypeAdapter extends TypeAdapter<JobInspectionType> {
   @override
-  final int typeId = 198;
+  final int typeId = 202;
 
   @override
   JobInspectionType read(BinaryReader reader) {

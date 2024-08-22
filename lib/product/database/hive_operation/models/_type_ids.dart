@@ -10,7 +10,7 @@ abstract class TypeIds {
   static const int modelIdEndJobPostModel = 102;
   static const int modelIdStopCategory = 103;
   static const int modelJobResponseModelItem = 104;
-  
+
   static const int modelIdExpenseResponseModel = 200;
   static const int modelIdStopResponseModel = 201;
 
@@ -29,5 +29,5 @@ abstract class TypeIds {
   static const int modelIdInspectionChecklistResponse = 161;
   static const int modelIdInspectionDetails = 162;
   static const int modelIdInspectionConditionImage = 163;
-  static const int modelIdInspectionConditionImageResponse = 164;
+  // static const int modelIdInspectionConditionImageResponse = 164;
 }
