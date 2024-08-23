@@ -370,7 +370,7 @@ class _MyAppState extends State<_MyApp> {
 
           final resultInspectionEdit =
               await _userHiveOperation.getDamagePostModel(id);
-          print('resultInspectionDamage MAIN ${resultInspectionEdit.length}');
+
           if (resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
               context.read<InspectionsBloc>().add(

@@ -491,44 +491,49 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     );
   }
 
-  String? getPriceForCombinationId(List<JobStartModel?> jobs,
-      List<DamageCombinationModel?> damageCombinations, int combinationId) {
-    // Önce combinationId'yi taşıyan job'u buluyoruz.
-    JobStartModel? matchingJob = jobs.firstWhere(
-      (job) => job?.combinationId == combinationId,
-      orElse: () => null,
-    );
-
-    // Eşleşen job bulunduysa price değerini döndürüyoruz.
-    return matchingJob?.price;
-  }
-
   Future<void> _postJobInspectionsDamages(
       PostJobInspectionsDamages event, Emitter<InspectionsState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
+    // DamageModel(id: Random().nextInt(10000), damageCombinationId: damageCombinationId, chargeable: chargeable, contextImage: contextImage, damageImage: damageImage, price: price)
+
+    // await _hiveStorageManager.updateInspectionsListModel(
+    //   JobInspectionResponseModelItem(
+    //     id: event.jobInspectionId,
+    //     damages: []
+    //   ),
+    // );
+
     String? _price = "0.0";
-    // final inspectionList =
-    //     await _hiveStorageManager.getInspectionsListModel();
+
     final currentInspectionId = event.jobInspectionId ?? 0;
+
     List<JobStartModel?> jobs = await _hiveStorageManager.getJobs();
+
     List<DamageCombinationModel?> damageCombinations =
         await _hiveStorageManager.getDamageCombination();
 
-    print("JoBS STARted : $jobs");
+    int? damageCombinationId = 0;
 
-    for (var damageCombination in damageCombinations) {
-      if (damageCombination != null) {
-        _price = getPriceForCombinationId(
-            jobs, damageCombinations, damageCombination.id!);
-        // print('Combination ID: ${damageCombination.id}, Price: $_price');
-      }
-    }
+    damageCombinationId = damageCombinations
+            .firstWhere(
+              (damageCombination) =>
+                  damageCombination != null &&
+                  event.data.repairId == damageCombination.repairId!.id,
+              orElse: () => null,
+            )
+            ?.id ??
+        0;
+    print("combination id : $damageCombinationId");
+    // jobs listesinden damageCombinationId ile eşleşen öğeyi bul
+    final matchingJob = jobs.firstWhere((job) {
+      return job?.combinationId == damageCombinationId;
+    }, orElse: () => null);
 
-    print("PRICE : $_price");
+    // Eğer eşleşen bir job bulunursa, price değerini alırız
+    _price = matchingJob?.price;
 
-    final gradeId = await findGrade(currentInspectionId);
-    print("GRADE ID : $gradeId");
+    // price değeriyle istediğiniz işlemi yapabilirsiniz
 
     if (event.isAsync) {
       emit(state.copyWith(status: ViewStatus.failure));
@@ -574,7 +579,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
           failureId: event.data.failureId),
       damageImage: event.data.damageImage?.path ?? '',
       contextImage: event.data.contextImage?.path ?? '',
-      gradeId: gradeId != null ? "G${gradeId.toString()}" : "G${state.gradeId}",
+      // gradeId: gradeId != null ? gradeId.toString() : state.gradeId,
       price: double.parse(_price ?? "0.0"),
     );
     _hiveStorageManager.setGetDamage(data);
@@ -588,6 +593,8 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     state.getDamageIssuesResponse.clear();
     state.getDamageFailuresResponse.clear();
     state.getDamageRepairsResponse.clear();
+
+    final gradeId = await findGrade(currentInspectionId, damageCombinationId);
 
     JobInspectionResponseModelItem? jobInspection =
         await _hiveStorageManager.getInspectionById(event.data.jobInspectionId);
@@ -607,256 +614,163 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     );
   }
 
-  // Future<int?> findGrade(int jobInspectionId) async {
-  //   // JobInspection tablosunda grade_id'yi null yapıyoruz.
-  //   // await _hiveStorageManager.updateJobInspectionGrade(jobInspectionId, null);
+  Future<int?> findGrade(int jobInspectionId, int combinationId) async {
+    // JobInspection tablosunda grade_id'yi null yapıyoruz.
+    // await _hiveStorageManager.updateJobInspectionGrade(jobInspectionId, null);
+    await _hiveStorageManager.updateInspectionsListModel(
+      JobInspectionResponseModelItem(
+        id: jobInspectionId,
+        gradleItem: GradeId(
+          id: null,
+          name: null,
+          order: null,
+        ),
+      ),
+    );
 
-  //   final inspections = await _hiveStorageManager.getInspectionsListModel();
-  //   final grades = await _hiveStorageManager.getGrades();
-  //   final gradeRules = await _hiveStorageManager.getGradeRules();
-
-  //   final gradeRuleUplifts = await _hiveStorageManager.getGradeRuleUplifts();
-  //   final damageCombinations = await _hiveStorageManager.getDamageCombination();
-
-  //   // Eğer Damage tablosunda ilgili jobInspectionId ile ilgili bir veri yoksa false döndür.
-  //   final hasDamage =
-  //       inspections.any((inspection) => inspection?.id == jobInspectionId);
-  //   if (!hasDamage) {
-  //     return null;
-  //   }
-
-  //   // JobInspection nesnesini alıyoruz.
-  //   final jobInspection = inspections
-  //       .firstWhere((inspection) => inspection?.id == jobInspectionId);
-
-  //   // jobId'ye göre ilgili Grade'leri sıralıyoruz.
-  //   final relatedGrades = grades
-  //       .where((grade) =>
-  //           grade?.subClientId!.id == jobInspection?.jobId?.clientId!.id)
-  //       .toList()
-  //     ..sort((a, b) => a!.order!.compareTo(b!.order!));
-
-  //   // Grade'leri döngü ile kontrol ediyoruz.
-  //   for (final grade in relatedGrades) {
-  //     final gradeRulesForCurrentGrade =
-  //         gradeRules.where((rule) => rule!.gradeId == grade!.id).toList();
-
-  //     print(
-  //         "GRADE RULES FOR CURRENT GRADE : ${gradeRulesForCurrentGrade.length}");
-
-  //     for (final rule in gradeRulesForCurrentGrade) {
-  //       final requiredDamageCombinationId = rule?.requiredDamageCombinationId;
-  //       final requiredDamageCombinationCount =
-  //           rule?.requiredDamageCombinationCount ?? 0;
-
-  //       // inspections listesinden ilgili kombinasyon sayısını buluyoruz.
-
-  //       int inspectionsDamageCountByCombination =
-  //           inspections.where((inspection) {
-  //         // print("INSPECTION : $inspection");
-  //         // print(
-  //         //     "INSPECTION DAMAGE : ${inspection != null ? inspection.damages : false}");
-  //         return inspection?.id == jobInspectionId &&
-  //             (inspection != null
-  //                 ? inspection.damages != null
-  //                     ? inspection.damages!.any((damage) {
-  //                         print(
-  //                             "COMBINATION ID : ${damage.damageCombinationId.id}");
-  //                         return damage.damageCombinationId.id ==
-  //                             requiredDamageCombinationId;
-  //                       })
-  //                     : false
-  //                 : false);
-  //       }).length;
-
-  //       // Eğer hasar kombinasyon sayısı gerekli sayıya eşit veya büyükse...
-  //       if (inspectionsDamageCountByCombination >=
-  //           requiredDamageCombinationCount) {
-  //         // Mevcut JobInspection nesnesini tekrar alıyoruz.
-  //         final currentJobInspection = inspections
-  //             .firstWhere((inspection) => inspection?.id == jobInspectionId);
-
-  //         final currentJobInspectionOrder = currentJobInspection?.gradleItem !=
-  //                 null
-  //             ? grades
-  //                     .firstWhere(
-  //                         (g) => g?.id == currentJobInspection?.gradleItem!.id)
-  //                     ?.order ??
-  //                 0
-  //             : 0;
-
-  //         print("currentJobInspectionOrder : $currentJobInspectionOrder");
-
-  //         // Eğer bu grade'nin sırası mevcut olandan büyükse, grade_id'yi güncelle.
-  //         if (grade!.order != null &&
-  //             grade.order! > currentJobInspectionOrder) {
-  //           // await _hiveStorageManager.updateJobInspectionGrade(
-  //           //     jobInspectionId, grade.id);
-
-  //           await _hiveStorageManager.updateInspectionsListModel(
-  //             JobInspectionResponseModelItem(
-  //               id: jobInspectionId,
-  //               gradleItem: GradeId(
-  //                 name: grade.name,
-  //                 order: grade.order,
-  //                 id: grade.id,
-  //               ),
-  //             ),
-  //           );
-
-  //           print("NEW GRADE ID : ${grade.id}");
-  //           // return grade.id!;
-  //         }
-
-  //         // Eğer kurala bağlı uplifts varsa, bunları da kontrol ediyoruz.
-  //         final upliftsForCurrentRule = gradeRuleUplifts
-  //             .where((uplift) => uplift?.gradeRuleId == rule?.id)
-  //             .toList();
-
-  //         if (upliftsForCurrentRule.isNotEmpty) {
-  //           for (final uplift in upliftsForCurrentRule) {
-  //             final upliftRequiredDamageCombinationCount =
-  //                 uplift?.requiredDamageCombinationCount ?? 0;
-  //             final upliftToGradeId = uplift?.upToGradeId;
-
-  //             // Eğer hasar kombinasyon sayısı uplift için yeterliyse...
-  //             if (inspectionsDamageCountByCombination >=
-  //                 upliftRequiredDamageCombinationCount) {
-  //               final upliftGrade =
-  //                   grades.firstWhere((g) => g?.id == upliftToGradeId);
-  //               final upliftGradeOrder = upliftGrade?.order ?? 0;
-
-  //               if (upliftGradeOrder > currentJobInspectionOrder) {
-  //                 print("NEW GRADE UPLIFT ID : ${upliftGrade!.id}");
-  //                 // await _hiveStorageManager.updateJobInspectionGrade(
-  //                 //     jobInspectionId, upliftToGradeId);
-
-  //                 await _hiveStorageManager.updateInspectionsListModel(
-  //                   JobInspectionResponseModelItem(
-  //                     id: jobInspectionId,
-  //                     gradleItem: GradeId(
-  //                       name: upliftGrade.name,
-  //                       order: upliftGrade.order,
-  //                       id: upliftGrade.id,
-  //                     ),
-  //                   ),
-  //                 );
-  //                 return upliftGrade.id!;
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  //   print("EMPTY NULL");
-  //   return null;
-  // }
-
-  Future<int?> findGrade(int jobInspectionId) async {
-    // 1. JobInspection tablosunda grade_id alanını null olarak güncelle.
-    // await _hiveStorageManager.setGradeId(jobInspectionId, null);
-    // 2. Eğer bu iş denetimi ile ilgili herhangi bir hasar yoksa false döndür.
     final inspections = await _hiveStorageManager.getInspectionsListModel();
+    final grades = await _hiveStorageManager.getGrades();
+    final gradeRules = await _hiveStorageManager.getGradeRules();
 
-    // print("Job Inspection Id : $jobInspectionId");
+    final gradeRuleUplifts = await _hiveStorageManager.getGradeRuleUplifts();
+    final damageCombinations = await _hiveStorageManager.getDamageCombination();
+    final damages = await _hiveStorageManager.getGetDamage(jobInspectionId);
 
-    // for (var insp in inspections) {
-    //   for (var damage in insp!.damages!) {
-    //     print("Combination Id : ${damage.damageCombinationId.id}");
-    //   }
-    // }
+    print("DAMAGES : ${damages.length}");
 
-    final hasDamage = inspections.any((d) => d!.id == jobInspectionId);
+    // Eğer Damage tablosunda ilgili jobInspectionId ile ilgili bir veri yoksa false döndür.
+    final hasDamage = damages
+        .any((inspection) => inspection.jobInspectionId == jobInspectionId);
     if (!hasDamage) {
       return null;
     }
-    // 3. JobInspection ve ilişkili verileri al.
-    final jobInspection =
-        inspections.firstWhere((j) => j!.id == jobInspectionId);
-    final grades = await _hiveStorageManager.getGrades();
-    final gradeRules = await _hiveStorageManager.getGradeRules();
-    final gradeRuleUplifts = await _hiveStorageManager.getGradeRuleUplifts();
-    final damageCombinations = await _hiveStorageManager.getDamageCombination();
-    // 4. Grade seviyelerini sırayla kontrol et.
-    for (var grade in grades) {
-      for (var rule in gradeRules) {
-        // rule.gradeId == grade.id
-        if (grade!.id == rule!.gradeId) {
-          print("GRADE ID : ${grade.id} , RULE GRADE ID : ${rule.gradeId}");
-          final requiredDamageCombinationId =
-              rule.requiredDamageCombinationId; // Grade'göre grade kuralı getir
-          final requiredDamageCombinationCount =
-              rule.requiredDamageCombinationCount;
-          // 5. Hasarların kombinasyon sayılarını kontrol et.
-          final inspectionsDamageCountByCombination = inspections
-              .where((d) =>
-                  d!.id == jobInspectionId &&
-                  damageCombinations
-                      .any((dc) => dc!.id == requiredDamageCombinationId))
-              .length;
 
-          final matchingDamageCombinationId = inspections
-              .where((d) =>
-                  d!.id == jobInspectionId &&
-                  damageCombinations
-                      .any((dc) => dc!.id == requiredDamageCombinationId))
-              .firstOrNull; // Eğer eşleşen bir id yoksa null döner
+    // JobInspection nesnesini alıyoruz.
+    final jobInspection = inspections
+        .firstWhere((inspection) => inspection?.id == jobInspectionId);
 
-          if (matchingDamageCombinationId != null) {
-            // print(
-            //     "Eşleşen Damage Combination ID: ${matchingDamageCombinationId} Required : $requiredDamageCombinationId");
-          } else {
-            print("Eşleşen Damage Combination ID bulunamadı.");
+    // jobId'ye göre ilgili Grade'leri sıralıyoruz.
+    final relatedGrades = grades
+        .where((grade) =>
+            grade?.subClientId!.id == jobInspection?.jobId?.clientId!.id)
+        .toList()
+      ..sort((a, b) => a!.order!.compareTo(b!.order!));
+
+    // Grade'leri döngü ile kontrol ediyoruz.
+    for (final grade in relatedGrades) {
+      final gradeRulesForCurrentGrade =
+          gradeRules.where((rule) => rule!.gradeId == grade!.id).toList();
+
+      print(
+          "GRADE RULES FOR CURRENT GRADE : ${gradeRulesForCurrentGrade.length}");
+
+      for (final rule in gradeRulesForCurrentGrade) {
+        final requiredDamageCombinationId = rule?.requiredDamageCombinationId;
+        final requiredDamageCombinationCount =
+            rule?.requiredDamageCombinationCount ?? 0;
+
+        // inspections listesinden ilgili kombinasyon sayısını buluyoruz.
+
+        int inspectionsDamageCountByCombination = damages.where((damage) {
+          // print("INSPECTION : $inspection");
+          // print(
+          //     "INSPECTION DAMAGE : ${inspection != null ? inspection.damages : false}");
+          return damage.jobInspectionId == jobInspectionId &&
+              damage.repairId.id == requiredDamageCombinationId;
+        }).length;
+
+        // Eğer hasar kombinasyon sayısı gerekli sayıya eşit veya büyükse...
+        if (inspectionsDamageCountByCombination >=
+            requiredDamageCombinationCount) {
+          // Mevcut JobInspection nesnesini tekrar alıyoruz.
+          final currentJobInspection = inspections
+              .firstWhere((inspection) => inspection!.id == jobInspectionId);
+
+          // final currentJobInspectionOrder =
+          //     currentJobInspection!.gradleItem != null
+          //         ? grades
+          //                 .firstWhere(
+          //                   (g) =>
+          //                       g?.id == currentJobInspection.gradleItem!.id!,
+          //                   orElse: () =>
+          //                       null, // Eğer eşleşen bir eleman bulunamazsa null döner
+          //                 )
+          //                 ?.order ??
+          //             0
+          //         : 0;
+
+          print(
+              "currentJobInspectionOrder : ${currentJobInspection!.gradleItem!.order}");
+          print("GRADE ORDER : ${grade!.order}");
+
+          // Eğer bu grade'nin sırası mevcut olandan büyükse, grade_id'yi güncelle.
+          if (grade.order != null &&
+              currentJobInspection.gradleItem != null &&
+              grade.order! > currentJobInspection.gradleItem!.order!) {
+            // await _hiveStorageManager.updateJobInspectionGrade(
+            //     jobInspectionId, grade.id);
+
+            await _hiveStorageManager.updateInspectionsListModel(
+              JobInspectionResponseModelItem(
+                id: jobInspectionId,
+                gradleItem: GradeId(
+                  name: grade.name,
+                  order: grade.order,
+                  id: grade.id,
+                ),
+              ),
+            );
+
+            print("NEW GRADE ID : ${grade.id}");
+            // return grade.id!;
           }
 
-          if (inspectionsDamageCountByCombination >=
-              requiredDamageCombinationCount!) {
-            // 6. Mevcut JobInspection'ı ve gradeId'sini al.
-            final currentJobInspection = jobInspection;
-            final currentJobInspectionOrder =
-                currentJobInspection!.gradleItem != null
-                    ? grades
-                        .firstWhere((g) =>
-                            g!.id == currentJobInspection.gradleItem!.id)!
-                        .order
-                    : 0;
-            // 7. Yeni Grade, mevcut Grade'den yüksekse, JobInspection tablosunda grade_id'yi güncelle.
-            if (grade.order! > currentJobInspectionOrder!) {
-              // await _hiveStorageManager.setGradeId(jobInspectionId, grade.id);
-              print("NEW GRADE ID : ${grade.id}");
-              await _hiveStorageManager.updateInspectionsListModel(
-                JobInspectionResponseModelItem(
-                  id: jobInspectionId,
-                  gradleItem: GradeId(
-                    name: grade.name,
-                    order: grade.id,
-                    id: grade.id,
-                  ),
-                ),
-              );
-              return grade.id!;
-            }
-            // 8. Eğer uplift varsa, kontrol et ve güncelle.
-            if (gradeRuleUplifts.isNotEmpty) {
-              for (var uplift in gradeRuleUplifts) {
-                if (rule.gradeId == uplift!.upToGradeId) {
-                  final upliftRequiredDamageCombinationCount = uplift
-                      .requiredDamageCombinationCount; // GradeRuleId ile graderuleuplift eşleşmeli
-                  final upliftToGradeId = uplift.gradeRuleId;
+          // Eğer kurala bağlı uplifts varsa, bunları da kontrol ediyoruz.
+          final upliftsForCurrentRule = gradeRuleUplifts
+              .where((uplift) => rule!.id == uplift?.gradeRuleId)
+              .toList();
 
-                  if (inspectionsDamageCountByCombination >=
-                      upliftRequiredDamageCombinationCount!) {
-                    final upliftGrade =
-                        grades.firstWhere((g) => g!.id == upliftToGradeId);
-                    if (upliftGrade!.order! > currentJobInspectionOrder) {
-                      print("NEW GRADE ID UPLIFT : ${grade.id}");
-                      return grade.id;
+          if (upliftsForCurrentRule.isNotEmpty) {
+            for (final uplift in upliftsForCurrentRule) {
+              print("GİRDİ UPLIFT CURRENT : ${upliftsForCurrentRule.length}");
+              final upliftRequiredDamageCombinationCount =
+                  uplift?.requiredDamageCombinationCount ?? 0;
+              final upliftToGradeId = uplift?.upToGradeId;
 
-                      // await _hiveStorageManager.setGradeId(
-                      //     jobInspectionId, upliftToGradeId);
-                    }
-                  }
+              print("GRADE RULE ID : ${uplift!.gradeRuleId}");
+              print("Up To Grade ID : $upliftToGradeId");
+
+              print(
+                  "inspectionsDamageCountByCombination : $inspectionsDamageCountByCombination");
+              print(
+                  "upliftRequiredDamageCombinationCount : $upliftRequiredDamageCombinationCount");
+
+              // Eğer hasar kombinasyon sayısı uplift için yeterliyse...
+              if (inspectionsDamageCountByCombination >=
+                  upliftRequiredDamageCombinationCount) {
+                print("UPLIFT ORDER : GİRDİ");
+                final upliftGrade =
+                    grades.firstWhere((g) => g?.id == upliftToGradeId);
+                final upliftGradeOrder = upliftGrade?.order ?? 0;
+
+                print("UPLIFT ORDER : $upliftGradeOrder");
+
+                if (upliftGradeOrder >
+                    currentJobInspection.gradleItem!.order!) {
+                  print("NEW GRADE UPLIFT ID : ${upliftGrade!.id}");
+                  // await _hiveStorageManager.updateJobInspectionGrade(
+                  //     jobInspectionId, upliftToGradeId);
+
+                  await _hiveStorageManager.updateInspectionsListModel(
+                    JobInspectionResponseModelItem(
+                      id: jobInspectionId,
+                      gradleItem: GradeId(
+                        name: upliftGrade.name,
+                        order: upliftGrade.order,
+                        id: upliftGrade.id,
+                      ),
+                    ),
+                  );
                 }
               }
             }
@@ -864,8 +778,118 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
         }
       }
     }
+    print("EMPTY NULL");
     return null;
   }
+
+  // Future<int?> findGrade(int jobInspectionId) async {
+  //   // 1. JobInspection tablosunda grade_id alanını null olarak güncelle.
+  //   // await _hiveStorageManager.setGradeId(jobInspectionId, null);
+  //   // 2. Eğer bu iş denetimi ile ilgili herhangi bir hasar yoksa false döndür.
+  //   final inspections = await _hiveStorageManager.getInspectionsListModel();
+
+  //   // print("Job Inspection Id : $jobInspectionId");
+
+  //   // for (var insp in inspections) {
+  //   //   for (var damage in insp!.damages!) {
+  //   //     print("Combination Id : ${damage.damageCombinationId.id}");
+  //   //   }
+  //   // }
+
+  //   final hasDamage = inspections.any((d) => d!.id == jobInspectionId);
+  //   if (!hasDamage) {
+  //     return null;
+  //   }
+  //   // 3. JobInspection ve ilişkili verileri al.
+  //   final jobInspection =
+  //       inspections.firstWhere((j) => j!.id == jobInspectionId);
+  //   final grades = await _hiveStorageManager.getGrades();
+  //   final gradeRules = await _hiveStorageManager.getGradeRules();
+  //   final gradeRuleUplifts = await _hiveStorageManager.getGradeRuleUplifts();
+  //   final damageCombinations = await _hiveStorageManager.getDamageCombination();
+  //   // 4. Grade seviyelerini sırayla kontrol et.
+  //   for (var grade in grades) {
+  //     for (var rule in gradeRules) {
+  //       // rule.gradeId == grade.id
+  //       if (grade!.id == rule!.gradeId) {
+  //         final requiredDamageCombinationId =
+  //             rule.requiredDamageCombinationId; // Grade'göre grade kuralı getir
+  //         final requiredDamageCombinationCount =
+  //             rule.requiredDamageCombinationCount;
+  //         // 5. Hasarların kombinasyon sayılarını kontrol et.
+  //         final inspectionsDamageCountByCombination = inspections
+  //             .where((d) =>
+  //                 d!.id == jobInspectionId &&
+  //                 damageCombinations
+  //                     .any((dc) => dc!.id == requiredDamageCombinationId))
+  //             .length;
+
+  //         final matchingDamageCombinationId = inspections
+  //             .where((d) =>
+  //                 d!.id == jobInspectionId &&
+  //                 damageCombinations
+  //                     .any((dc) => dc!.id == requiredDamageCombinationId))
+  //             .firstOrNull; // Eğer eşleşen bir id yoksa null döner
+
+  //         if (matchingDamageCombinationId != null) {
+  //           // print(
+  //           //     "Eşleşen Damage Combination ID: ${matchingDamageCombinationId} Required : $requiredDamageCombinationId");
+  //         } else {}
+
+  //         if (inspectionsDamageCountByCombination >=
+  //             requiredDamageCombinationCount!) {
+  //           // 6. Mevcut JobInspection'ı ve gradeId'sini al.
+  //           final currentJobInspection = jobInspection;
+  //           final currentJobInspectionOrder =
+  //               currentJobInspection!.gradleItem != null
+  //                   ? grades
+  //                       .firstWhere((g) =>
+  //                           g!.id == currentJobInspection.gradleItem!.id)!
+  //                       .order
+  //                   : 0;
+  //           // 7. Yeni Grade, mevcut Grade'den yüksekse, JobInspection tablosunda grade_id'yi güncelle.
+  //           if (grade.order! > currentJobInspectionOrder!) {
+  //             // await _hiveStorageManager.setGradeId(jobInspectionId, grade.id);
+  //             await _hiveStorageManager.updateInspectionsListModel(
+  //               JobInspectionResponseModelItem(
+  //                 id: jobInspectionId,
+  //                 gradleItem: GradeId(
+  //                   name: grade.name,
+  //                   order: grade.id,
+  //                   id: grade.id,
+  //                 ),
+  //               ),
+  //             );
+  //             return grade.id!;
+  //           }
+  //           // 8. Eğer uplift varsa, kontrol et ve güncelle.
+  //           if (gradeRuleUplifts.isNotEmpty) {
+  //             for (var uplift in gradeRuleUplifts) {
+  //               if (rule.gradeId == uplift!.upToGradeId) {
+  //                 final upliftRequiredDamageCombinationCount = uplift
+  //                     .requiredDamageCombinationCount; // GradeRuleId ile graderuleuplift eşleşmeli
+  //                 final upliftToGradeId = uplift.gradeRuleId;
+
+  //                 if (inspectionsDamageCountByCombination >=
+  //                     upliftRequiredDamageCombinationCount!) {
+  //                   final upliftGrade =
+  //                       grades.firstWhere((g) => g!.id == upliftToGradeId);
+  //                   if (upliftGrade!.order! > currentJobInspectionOrder) {
+  //                     return grade.id;
+
+  //                     // await _hiveStorageManager.setGradeId(
+  //                     //     jobInspectionId, upliftToGradeId);
+  //                   }
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // }
 
   Future<void> _patchJobInspectionsDamages(
       PatchJobInspectionsDamages event, Emitter<InspectionsState> emit) async {

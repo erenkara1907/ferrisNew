@@ -95,6 +95,11 @@ abstract class HiveInit {
     Hive.registerAdapter(DamageAssetsMainClientIdAdapter());
     Hive.registerAdapter(GradeRuleModelAdapter());
     Hive.registerAdapter(DamageCombinationModelAdapter());
+    Hive.registerAdapter(CategoryIdAdapter());
+    Hive.registerAdapter(FailureIdAdapter());
+    Hive.registerAdapter(IssueIdAdapter());
+    Hive.registerAdapter(PartIdAdapter());
+    Hive.registerAdapter(RepairIdAdapter());
     Hive.registerAdapter(GradeRuleUpliftModelAdapter());
     Hive.registerAdapter(CategoriesAdapter());
     Hive.registerAdapter(PartsAdapter());

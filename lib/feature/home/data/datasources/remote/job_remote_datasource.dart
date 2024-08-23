@@ -441,7 +441,7 @@ final class JobRemoteDataSourceImpl
   Future<List<JobStartModel>> getJobPrice({required int jobId}) async {
     try {
       print("JOB ID : $jobId");
-      final response = await _networkClient.post(
+      final response = await _networkClient.get(
         "${ServicePath.jobPrice.value}/$jobId",
         options: Options(headers: {
           'Content-Type': 'application/json',

@@ -58,9 +58,9 @@ mixin InspectionsListOperationsMixin {
         // Güncellenmiş öğeyi elde et
         final updatedItem = currentJobInspection[i]!.copyWith(
           gradleItem: GradeId(
-            id: data.gradleItem!.id,
-            name: "${data.gradleItem!.name}",
-            order: data.gradleItem!.order,
+            id: data.gradleItem?.id ?? 0,
+            name: "${data.gradleItem?.name ?? 0}",
+            order: data.gradleItem?.order ?? 0,
           ),
         );
 
