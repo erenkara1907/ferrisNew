@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -50,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const VerticalSpace.medium(),
                   Container(
                     decoration: BoxDecoration(
-                        color: context.theme.colorScheme.surface,
+                        color: context.theme.colorScheme.onSurfaceVariant,
                         borderRadius: BorderRadius.circular(12)),
                     child: Column(
                       children: [
@@ -73,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const VerticalSpace.small(),
                   Container(
                       decoration: BoxDecoration(
-                          color: context.theme.colorScheme.surface,
+                          color: context.theme.colorScheme.onSurfaceVariant,
                           borderRadius: BorderRadius.circular(12)),
                       child: Column(
                         children: [
@@ -84,15 +85,24 @@ class _ProfilePageState extends State<ProfilePage> {
                               },
                               title: "Permissions"),
                           ProfilPageItem(
-                              icon: "assets/images/icons/privacy-policy.svg",
-                              onPressed: () {},
-                              title: "Privacy Policy"),
+                            icon: "assets/images/icons/privacy-policy.svg",
+                            onPressed: () async {
+                              const String url =
+                                  "https://www.driveferris.com/privacy/";
+                              if (await canLaunchUrl(Uri.parse(url))) {
+                                await launchUrl(Uri.parse(url));
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                            title: "Privacy Policy",
+                          ),
                         ],
                       )),
                   const VerticalSpace.small(),
                   Container(
                       decoration: BoxDecoration(
-                          color: context.theme.colorScheme.surface,
+                          color: context.theme.colorScheme.onSurfaceVariant,
                           borderRadius: BorderRadius.circular(12)),
                       child: Column(
                         children: [

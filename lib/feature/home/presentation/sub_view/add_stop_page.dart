@@ -184,13 +184,13 @@ class _AddStopState extends State<AddStop> {
               limit: 1, // Sadece bir resim çekmek için limit 1 olmalı
               onCapture: (File image) async {
                 if (_evidences.isEmpty) {
-                  context.pop();
                   await compressImage(image);
                   // setState(() {
                   //   _evidences.add(image);
                   // });
                   // Resim çekildikten sonra işlemleri başlat
                   await handleImageSelectionAndSubmit(context, state);
+                  context.pop();
                 } else {
                   BotToast.showText(
                       text: 'You can only select 1 images in total');
@@ -306,12 +306,12 @@ class _AddStopState extends State<AddStop> {
   Widget build(BuildContext context) {
     return BlocConsumer<StopJobBloc, StopJobState>(
       listener: (context, state) {
-        if (state.status == ViewStatus.success) {
+        if (state.status == ViewStatus.success && state.isError == false) {
           showTopSnackBarFr(context, message: 'Stop added successfully');
           context.pop();
         }
         if (state.status == ViewStatus.failure) {
-          BotToast.showText(text: state.failure.toString());
+          BotToast.showText(text: "Please enter the reason for stop category");
         }
       },
       builder: (context, state) {
@@ -552,7 +552,7 @@ class _AddStopState extends State<AddStop> {
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
             ),
             width: context.dynamicWidth(0.98),
             height: context.dynamicHeight(0.38),
@@ -571,7 +571,8 @@ class _AddStopState extends State<AddStop> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Open Camera",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () {
                             if (_evidences.isNotEmpty) {
                               BotToast.showText(
@@ -579,18 +580,21 @@ class _AddStopState extends State<AddStop> {
                                       'You can only select 1 images in total');
                               context.pop();
                             } else {
-                              _getImages(ImageSource.camera, state);
                               Navigator.of(context).pop();
+
+                              _getImages(ImageSource.camera, state);
                             }
                           }),
                       const VerticalSpace.xxSmall(),
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Pick From Gallery",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () {
-                            _getImages(ImageSource.gallery, state);
                             Navigator.of(context).pop();
+
+                            _getImages(ImageSource.gallery, state);
                           }),
                     ],
                   ),
@@ -721,7 +725,7 @@ class CustomJobTextfield extends StatelessWidget {
                 obscureText: obscureText,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: context.theme.colorScheme.surface,
+                  fillColor: context.theme.colorScheme.onSurfaceVariant,
                   hintText: hintText,
                   isDense: true,
                   suffixIcon: suffixIcon,
@@ -816,7 +820,9 @@ class _CameraPageState extends State<CameraPage> {
       widget.onCapture(file); // Fotoğrafı onCapture ile gönder
     } catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: 'Error capturing image: $e');
+      BotToast.showText(
+          text:
+              "The camera hasn't finished saving the previous picture yet. Please wait for the current process to complete before taking another photo.");
     }
   }
 

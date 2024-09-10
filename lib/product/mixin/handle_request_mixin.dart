@@ -15,11 +15,10 @@ mixin HandleRequestMixin {
       final response = await request;
       return _handleResponse(response, fromJson, manipulateData);
     } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
+      print("Error : ${e.toString()} , StackTrace: $stackTrace");
       throw UnknownException();
     }
   }
@@ -35,7 +34,7 @@ mixin HandleRequestMixin {
 
     if (response.data['status'] == false) {
       if (response.data['message'] != null) {
-        BotToast.showText(text: response.data['message'].toString());
+        // BotToast.showText(text: response.data['message'].toString());
       }
     }
 

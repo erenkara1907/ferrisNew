@@ -30,6 +30,7 @@ mixin DamageOperationMixin {
         return allRecordedDamage[i];
       }
     }
+    return null;
   }
 
   deleteRecordedDamage(int inspectionId, int damageId) async {
@@ -38,9 +39,7 @@ mixin DamageOperationMixin {
           damage.jobInspectionId == inspectionId &&
           damage.categoryId == damageId,
     );
-    if (damage != null) {
-      await recordedDamagesBox.delete(damage.categoryId);
-    }
+    await recordedDamagesBox.delete(damage.categoryId);
   }
 
   Future<void> deleteAllRecordedDamage() async {

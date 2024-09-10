@@ -23,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   })  : _ucGetAuth = ucGetAuth,
         super(const AuthState()) {
     _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
-    on<LoginEvent>(_onLogin);
+    on<LoginEvent>(onLogin);
     on<LogoutEvent>(_onLogout);
     on<SetDeviceIdEvent>(_onSetDeviceId);
     on<ChangePasswordEvent>(_onChangePassword);
@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   late final HiveDatabaseManager _hiveDatabaseManager;
   final UCGetAuth _ucGetAuth;
 
-  Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
+  Future<void> onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading, isCodeSent: false));
 
     final result = await _ucGetAuth.login(
@@ -109,8 +109,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final message = await FirebaseMessaging.instance.getToken();
 
-    // print("message: $message");
-
     _ucGetAuth.setDeviceId(deviceId: message ?? '');
   }
 
@@ -178,8 +176,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final result = await _ucGetAuth.getUserInfo();
-
-    // print('result: $result');
 
     result.fold(
       (failure) {

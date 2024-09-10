@@ -106,9 +106,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
         imageSelected = true;
       });
       _scrollToEnd();
-    } else {
-      // print('No image selected.');
-    }
+    } else {}
   }
 
   void _scrollToEnd() {
@@ -143,7 +141,6 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
 
   @override
   void initState() {
-    // print("expendsfsdfsdfse: ${widget.index}");
     _priceController.text = widget.expense.price!.toStringAsFixed(2);
 
     _reasonController.text = widget.expense.reasonNoReceipt ?? "";
@@ -207,7 +204,6 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
               child: LoadingProgress(),
             ));
           }
-          // print("pathhjjkj: $filePath");
           final pathImage = ProductStateItems.hiveStorageManager
                   .getPostExpenseSaveImage(
                       price: widget.expense.price!,
@@ -216,13 +212,11 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                   ?.path ??
               "";
           if (pathImage != "") {
-            // print("pathIdsfsdfsdfmage: $pathImage");
             int documentsIndex = pathImage.indexOf("Documents/");
             String result =
                 pathImage.substring(documentsIndex + "Documents/".length);
 
             final path = '$filePath/$result';
-            // print("pathIdsfsdfsdfmasdsadaage: $path");
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: context.theme.colorScheme.surface,
@@ -654,7 +648,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
             ),
             width: context.dynamicWidth(0.98),
             height: context.dynamicHeight(0.38),
@@ -673,7 +667,8 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Open Camera",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             Navigator.of(context).pop();
 
@@ -683,7 +678,8 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Pick From Gallery",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             Navigator.of(context).pop();
 

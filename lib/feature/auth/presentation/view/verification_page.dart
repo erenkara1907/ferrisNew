@@ -14,15 +14,13 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  final TextEditingController _controller1 = TextEditingController();
-  final TextEditingController _controller2 = TextEditingController();
   FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.surface,
+        backgroundColor: context.theme.colorScheme.onSurfaceVariant,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
@@ -90,12 +88,8 @@ class PhoneNumberTextfield extends StatelessWidget {
       ),
       initialCountryCode: 'TR',
       languageCode: "en",
-      onChanged: (phone) {
-        // print(phone.completeNumber);
-      },
-      onCountryChanged: (country) {
-        // print('Country changed to: ' + country.name);
-      },
+      onChanged: (phone) {},
+      onCountryChanged: (country) {},
     );
   }
 }

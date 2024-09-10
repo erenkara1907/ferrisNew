@@ -230,7 +230,8 @@ class _SignInspectionPageState extends State<SignInspectionPage> {
                             child: Container(
                               width: context.dynamicWidth(0.97),
                               decoration: BoxDecoration(
-                                color: context.theme.colorScheme.surface,
+                                color:
+                                    context.theme.colorScheme.onSurfaceVariant,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
@@ -240,10 +241,16 @@ class _SignInspectionPageState extends State<SignInspectionPage> {
                                   children: [
                                     const VerticalSpace.small(),
                                     CustomJobTextfield(
-                                        textInputAction: TextInputAction.done,
-                                        text: "Customer Full Name",
-                                        hintText: "Enter the name",
-                                        controller: _controllerText),
+                                      textInputAction: TextInputAction.done,
+                                      text: "Customer Full Name",
+                                      hintText: "Enter the name",
+                                      controller: _controllerText,
+                                    ),
+                                    // IconButton(
+                                    //     onPressed: () {
+                                    //       _controllerText.clear();
+                                    //     },
+                                    //     icon: const Icon(Icons.add))
                                   ],
                                 ),
                               ),
@@ -362,8 +369,14 @@ class InspectionSignInfoWidget extends StatelessWidget {
     String formattedDate = _formatDate(inspection.date!);
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
-        final gradeText = state.damageResponse.isNotEmpty
-            ? state.damageResponse[state.damageResponse.length - 1].gradeId
+        // final gradeText = state.damageResponse.isNotEmpty
+        //     ? state.damageResponse[state.damageResponse.length - 1].gradeId
+        //     : inspection.gradleItem != null
+        //         ? inspection.gradleItem!.name
+        //         : "-";
+
+        final gradeText = state.gradeId != ""
+            ? state.gradeId
             : inspection.gradleItem != null
                 ? inspection.gradleItem!.name
                 : "-";
@@ -371,7 +384,7 @@ class InspectionSignInfoWidget extends StatelessWidget {
           elevation: 8,
           child: Container(
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -527,7 +540,7 @@ class _InspectionConditionImageWidgetState
           child: Container(
             width: context.dynamicWidth(0.97),
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -630,7 +643,7 @@ class InspectionDamagesWidget extends StatelessWidget {
           elevation: 8,
           child: Container(
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -690,7 +703,8 @@ class InspectionDamagesWidget extends StatelessWidget {
                                 child: Text(
                                   "Total: £${total.toStringAsFixed(2)}",
                                   style: context.textTheme.bodyMedium?.copyWith(
-                                      color: context.theme.colorScheme.surface),
+                                      color: context
+                                          .theme.colorScheme.onSurfaceVariant),
                                 ),
                               ),
                             ),

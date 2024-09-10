@@ -18,9 +18,9 @@ class _ApperancePageState extends State<ApperancePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.theme.colorScheme.surfaceVariant,
+      backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.surfaceVariant,
+        backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
         leading: IconButton(
           onPressed: () {
             context.pop();
@@ -45,7 +45,7 @@ class _ApperancePageState extends State<ApperancePage> {
             const VerticalSpace.small(),
             Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surface,
+                color: context.theme.colorScheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -69,7 +69,7 @@ class _ApperancePageState extends State<ApperancePage> {
                             ),
                           ],
                         ),
-                        SwitchButton()
+                        const SwitchButton()
                       ],
                     ),
                   ),
@@ -84,6 +84,8 @@ class _ApperancePageState extends State<ApperancePage> {
 }
 
 class SwitchButton extends StatefulWidget {
+  const SwitchButton({super.key});
+
   @override
   _SwitchButtonState createState() => _SwitchButtonState();
 }
@@ -108,18 +110,16 @@ class _SwitchButtonState extends State<SwitchButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: CupertinoSwitch(
-        value: _switchValue,
-        onChanged: (value) {
-          changeAppTheme();
-          setState(() {
-            _switchValue = value;
-          });
-        },
-        activeColor: context.theme.colorScheme.primaryContainer,
-        trackColor: context.theme.colorScheme.outline,
-      ),
+    return CupertinoSwitch(
+      value: _switchValue,
+      onChanged: (value) {
+        changeAppTheme();
+        setState(() {
+          _switchValue = value;
+        });
+      },
+      activeColor: context.theme.colorScheme.primaryContainer,
+      trackColor: context.theme.colorScheme.outline,
     );
   }
 }

@@ -11,6 +11,16 @@ final class CustomDarkTheme implements CustomTheme {
         colorScheme: CustomColorScheme.darkColorScheme,
         floatingActionButtonTheme: floatingActionButtonThemeData,
         textTheme: textTheme,
+        checkboxTheme: const CheckboxThemeData(
+          side: BorderSide(color: Color(0xFFA5A5A5)),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: ButtonStyle(
+            iconColor: WidgetStateProperty.all(
+              const Color(0xFFFFFFFF),
+            ),
+          ),
+        ),
       );
 
   @override

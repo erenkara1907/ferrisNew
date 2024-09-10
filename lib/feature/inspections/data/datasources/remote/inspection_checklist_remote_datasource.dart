@@ -47,7 +47,6 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<List<ChecklistResponseModelItem>> getChecklists({
     required int? inspectionId,
   }) async {
-    // print("inspection ıd : $inspectionId");
     try {
       final response = await _networkClient.get(
         ServicePath.jobInspectionsCheckList.value,
@@ -57,7 +56,6 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         options: Options(headers: headers),
       );
 
-      // print("CHECK LIST : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -74,7 +72,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
           .toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -86,7 +84,6 @@ class JobInspectionsCheckListRemoteDataSourceImpl
   Future<String> postChecklist({
     required InspectionChecklistPostModel data,
   }) async {
-    print("POST DATA : girdi");
     try {
       final response = await _networkClient.post(
         ServicePath.jobInspectionsCheckList.value,
@@ -94,7 +91,6 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         data: data.toMap(),
       );
 
-      print("POST DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
@@ -105,7 +101,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
       return response.data['message'];
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -118,7 +114,6 @@ class JobInspectionsCheckListRemoteDataSourceImpl
     required InspectionChecklistPostModel data,
     required int checklistId,
   }) async {
-    print("PATCH DATA : girdi");
     try {
       final response = await _networkClient.post(
         "${ServicePath.jobInspectionsCheckList.value}/$checklistId",
@@ -126,12 +121,10 @@ class JobInspectionsCheckListRemoteDataSourceImpl
         data: data.toMap(),
       );
 
-      print("PATCH DATA : ${response.data}");
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
 
-      // print("DATA : ${response.data}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);

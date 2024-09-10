@@ -20,28 +20,19 @@ class EndJobPostModelAdapter extends TypeAdapter<EndJobPostModel> {
       endDate: fields[0] as int,
       spendCharging: fields[1] as String?,
       valetStandardId: fields[2] as int?,
-      departedHubTime: fields[3] as String?,
-      arrivedCustomerTime: fields[4] as String?,
-      departedCustomerTime: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, EndJobPostModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.endDate)
       ..writeByte(1)
       ..write(obj.spendCharging)
       ..writeByte(2)
-      ..write(obj.valetStandardId)
-      ..writeByte(3)
-      ..write(obj.departedHubTime)
-      ..writeByte(4)
-      ..write(obj.arrivedCustomerTime)
-      ..writeByte(5)
-      ..write(obj.departedCustomerTime);
+      ..write(obj.valetStandardId);
   }
 
   @override

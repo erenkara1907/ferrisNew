@@ -69,7 +69,6 @@ final class NetworkSpeedChecker {
         return true; // Hata durumunda zayıf sinyal
       }
     } catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
       // İstisna durumunda zayıf sinyal olarak kabul et
       return true; // İstisna durumunda zayıf sinyal
     }

@@ -109,10 +109,11 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           ],
           child: Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.surface,
+              backgroundColor: context.theme.colorScheme.onSurfaceVariant,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
+                  context.pop();
                   context.read<AuthBloc>().add(const ResetStateEvent());
                   context
                       .read<AuthTimeoutBloc>()

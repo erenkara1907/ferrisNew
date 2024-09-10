@@ -5,16 +5,16 @@ import 'package:ferrisfwt/feature/auth/data/models/user_response_model.dart';
 import 'package:ferrisfwt/feature/auth/domain/repositories/auth_repository.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 
-final class UCGetAuth {
-  UCGetAuth({required AuthRepository repository}) : _repository = repository;
+class UCGetAuth {
+  UCGetAuth({required AuthRepository repositoryV}) : repository = repositoryV;
 
-  final AuthRepository _repository;
+  final AuthRepository repository;
 
   Future<Either<Failure, LoginResponseModel>> login({
     required String email,
     required String password,
   }) {
-    return _repository.login(
+    return repository.login(
       email: email,
       password: password,
     );
@@ -25,7 +25,7 @@ final class UCGetAuth {
     required String token,
     required String code,
   }) {
-    return _repository.verifyOtp(
+    return repository.verifyOtp(
       userId: userId,
       token: token,
       code: code,
@@ -36,7 +36,7 @@ final class UCGetAuth {
     required String oldPassword,
     required String newPassword,
   }) {
-    return _repository.changePassword(
+    return repository.changePassword(
       oldPassword: oldPassword,
       newPassword: newPassword,
     );
@@ -45,7 +45,7 @@ final class UCGetAuth {
   Future<Either<Failure, String>> logout({
     required String deviceToken,
   }) {
-    return _repository.logout(
+    return repository.logout(
       deviceToken: deviceToken,
     );
   }
@@ -53,12 +53,12 @@ final class UCGetAuth {
   Future<Either<Failure, String>> setDeviceId({
     required String deviceId,
   }) {
-    return _repository.setDeviceId(
+    return repository.setDeviceId(
       deviceId: deviceId,
     );
   }
 
   Future<Either<Failure, UserResponseModel>> getUserInfo() {
-    return _repository.getUserInfo();
+    return repository.getUserInfo();
   }
 }

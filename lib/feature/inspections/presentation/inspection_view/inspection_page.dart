@@ -164,7 +164,6 @@ class _InspectionPageState extends State<InspectionPage> {
                       );
                       // if (state.damageResponse.isNotEmpty &&
                       //     state.inspections.isNotEmpty) {
-                      //   print("LAST : ${state.damageResponse.last.gradeId}");
                       // }
 
                       // List<DamageResponseModel> trimmedDamageResponse =

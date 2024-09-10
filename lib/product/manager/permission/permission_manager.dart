@@ -24,12 +24,8 @@ class PermissionHandlerManager {
   }
 
   Future<bool> requestLocationAlwaysPermission() async {
-    print("Always izni isteniyor...");
-
     // Always izni isteyin.
     PermissionStatus status = await Permission.locationAlways.request();
-
-    print("Always izni durumu: $status");
 
     if (status.isGranted) {
       return true;
@@ -57,17 +53,13 @@ class PermissionHandlerManager {
       provisional: false,
       sound: true,
     );
-    // print(result.authorizationStatus == AuthorizationStatus.provisional ||
-    //     result.authorizationStatus == AuthorizationStatus.authorized);
     return result.authorizationStatus == AuthorizationStatus.provisional ||
         result.authorizationStatus == AuthorizationStatus.authorized;
   }
 
   Future<bool> checkLocationAlways() async {
-    print("Always Girdi");
     PermissionStatus status = await Permission.locationAlways.request();
 
-    print("Always Girdi Status : $status");
     if (status.isGranted) {
       return true;
     } else {

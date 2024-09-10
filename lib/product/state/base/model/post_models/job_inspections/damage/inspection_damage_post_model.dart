@@ -26,6 +26,8 @@ class InspectionDamagePostModel extends INetworkSentDataModel {
   final File? damageImage;
   @HiveField(7)
   final File? contextImage;
+  @HiveField(8)
+  final int? damageId;
 
   InspectionDamagePostModel({
     required this.jobInspectionId,
@@ -34,6 +36,7 @@ class InspectionDamagePostModel extends INetworkSentDataModel {
     required this.issueId,
     required this.failureId,
     required this.repairId,
+    required this.damageId,
     this.damageImage,
     this.contextImage,
   });
@@ -61,7 +64,6 @@ class InspectionDamagePostModel extends INetworkSentDataModel {
       // Verify if the file exists
       File file = File(evidencePath.path);
       if (!file.existsSync()) {
-        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -76,7 +78,6 @@ class InspectionDamagePostModel extends INetworkSentDataModel {
       return multipartFile;
     } catch (e, s) {
       SentryErrorHandler.instance.capture(e, stackTrace: s);
-      // print('Error processing file at path: $evidencePath');
 
       return null;
     }

@@ -24,6 +24,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'feature/inspections/data/models/condition_image/condition_image_response_model.dart';
+import 'product/utility/enums/app_theme_enum.dart';
+
 Future<void> main() async {
   runZonedGuarded(() async {
     await dotenv.load(fileName: ".env");
@@ -54,60 +57,6 @@ Future<void> main() async {
   }, (exception, stackTrace) async {
     await Sentry.captureException(exception, stackTrace: stackTrace);
   });
-}
-
-Future<void> mains() async {
-  // BindingBase.debugZoneErrorsAreFatal = true;
-  // WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = dotenv.env['SENTRY_DSN'];
-      options.tracesSampleRate = 1.0;
-      options.attachScreenshot = true;
-      options.recordHttpBreadcrumbs = true;
-      options.enableAutoSessionTracking = true;
-      options.enableMetrics = true;
-      options.attachViewHierarchy = true;
-      options.enableAutoPerformanceTracing = true;
-    },
-    appRunner: () async {
-      // Zone guard için runZonedGuarded burada kullanılıyor
-      runZonedGuarded(
-        () {
-          runApp(
-            SentryWidget(
-              child: ProductLocalization(
-                child: const StateInitialize(
-                  child: _MyApp(),
-                ),
-              ),
-            ),
-          );
-
-          FlutterError.onError = (FlutterErrorDetails details) {
-            FlutterError.presentError(details);
-            Sentry.captureException(details.exception,
-                stackTrace: details.stack);
-          };
-        },
-        (error, stackTrace) async {
-          await Sentry.captureException(error, stackTrace: stackTrace);
-        },
-      );
-    },
-  );
-
-  // FlutterError.onError, Sentry'nin init işleminden sonra yapılandırılır
-  // FlutterError.onError = (FlutterErrorDetails details) {
-  //   if (details.library == 'image resource service' &&
-  //       (details.exception.toString().contains('404') ||
-  //           details.exception.toString().contains("Invalid"))) {
-  //     return;
-  //   }
-  //   Sentry.captureException(details.exception, stackTrace: details.stack);
-  //   FlutterError.presentError(details);
-  // };
 }
 
 class _MyApp extends StatefulWidget {
@@ -146,24 +95,6 @@ class _MyAppState extends State<_MyApp> {
       return;
     }
     try {
-      // var connectivityResult = await hasNetwork();
-      // final position = await Geolocator.getCurrentPosition(
-      //     desiredAccuracy: LocationAccuracy.high);
-      // if (connectivityResult) {
-      //   final currentJobId =
-      //       ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
-
-      //   print("currentJob Id : $currentJobId");
-
-      //   if (currentJobId != null && context.mounted) {
-      //     await Future.delayed(const Duration(seconds: 1));
-      //     context.read<HomeBloc>().add(UpdateTrackingCoordinate(
-      //           jobId: int.parse(currentJobId),
-      //           latitude: position.latitude,
-      //           longitude: position.longitude,
-      //         ));
-      //   }
-      // } else {}
       final HiveStorageManager _hiveStorageManager = HiveStorageManager();
       var connectivityResult = await hasNetwork();
       final position = await Geolocator.getCurrentPosition(
@@ -174,7 +105,6 @@ class _MyAppState extends State<_MyApp> {
         List<Map<String, double>> _locations =
             await _hiveStorageManager.getLocationsFromTable();
         if (_locations.isNotEmpty && currentJobId != null) {
-          print("LOCATIONS : $_locations");
           // API Request
           context.read<HomeBloc>().add(UpdateTrackingCoordinateBulk(
                 jobId: int.parse(currentJobId),
@@ -253,19 +183,12 @@ class _MyAppState extends State<_MyApp> {
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await _userHiveOperation.getJobExpenseAsync();
-      // print('result: $result');
 
       final resultStop = await _userHiveOperation.getJobStopAsync();
 
-      // print('resultStop: $resultStop');
-
       final resultJobUpdate = await _userHiveOperation.getJobUpdate();
 
-      // print('resultJobUpdate: $resultJobUpdate');
-
       final resultPatch = await _userHiveOperation.getJobExpensePatchAsync();
-
-      // print('resultPatch: $resultPatch');
 
       if (result != [] && result.isNotEmpty && result != {}) {
         for (var item in result) {
@@ -321,13 +244,10 @@ class _MyAppState extends State<_MyApp> {
               ?.inspectionsJobId ??
           [];
 
-      // print('jobInspectionsId: $jobInspectionsId');
-
       for (var id in jobInspectionsId) {
         try {
           final resultInspection =
               await _userHiveOperation.getChecklistPostModel(id);
-          // print('resultInspectionChekList: $resultInspection');
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
               context
@@ -341,7 +261,6 @@ class _MyAppState extends State<_MyApp> {
           /*
           final resultInspectionPatch =
               await _userHiveOperation.getConditionImagePostModel(id);
-          print('resultInspectionConditionsImage: $resultInspectionPatch');
           if (resultInspectionPatch != null &&
               resultInspectionPatch.isNotEmpty) {
             await Future.forEach(resultInspectionPatch, (item) async {
@@ -354,7 +273,7 @@ class _MyAppState extends State<_MyApp> {
 */
           final resultInspectionEditDetail =
               await _userHiveOperation.getInspectionDetails(id);
-          // print('resultInspectionEditDetail: $resultInspectionEditDetail');
+
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
@@ -365,26 +284,34 @@ class _MyAppState extends State<_MyApp> {
                   ));
               await Future.delayed(const Duration(seconds: 2));
             });
+
             await _userHiveOperation.removeInspectionDetailsRecord(id);
           }
 
-          final resultInspectionEdit =
-              await _userHiveOperation.getDamagePostModel(id);
+          processInspectionsDamagePost(context, id);
 
-          if (resultInspectionEdit.isNotEmpty) {
-            await Future.forEach(resultInspectionEdit, (item) async {
-              context.read<InspectionsBloc>().add(
-                  PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
+          processInspectionsConditionImagePost(context, id);
+
+          processInspectionsConditionImageDelete(context, id);
+
+          final deletedDamagesIds = _userHiveOperation.getDeletedDamageIds();
+          bool isDelete = _userHiveOperation.isDelete;
+
+          if (isDelete && deletedDamagesIds.isNotEmpty) {
+            await Future.forEach(deletedDamagesIds, (item) async {
+              context
+                  .read<InspectionsBloc>()
+                  .add(DeleteRecordedDamageRemote(item));
               await Future.delayed(const Duration(seconds: 2));
             });
-            await _userHiveOperation.deleteDamagePostModel(id);
+            _userHiveOperation.clearDeletedDamageIds();
+            _userHiveOperation.setDamageBoolValue(false);
           }
 
           final resultInspectionCustomerSign =
               await _userHiveOperation.getSignCustomerPostModel(id);
           final resultInspectionSign =
               await _userHiveOperation.getSignInspectorPostModel(id);
-          // print('resultInspectionSign $resultInspectionCustomerSign');
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
@@ -414,6 +341,54 @@ class _MyAppState extends State<_MyApp> {
     }
   }
 
+  Future<void> processInspectionsDamagePost(
+      BuildContext context, int id) async {
+    final resultInspectionEdit =
+        await _userHiveOperation.getDamagePostModel(id);
+    if (resultInspectionEdit.isNotEmpty) {
+      await Future.forEach(resultInspectionEdit, (item) async {
+        context
+            .read<InspectionsBloc>()
+            .add(PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
+        await Future.delayed(const Duration(seconds: 2));
+        await _userHiveOperation.deleteSpecificDamage(item.damageId ?? 0);
+      });
+    }
+  }
+
+  Future<void> processInspectionsConditionImagePost(
+      BuildContext context, int id) async {
+    List<ConditionImageResponseModel?> resultInspectionConditionImages =
+        await _userHiveOperation.getConditionImagePostModel(id);
+
+    if (resultInspectionConditionImages.isNotEmpty) {
+      await Future.forEach(resultInspectionConditionImages, (item) async {
+        context.read<InspectionsBloc>().add(
+              PostConditionImagesRemote(
+                  conditionImage: item!, jobInspectionId: id),
+            );
+        await Future.delayed(const Duration(seconds: 2));
+        await _userHiveOperation.deleteConditionImagePostModel(item.id ?? 0);
+      });
+    }
+  }
+
+  Future<void> processInspectionsConditionImageDelete(
+      BuildContext context, int id) async {
+    List<ConditionImageResponseModel?> deletedConditionIds =
+        await _userHiveOperation.getDeletedConditionImagesFromCache(id);
+
+    if (deletedConditionIds.isNotEmpty) {
+      await Future.forEach(deletedConditionIds, (item) async {
+        context.read<InspectionsBloc>().add(
+              DeleteConditionImageRemote(item?.id ?? 0),
+            );
+        await Future.delayed(const Duration(seconds: 2));
+        await _userHiveOperation.deleteIdFromCache(item?.id ?? 0);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -421,11 +396,24 @@ class _MyAppState extends State<_MyApp> {
       title: 'Ferris',
       locale: context.locale,
       theme: context.watch<ThemeNotifier>().currentTheme,
+      themeMode:
+          _determineThemeMode(context.watch<ThemeNotifier>().currentThemeEnum),
       darkTheme: CustomDarkTheme().themeData,
       supportedLocales: context.supportedLocales,
       localizationsDelegates: context.localizationDelegates,
       routerConfig: ProductStateItems.appRouter.router,
       builder: BotToastInit(),
     );
+  }
+
+  ThemeMode _determineThemeMode(AppThemes currentThemeEnum) {
+    switch (currentThemeEnum) {
+      case AppThemes.LIGHT:
+        return ThemeMode.light;
+      case AppThemes.DARK:
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.light;
+    }
   }
 }

@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../feature/auth/presentation/bloc/auth_timeout/auth_timeout_bloc.dart';
+
 final class StateInitialize extends StatelessWidget {
   const StateInitialize({required this.child, super.key});
   final Widget child;
@@ -23,6 +25,8 @@ final class StateInitialize extends StatelessWidget {
         BlocProvider<LandingBloc>(
             create: (context) => ProductStateItems.landingBloc),
         BlocProvider<AuthBloc>(create: (context) => ProductStateItems.authBloc),
+        BlocProvider<AuthTimeoutBloc>(
+            create: (context) => ProductStateItems.authTimeoutBloc),
         BlocProvider<JobDamageBloc>(
             create: (context) => ProductStateItems.jobDamageBloc),
         BlocProvider<StopJobBloc>(

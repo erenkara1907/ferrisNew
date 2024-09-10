@@ -18,7 +18,7 @@ class _BottomNavBuilderState extends State<BottomNavBuilder>
     return ListenableBuilder(
       listenable: tabContext,
       builder: (_, __) => BottomNavigationBar(
-        backgroundColor: context.theme.colorScheme.surface,
+        backgroundColor: context.theme.colorScheme.onSurfaceVariant,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         items: bottomNavigationBarItemList,

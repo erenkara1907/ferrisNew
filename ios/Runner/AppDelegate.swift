@@ -2,7 +2,7 @@ import UIKit
 import Flutter
 import GoogleMaps
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate, FlutterStreamHandler {
   static let methodChannelName = "com.ferris.method_channel"
   static let eventChannelName = "com.ferris.event_channel"

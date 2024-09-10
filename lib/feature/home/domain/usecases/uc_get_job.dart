@@ -30,7 +30,7 @@ final class UCGetJob {
     return _repository.getJobShow(id: id);
   }
 
-  Future<Either<Failure, List<JobStartModel>>> startJob({
+  Future<Either<Failure, String>> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) {

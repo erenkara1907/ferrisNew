@@ -26,14 +26,14 @@ class HistoryPage extends StatelessWidget {
           );
         }
         return Scaffold(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             body: SafeArea(
               child: Padding(
                 padding: context.paddingHorizontalDefault,
                 child: Column(
                   children: [
                     const VerticalSpace.small(),
-                    HistoryTextfieldSearchWidget(),
+                    const HistoryTextfieldSearchWidget(),
                     const VerticalSpace.small(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -49,7 +49,7 @@ class HistoryPage extends StatelessWidget {
                         onRefresh: () async {
                           final result = await hasNetwork();
                           if (result) {
-                            context.read<HomeBloc>().add(GetJobHistory());
+                            context.read<HomeBloc>().add(const GetJobHistory());
                           }
                         },
                         child: ListView.separated(
@@ -220,11 +220,11 @@ class CustomHistoryCard extends StatelessWidget {
                             ),
                             Text(
                               formattedStartDate,
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         Row(
@@ -237,15 +237,15 @@ class CustomHistoryCard extends StatelessWidget {
                             ),
                             Text(
                               formattedEndDate,
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ],
                         )
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: const BadgeStatusCompletedWidget(
+                  const Expanded(
+                    child: BadgeStatusCompletedWidget(
                       status: "Completed",
                     ),
                   ),
@@ -306,7 +306,7 @@ class HistoryRowScrollWidget extends StatelessWidget {
       height: context.dynamicHeight(0.1),
       width: context.dynamicWidth(0.33),
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.colorScheme.onSurfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -352,7 +352,7 @@ class HistoryRowScrollWidget extends StatelessWidget {
 }
 
 class HistoryTextfieldSearchWidget extends StatelessWidget {
-  HistoryTextfieldSearchWidget({
+  const HistoryTextfieldSearchWidget({
     super.key,
   });
 
@@ -365,7 +365,7 @@ class HistoryTextfieldSearchWidget extends StatelessWidget {
         child: Container(
             height: 41,
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -376,7 +376,7 @@ class HistoryTextfieldSearchWidget extends StatelessWidget {
                     Icons.search,
                     color: context.theme.colorScheme.outline,
                   ),
-                  HorizontalSpace.xxSmall(),
+                  const HorizontalSpace.xxSmall(),
                   Text(
                     "Search a Job",
                     style: context.textTheme.bodyLarge?.copyWith(

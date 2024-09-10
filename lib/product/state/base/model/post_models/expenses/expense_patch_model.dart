@@ -47,7 +47,6 @@ class ExpensePatchModel extends INetworkSentDataModel {
       final file = File(evidencePath.path);
 
       if (!file.existsSync()) {
-        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -62,7 +61,6 @@ class ExpensePatchModel extends INetworkSentDataModel {
       return multipartFile;
     } catch (e, s) {
       SentryErrorHandler.instance.capture(e, stackTrace: s);
-      // print('Error processing file at path: $evidencePath');
 
       return null;
     }

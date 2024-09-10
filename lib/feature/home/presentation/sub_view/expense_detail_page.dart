@@ -110,9 +110,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
           _imageFile = compressedImage;
         });
         _scrollToEnd();
-      } else {
-        // print('No image selected.');
-      }
+      } else {}
     } catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
 
@@ -399,7 +397,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
             ),
             width: context.dynamicWidth(0.98),
             height: context.dynamicHeight(0.38),
@@ -418,7 +416,8 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Open Camera",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             context.pop();
 
@@ -428,7 +427,8 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Pick From Gallery",
-                          containerColor: context.theme.colorScheme.surface,
+                          containerColor:
+                              context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             context.pop();
                             await _getImage(ImageSource.gallery);
@@ -513,10 +513,10 @@ class CustomJobTextfield extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14, color: context.theme.colorScheme.primary),
                 ),
-                const Text("*",
-                    style: TextStyle(
-                      color: Color(0xFFDA0002),
-                    ))
+                // const Text("*",
+                //     style: TextStyle(
+                //       color: Color(0xFFDA0002),
+                //     ))
               ],
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
@@ -537,7 +537,7 @@ class CustomJobTextfield extends StatelessWidget {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: context.theme.colorScheme.surface,
+                  fillColor: context.theme.colorScheme.onSurfaceVariant,
                   hintText: hintText,
                   isDense: true,
                   suffixIcon: suffixIcon,

@@ -12,6 +12,16 @@ final class CustomLightTheme implements CustomTheme {
         colorScheme: CustomColorScheme.lightColorScheme,
         floatingActionButtonTheme: floatingActionButtonThemeData,
         textTheme: textTheme,
+        checkboxTheme: const CheckboxThemeData(
+          side: BorderSide(color: Color(0xFFA5A5A5)),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: ButtonStyle(
+            iconColor: WidgetStateProperty.all(
+              const Color(0xFF000000),
+            ),
+          ),
+        ),
       );
 
   @override

@@ -24,6 +24,7 @@ class InspectionDamagePostModelAdapter
       issueId: fields[3] as int,
       failureId: fields[4] as int,
       repairId: fields[5] as int,
+      damageId: fields[8] as int?,
       damageImage: fields[6] as File?,
       contextImage: fields[7] as File?,
     );
@@ -32,7 +33,7 @@ class InspectionDamagePostModelAdapter
   @override
   void write(BinaryWriter writer, InspectionDamagePostModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.jobInspectionId)
       ..writeByte(1)
@@ -48,7 +49,9 @@ class InspectionDamagePostModelAdapter
       ..writeByte(6)
       ..write(obj.damageImage)
       ..writeByte(7)
-      ..write(obj.contextImage);
+      ..write(obj.contextImage)
+      ..writeByte(8)
+      ..write(obj.damageId);
   }
 
   @override

@@ -108,7 +108,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       return DamageResponseModel.fromMap(response.data["data"]);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -150,7 +150,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       return productData.map((e) => DamageResponseModel.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -192,7 +192,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       return;
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -220,7 +220,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       return DamageUpdateResponseModel.fromMap(response.data);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);

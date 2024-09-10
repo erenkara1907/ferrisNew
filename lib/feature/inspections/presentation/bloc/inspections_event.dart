@@ -56,14 +56,26 @@ class PostJobInspectionsCheckList extends InspectionsEvent {
 }
 
 class PostConditionImages extends InspectionsEvent {
-  final ConditionImageResponseModel data;
+  final List<ConditionImageResponseModel> dataList;
   final int? jobInspectionId;
   final bool isAsync;
+  final List<File> imageFiles;
 
   const PostConditionImages({
-    required this.data,
+    required this.dataList,
     this.jobInspectionId,
     required this.isAsync,
+    required this.imageFiles,
+  });
+}
+
+class PostConditionImagesRemote extends InspectionsEvent {
+  final ConditionImageResponseModel conditionImage;
+  final int? jobInspectionId;
+
+  const PostConditionImagesRemote({
+    required this.conditionImage,
+    this.jobInspectionId,
   });
 }
 
@@ -71,15 +83,37 @@ class DeleteConditionImage extends InspectionsEvent {
   final int imageId;
   final int jobInspectionId;
   final int index;
+  final ConditionImageResponseModel model;
 
-  const DeleteConditionImage(this.imageId, this.jobInspectionId, this.index);
+  const DeleteConditionImage(
+    this.imageId,
+    this.jobInspectionId,
+    this.index,
+    this.model,
+  );
 }
 
 class DeleteRecordedDamage extends InspectionsEvent {
   final int damageId;
   final int jobInspectionId;
+  final int combinationId;
+  final int stateDamageId;
 
-  const DeleteRecordedDamage(this.damageId, this.jobInspectionId);
+  const DeleteRecordedDamage(
+      this.damageId, this.jobInspectionId, this.combinationId,
+      {required this.stateDamageId});
+}
+
+class DeleteRecordedDamageRemote extends InspectionsEvent {
+  final int damageId;
+
+  const DeleteRecordedDamageRemote(this.damageId);
+}
+
+class DeleteConditionImageRemote extends InspectionsEvent {
+  final int conditionId;
+
+  const DeleteConditionImageRemote(this.conditionId);
 }
 
 class UpdateDamageResponse extends InspectionsEvent {

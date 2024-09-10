@@ -80,13 +80,10 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
 
-      print("CONDITION DATA : ${response.data["data"]}");
-      // print('****** condition formadata ******* $formData');
-      // print('****** condition formadata files ******* ${formData.files}');
       return ConditionImageResponseModel.fromMap(response.data["data"]);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -98,7 +95,6 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   Future<String> deleteConditionImage({
     required int imageId,
   }) async {
-    print("IMAGE ID : $imageId");
     try {
       final response = await http.delete(
         Uri.parse(
@@ -116,6 +112,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
       // );
 
       final responseData = jsonDecode(response.body);
+
       if (responseData == null || responseData == null) {
         throw NullResponseException();
       }
@@ -123,11 +120,10 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
         ProductStateItems.hiveDatabaseManager
             .setToken(responseData['newAccessToken']);
       }
-      print("DELETE CONDITIOn : $responseData");
       return responseData['message'];
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);

@@ -8,20 +8,20 @@ part 'update_job_status_post_model.g.dart';
 class UpdateJobStatusPostModel extends INetworkSentDataModel {
   @HiveField(0)
   final String timestamp;
+  // @HiveField(1)
+  // final int? trackingStatusId;
   @HiveField(1)
-  final int? trackingStatusId;
-  @HiveField(2)
   final int? fuelChargeLevelDelivery;
-  @HiveField(3)
+  @HiveField(2)
   final int? fuelChargeLevelCollection;
-  @HiveField(4)
+  @HiveField(3)
   final String? vehicleFeedback;
-  @HiveField(5)
+  @HiveField(4)
   final String? customerFeedback;
 
   UpdateJobStatusPostModel({
     required this.timestamp,
-    this.trackingStatusId,
+    // this.trackingStatusId,
     this.fuelChargeLevelDelivery,
     this.fuelChargeLevelCollection,
     this.vehicleFeedback,
@@ -31,7 +31,7 @@ class UpdateJobStatusPostModel extends INetworkSentDataModel {
   factory UpdateJobStatusPostModel.fromMap(Map<String, dynamic> map) {
     return UpdateJobStatusPostModel(
       timestamp: map['timestamp'] as String,
-      trackingStatusId: map['trackingStatusId'],
+      // trackingStatusId: map['trackingStatusId'],
       fuelChargeLevelDelivery: map['fuelChargeLevelDelivery'],
       fuelChargeLevelCollection: map['fuelChargeLevelCollection'],
       vehicleFeedback: map['vehicleFeedback'],
@@ -47,7 +47,7 @@ class UpdateJobStatusPostModel extends INetworkSentDataModel {
   Map<String, dynamic> toMap() {
     return {
       'timestamp': timestamp,
-      if (trackingStatusId != null) 'trackingStatusId': trackingStatusId,
+      // if (trackingStatusId != null) 'trackingStatusId': trackingStatusId,
       if (fuelChargeLevelDelivery != 0)
         'fuelChargeLevelDelivery': fuelChargeLevelDelivery,
       if (fuelChargeLevelCollection != 0)
@@ -71,7 +71,7 @@ class UpdateJobStatusPostModel extends INetworkSentDataModel {
   }) {
     return UpdateJobStatusPostModel(
       timestamp: timestamp ?? this.timestamp,
-      trackingStatusId: trackingStatusId ?? this.trackingStatusId,
+      // trackingStatusId: trackingStatusId ?? this.trackingStatusId,
       fuelChargeLevelDelivery:
           fuelChargeLevelDelivery ?? this.fuelChargeLevelDelivery,
       fuelChargeLevelCollection:

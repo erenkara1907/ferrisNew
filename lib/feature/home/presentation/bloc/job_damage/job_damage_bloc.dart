@@ -39,11 +39,11 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     on<GetAllGrade>(_onGetAllGrade);
     on<GetAllGradeRule>(_onGetAllGradeRule);
     on<GetAllGradeRuleUplift>(_onGetAllGradeRuleUplift);
-    on<GetDamageCategories>(_onGetDamageCategories);
-    on<GetDamageIssues>(_onGetDamageIssues);
-    on<GetDamageParts>(_onGetDamageParts);
-    on<GetDamageRepairs>(_onGetDamageRepairs);
-    on<GetDamageFailures>(_onGetDamageFailures);
+    // on<GetDamageCategories>(_onGetDamageCategories);
+    // on<GetDamageIssues>(_onGetDamageIssues);
+    // on<GetDamageParts>(_onGetDamageParts);
+    // on<GetDamageRepairs>(_onGetDamageRepairs);
+    // on<GetDamageFailures>(_onGetDamageFailures);
     on<SetDamageCategories>(_onSetDamageRepairs);
     // on<PostJobDamages>(_postJobDamages);
   }
@@ -62,7 +62,6 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
       },
       (data) {
-        // print("OKAY GİRDİ");
         _hiveStorageManager.addDamageAssetsToTable(data);
         emit(state.copyWith(
           status: ViewStatus.success,
@@ -99,7 +98,6 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
       },
       (data) {
-        print("GRADE BLOC : ${data.length}");
         _hiveStorageManager.addGradeToTable(data);
         emit(state.copyWith(
           status: ViewStatus.success,
@@ -145,99 +143,99 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onGetDamageCategories(
-      GetDamageCategories event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJobDamage.getDamageCategories(
-        inspectionId: event.inspectionId);
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.replaceDamageCategoriesTable(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        getDamageCategoriesResponse: data,
-      ));
-    });
-  }
+  // Future<void> _onGetDamageCategories(
+  //     GetDamageCategories event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _ucGetJobDamage.getDamageCategories(
+  //       inspectionId: event.inspectionId);
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.replaceDamageCategoriesTable(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       getDamageCategoriesResponse: data,
+  //     ));
+  //   });
+  // }
 
-  Future<void> _onGetDamageIssues(
-      GetDamageIssues event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJobDamage.getDamageIssues(
-      inspectionId: event.inspectionId,
-      partId: event.damagePartId,
-    );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.replaceDamageIssuesTable(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        getDamageIssuesResponse: data,
-      ));
-    });
-  }
+  // Future<void> _onGetDamageIssues(
+  //     GetDamageIssues event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _ucGetJobDamage.getDamageIssues(
+  //     inspectionId: event.inspectionId,
+  //     partId: event.damagePartId,
+  //   );
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.replaceDamageIssuesTable(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       getDamageIssuesResponse: data,
+  //     ));
+  //   });
+  // }
 
-  Future<void> _onGetDamageParts(
-      GetDamageParts event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
+  // Future<void> _onGetDamageParts(
+  //     GetDamageParts event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
 
-    final result = await _ucGetJobDamage.getDamageParts(
-      inspectionId: event.inspectionId,
-      categoryId: event.damageCategoryId,
-    );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.replaceDamagePartsTable(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        getDamagePartsResponse: data,
-      ));
-    });
-  }
+  //   final result = await _ucGetJobDamage.getDamageParts(
+  //     inspectionId: event.inspectionId,
+  //     categoryId: event.damageCategoryId,
+  //   );
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.replaceDamagePartsTable(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       getDamagePartsResponse: data,
+  //     ));
+  //   });
+  // }
 
-  Future<void> _onGetDamageRepairs(
-      GetDamageRepairs event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJobDamage.getDamageRepairs(
-      inspectionId: event.inspectionId,
-      failureId: event.damageFailureId,
-    );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.replaceDamageRepairsTable(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        getDamageRepairsResponse: data,
-      ));
-    });
-  }
+  // Future<void> _onGetDamageRepairs(
+  //     GetDamageRepairs event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _ucGetJobDamage.getDamageRepairs(
+  //     inspectionId: event.inspectionId,
+  //     failureId: event.damageFailureId,
+  //   );
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.replaceDamageRepairsTable(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       getDamageRepairsResponse: data,
+  //     ));
+  //   });
+  // }
 
-  Future<void> _onGetDamageFailures(
-      GetDamageFailures event, Emitter<JobDamageState> emit) async {
-    emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJobDamage.getDamageFailures(
-      inspectionId: event.inspectionId,
-      issueId: event.damageIssueId,
-    );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
-      _hiveStorageManager.replaceDamageFailuresTable(data);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        getDamageFailuresResponse: data,
-      ));
-    });
-  }
+  // Future<void> _onGetDamageFailures(
+  //     GetDamageFailures event, Emitter<JobDamageState> emit) async {
+  //   emit(state.copyWith(status: ViewStatus.loading));
+  //   final result = await _ucGetJobDamage.getDamageFailures(
+  //     inspectionId: event.inspectionId,
+  //     issueId: event.damageIssueId,
+  //   );
+  //   result.fold(
+  //       (failure) =>
+  //           emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+  //       (data) {
+  //     _hiveStorageManager.replaceDamageFailuresTable(data);
+  //     emit(state.copyWith(
+  //       status: ViewStatus.success,
+  //       getDamageFailuresResponse: data,
+  //     ));
+  //   });
+  // }
 
   Future<void> _onSetDamageRepairs(
       SetDamageCategories event, Emitter<JobDamageState> emit) async {

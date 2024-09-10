@@ -83,7 +83,7 @@ class _AutoDarkModePageState extends State<AutoDarkModePage> {
             const VerticalSpace.small(),
             Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surface,
+                color: context.theme.colorScheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -295,7 +295,7 @@ class _SelectedScheduledState extends State<SelectedScheduled> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surface,
+                color: context.theme.colorScheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               height: context.dynamicHeight(0.4),
@@ -332,8 +332,6 @@ class _SelectedScheduledState extends State<SelectedScheduled> {
           _selectedToTime = pickedTime;
         }
       });
-      // print(
-      //     'Selected Time: ${isFromTime ? _selectedFromTime : _selectedToTime}');
     }
   }
 }

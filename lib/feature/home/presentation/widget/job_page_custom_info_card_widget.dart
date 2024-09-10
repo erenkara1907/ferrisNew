@@ -36,10 +36,9 @@ class CustomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print(jobModel.predictedStartLocationTime);
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.colorScheme.onSurfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(

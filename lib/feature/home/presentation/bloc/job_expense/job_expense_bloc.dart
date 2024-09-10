@@ -69,7 +69,6 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
 
             return;
           }
-          // print("Receipt: ${event.data.receipt}");
           if (event.data.receipt != null) {
             _hiveStorageManager.addPostExpenseSaveImage(event.data);
           }
@@ -122,7 +121,6 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
       final total = (double.parse(state.totalExpense) +
               double.parse(data.price.toString()))
           .toString();
-      // print("Total: $total");
 
       await Future.delayed(const Duration(seconds: 1));
       emit(state.copyWith(

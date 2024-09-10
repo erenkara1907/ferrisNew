@@ -21,20 +21,20 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 abstract interface class JobDamageRemoteDataSource {
-  Future<List<DamagesCategory>> getDamageCategories(
-      {required int inspectionId});
+  // Future<List<DamagesCategory>> getDamageCategories(
+  //     {required int inspectionId});
 
-  Future<List<DamagesFailure>> getDamageFailures(
-      {required int inspectionId, required int issueId});
+  // Future<List<DamagesFailure>> getDamageFailures(
+  //     {required int inspectionId, required int issueId});
 
-  Future<List<DamagesIssue>> getDamageIssues(
-      {required int inspectionId, required int partId});
+  // Future<List<DamagesIssue>> getDamageIssues(
+  //     {required int inspectionId, required int partId});
 
-  Future<List<DamagesPart>> getDamageParts(
-      {required int inspectionId, required int categoryId});
+  // Future<List<DamagesPart>> getDamageParts(
+  //     {required int inspectionId, required int categoryId});
 
-  Future<List<DamagesRepair>> getDamageRepairs(
-      {required int inspectionId, required int failureId});
+  // Future<List<DamagesRepair>> getDamageRepairs(
+  //     {required int inspectionId, required int failureId});
 
   Future<List<DamageAssetsModel>> getAllDamageAssets();
 
@@ -51,200 +51,6 @@ final class JobDamageRemoteDataSourceImpl
       : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
-
-  @override
-  Future<List<DamagesCategory>> getDamageCategories(
-      {required int inspectionId}) async {
-    try {
-      final response = await _networkClient.get(
-        "${ServicePath.damageCategories.value}/$inspectionId",
-        // ServicePath.damageCategories.value,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-        }),
-      );
-      if (response.data == null || response.data == null) {
-        throw Exception('No data found');
-      }
-
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-
-      final List<dynamic> productData = response.data["data"];
-
-      return productData.map((e) => DamagesCategory.fromMap(e)).toList();
-    } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      if (e.response?.data["message"] == "Not authenticated") {
-        ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
-      }
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
-    } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
-    }
-  }
-
-  @override
-  Future<List<DamagesFailure>> getDamageFailures(
-      {required int inspectionId, required int issueId}) async {
-    try {
-      final response = await _networkClient.get(
-        "${ServicePath.damageFailures.value}/$inspectionId?issueId=$issueId",
-        // ServicePath.damageFailures.value,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-        }),
-      );
-      if (response.data == null || response.data == null) {
-        throw Exception('No data found');
-      }
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-      final List<dynamic> productData = response.data["data"];
-      return productData.map((e) => DamagesFailure.fromMap(e)).toList();
-    } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      if (e.response?.data["message"] == "Not authenticated") {
-        ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
-      }
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
-    } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
-    }
-  }
-
-  @override
-  Future<List<DamagesIssue>> getDamageIssues(
-      {required int inspectionId, required int partId}) async {
-    try {
-      final response = await _networkClient.get(
-        "${ServicePath.damageIssues.value}/$inspectionId?partId=$partId",
-        // ServicePath.damageIssues.value,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-        }),
-      );
-      if (response.data == null || response.data == null) {
-        throw Exception('No data found');
-      }
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-
-      final List<dynamic> productData = response.data["data"];
-      return productData.map((e) => DamagesIssue.fromMap(e)).toList();
-    } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      if (e.response?.data["message"] == "Not authenticated") {
-        ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
-      }
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
-    } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
-    }
-  }
-
-  @override
-  Future<List<DamagesPart>> getDamageParts(
-      {required int inspectionId, required int categoryId}) async {
-    try {
-      final response = await _networkClient.get(
-        "${ServicePath.damageParts.value}/$inspectionId?categoryId=$categoryId",
-        // ServicePath.damageParts.value,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-        }),
-      );
-      if (response.data == null || response.data == null) {
-        throw Exception('No data found');
-      }
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-      final List<dynamic> productData = response.data["data"];
-      return productData.map((e) => DamagesPart.fromMap(e)).toList();
-    } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      if (e.response?.data["message"] == "Not authenticated") {
-        ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
-      }
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
-    } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
-    }
-  }
-
-  @override
-  Future<List<DamagesRepair>> getDamageRepairs(
-      {required int inspectionId, required int failureId}) async {
-    try {
-      final response = await _networkClient.get(
-        "${ServicePath.damageRepairs.value}/$inspectionId?failureId=$failureId",
-        // ServicePath.damageRepairs.value,
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-        }),
-      );
-      if (response.data == null || response.data == null) {
-        throw Exception('No data found');
-      }
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-      final List<dynamic> productData = response.data["data"];
-      return productData.map((e) => DamagesRepair.fromMap(e)).toList();
-    } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      if (e.response?.data["message"] == "Not authenticated") {
-        ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
-      }
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
-    } catch (e, stackTrace) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
-    }
-  }
 
   @override
   Future<List<DamageAssetsModel>> getAllDamageAssets() async {
@@ -311,8 +117,6 @@ final class JobDamageRemoteDataSourceImpl
 
       final List<dynamic> productData = response.data["data"];
 
-      print("DAMAGE COMBINATION : ${response.data['data'][0]['id']}");
-
       return productData.map((e) => DamageCombinationModel.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
@@ -354,8 +158,6 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       final List<dynamic> productData = response.data["data"];
-
-      print("GRADE : ${response.data['data'][0]['id']}");
 
       return productData.map((e) => GradeModel.fromMap(e)).toList();
     } on DioException catch (e, s) {
@@ -440,8 +242,6 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       final List<dynamic> productData = response.data["data"];
-
-      print("GRADE RULE UPLIFT : ${response.data['data'][0]['gradeRuleId']}");
 
       return productData.map((e) => GradeRuleUpliftModel.fromMap(e)).toList();
     } on DioException catch (e, s) {

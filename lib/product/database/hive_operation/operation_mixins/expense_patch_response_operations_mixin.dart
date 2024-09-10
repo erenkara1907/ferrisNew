@@ -33,7 +33,6 @@ mixin ExpensePatchPostResponseOperationsMixin {
     for (final item in data) {
       await _expensePatchPostResponseBox.put(item.oldExpense.jobId, item);
     }
-    // print('setExpensePatchPostResponses: $data');
     return data;
   }
 

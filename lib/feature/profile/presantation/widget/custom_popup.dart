@@ -16,6 +16,7 @@ class CustomPopupDialog extends StatelessWidget {
   final String? iconPath;
 
   const CustomPopupDialog({
+    super.key,
     required this.popupText,
     required this.confirmText,
     required this.cancelText,
@@ -59,7 +60,7 @@ class CustomPopupDialog extends StatelessWidget {
           children: [
             CustomGreyAppButton(
               width: context.dynamicWidth(0.3),
-              textColor: context.theme.colorScheme.onBackground,
+              textColor: context.theme.colorScheme.onSurface,
               text: cancelText,
               containerColor: context.theme.colorScheme.outline,
               ontap: () {
@@ -72,7 +73,7 @@ class CustomPopupDialog extends StatelessWidget {
             const HorizontalSpace.xxSmall(),
             CustomGreyAppButton(
               width: context.dynamicWidth(0.3),
-              textColor: context.theme.colorScheme.surface,
+              textColor: context.theme.colorScheme.onSurfaceVariant,
               text: confirmText,
               containerColor: context.theme.colorScheme.primaryContainer,
               ontap: () {
@@ -140,7 +141,7 @@ void showTopSnackBar(
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: context.theme.colorScheme.surface,
+            color: context.theme.colorScheme.onSurfaceVariant,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(

@@ -9,7 +9,7 @@ class CustomDropdownFormField extends StatefulWidget {
   final TextEditingController? controller;
   final String? Function(dynamic value)? validator;
 
-  CustomDropdownFormField({
+  const CustomDropdownFormField({
     Key? key,
     this.onChanged,
     this.obscureText = false,
@@ -50,11 +50,11 @@ class _CustomDropdownFormFieldState extends State<CustomDropdownFormField> {
         ),
         SizedBox(height: context.dynamicHeight(0.01)),
         Form(
-          child: Container(
+          child: SizedBox(
             height: context.dynamicHeight(0.08),
             child: DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                fillColor: context.theme.colorScheme.surface,
+                fillColor: context.theme.colorScheme.onSurfaceVariant,
                 filled: true,
                 hintText: widget.hintText,
                 hintStyle: context.textTheme.bodyLarge?.copyWith(

@@ -56,7 +56,7 @@ final class JobRepositoryImpl implements JobRepository {
   }
 
   @override
-  Future<Either<Failure, List<JobStartModel>>> startJob({
+  Future<Either<Failure, String>> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) async {

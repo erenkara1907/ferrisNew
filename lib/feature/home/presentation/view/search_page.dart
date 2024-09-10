@@ -76,7 +76,7 @@ class HomeSearchTextfieldSearchWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.colorScheme.onSurfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(

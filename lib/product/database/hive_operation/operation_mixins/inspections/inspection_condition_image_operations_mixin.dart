@@ -8,14 +8,32 @@ mixin InspectionConditionImageOperationsMixin {
   /// Replace all inspection condition images in the Hive box with new data.
   ///
 
+  // Future<void> replaceInspectionConditionImagesTable(
+  //     ConditionImageResponseModel data) async {
+  //   await _inspectionConditionImageBox.put(data.id, data);
+  // }
+
   Future<void> replaceInspectionConditionImagesTable(
       ConditionImageResponseModel data) async {
-    await _inspectionConditionImageBox.add(data);
+    final box = _inspectionConditionImageBox;
+    final keys = box.keys.toList();
+
+    // Mevcut verilerin sayısını belirle
+    int count = 0;
+    for (final key in keys) {
+      final conditionImage = box.get(key);
+      if (conditionImage?.jobInspectionId == data.jobInspectionId) {
+        count++;
+      }
+    }
+
+    // Yeni veriyi, benzersiz bir anahtar ile sakla
+    final newKey = '${data.jobInspectionId}_$count';
+    await box.put(newKey, data);
   }
 
   Future<List<ConditionImageResponseModel>> getInspectionConditionImages(
       int inspectionId) async {
-    // print('inspectionId123: $inspectionId');
     final jsonList = _inspectionConditionImageBox.values.toList();
     final List<ConditionImageResponseModel> results = [];
 
@@ -43,8 +61,24 @@ mixin InspectionConditionImageOperationsMixin {
     }
   }
 
-  Future<void> deleteInspectionConditionImage(int imageId) async {
-    await _inspectionConditionImageBox.delete(imageId);
+  // Future<void> deleteInspectionConditionImage(int imageId) async {
+  //   await _inspectionConditionImageBox.delete(imageId);
+  // }
+
+  Future<void> deleteInspectionConditionImage(
+      {required int jobInspectionId, required int conditionId}) async {
+    final box = _inspectionConditionImageBox;
+    final keys = box.keys.toList();
+
+    // İlgili conditionId ve jobInspectionId ile eşleşen veriyi sil
+    for (final key in keys) {
+      final conditionImage = box.get(key);
+      if (conditionImage?.jobInspectionId == jobInspectionId &&
+          conditionImage?.id == conditionId) {
+        await box.delete(key);
+        break; // Eşleşen ilk kaydı sildikten sonra döngüyü sonlandır
+      }
+    }
   }
 
   Future<void> clearAllInspectionConditionImages() async {

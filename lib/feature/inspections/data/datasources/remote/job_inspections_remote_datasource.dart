@@ -59,7 +59,6 @@ class JobInspectionsRemoteDataSourceImpl
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
-      // print("Access Token : ${response.data['newAccessToken']}");
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager
             .setToken(response.data['newAccessToken']);
@@ -71,7 +70,7 @@ class JobInspectionsRemoteDataSourceImpl
           .toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -100,7 +99,7 @@ class JobInspectionsRemoteDataSourceImpl
           .toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -139,7 +138,7 @@ class JobInspectionsRemoteDataSourceImpl
       return JobInspectionResponseModelItem.fromMap(response.data['data']);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);

@@ -50,7 +50,6 @@ class StopPostModel extends INetworkSentDataModel {
 
   List<MultipartFile> convertToMultipartFileList(List<File> evidencePaths) {
     List<MultipartFile> multipartFiles = [];
-    print('evidencePaths: $evidencePaths');
 
     for (File path in evidencePaths) {
       try {
@@ -64,14 +63,11 @@ class StopPostModel extends INetworkSentDataModel {
             filename: path.path.split('/').last,
           );
           multipartFiles.add(multipartFile);
-        } else {
-          // print('File not found at path: $path');
-        }
+        } else {}
 
         // Add the MultipartFile to the list
       } catch (e, s) {
         SentryErrorHandler.instance.capture(e, stackTrace: s);
-        // print('Error processing file at path: $path');
 
         // Handle the error as needed
       }

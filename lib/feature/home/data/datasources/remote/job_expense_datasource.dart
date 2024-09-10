@@ -1,4 +1,3 @@
-import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_categories_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/expenses/expense_patch_response_model.dart';
@@ -59,7 +58,6 @@ final class JobExpenseRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
       final List<dynamic> productData = response.data["data"];
-      // print('productData1: $productData');
       return productData
           .map((e) => ExpensesResponseModelItem.fromMap(e))
           .toList();

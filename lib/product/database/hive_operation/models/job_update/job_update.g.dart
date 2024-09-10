@@ -21,18 +21,17 @@ class JobUpdateAdapter extends TypeAdapter<JobUpdate> {
       jobId: fields[1] as int,
       isSynced: fields[2] as bool,
       timestamp: fields[3] as int,
-      trackingStatusId: fields[4] as int?,
-      fuelChargeLevelDelivery: fields[5] as int?,
-      fuelChargeLevelCollection: fields[6] as int?,
-      vehicleFeedback: fields[7] as String?,
-      customerFeedback: fields[8] as String?,
+      fuelChargeLevelDelivery: fields[4] as int?,
+      fuelChargeLevelCollection: fields[5] as int?,
+      vehicleFeedback: fields[6] as String?,
+      customerFeedback: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, JobUpdate obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.uuid)
       ..writeByte(1)
@@ -42,14 +41,12 @@ class JobUpdateAdapter extends TypeAdapter<JobUpdate> {
       ..writeByte(3)
       ..write(obj.timestamp)
       ..writeByte(4)
-      ..write(obj.trackingStatusId)
-      ..writeByte(5)
       ..write(obj.fuelChargeLevelDelivery)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.fuelChargeLevelCollection)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.vehicleFeedback)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.customerFeedback);
   }
 

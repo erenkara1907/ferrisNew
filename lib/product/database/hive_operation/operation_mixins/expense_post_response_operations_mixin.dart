@@ -50,7 +50,6 @@ mixin ExpensePostResponseOperationsMixin {
     for (final item in data) {
       await _expensePostResponseBox.put(item.jobId, item);
     }
-    // print('setExpensePostResponses: $data');
     return data;
   }
 

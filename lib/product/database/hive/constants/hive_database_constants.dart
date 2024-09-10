@@ -22,6 +22,7 @@ final class HiveDatabaseConstants {
   static const String damageRepairBox = 'damageRepairBox';
   static const String checklistBox = 'checklistBox';
   static const String getDamage = 'getDamageBox';
+  static const String getDamageNew = 'getDamageBoxNew';
   static const String getDamages = 'getDamages';
   static const String conditionImagesBox = 'conditionImagesBox';
   static const String expensePostResponse = 'expensePostResponse';

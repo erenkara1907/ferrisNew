@@ -146,7 +146,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
           context.pop();
         }
         if (state.status == ViewStatus.failure) {
-          BotToast.showText(text: state.failure.toString());
+          // BotToast.showText(text: state.failure.toString());
         }
       },
       builder: (context, state) {
@@ -300,7 +300,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                             offset: Offset(2, 0),
                           ),
                         ],
-                        color: context.theme.colorScheme.surface,
+                        color: context.theme.colorScheme.onSurfaceVariant,
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(10)),
                       ),
@@ -311,9 +311,6 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                         child: CustomAppButton(
                           text: 'Save',
                           ontap: () async {
-                            final checkList = _hiveStorageManager
-                                .getItemCheckList(widget.inspectionId);
-                            print("CHECKLIST : $checkList");
                             final bool result = isChecklistCompleted();
                             if (!result) {
                               BotToast.showText(

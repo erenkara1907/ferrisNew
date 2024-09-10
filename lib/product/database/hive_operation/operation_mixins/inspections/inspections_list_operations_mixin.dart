@@ -21,9 +21,6 @@ mixin InspectionsListOperationsMixin {
       List<JobInspectionResponseModelItem?> data) async {
     final box = await _jobInspectionsBox;
 
-    final List<JobInspectionResponseModelItem?> previousJob =
-        await getInspectionsListModel();
-
     await box.clear();
 
     // Yeni job'u kaydet
@@ -32,8 +29,19 @@ mixin InspectionsListOperationsMixin {
         await box.put(inspection.id, inspection);
       }
     }
+  }
 
-    // print('$data inspections saved.}');
+  Future<void> updateInspectionsListModel(
+      List<JobInspectionResponseModelItem?> data) async {
+    final box = await _jobInspectionsBox;
+
+    // Yeni job'u kaydet veya mevcut olanı güncelle
+    for (final inspection in data) {
+      if (inspection != null) {
+        // Eğer mevcutsa güncelle, değilse ekle
+        await box.put(inspection.id, inspection);
+      }
+    }
   }
 
   // Future<void> updateInspectionsListModel(
@@ -44,7 +52,7 @@ mixin InspectionsListOperationsMixin {
   //   await box.put(data.id, data);
   // }
 
-  Future<void> updateInspectionsListModel(
+  Future<void> updateInspectionsListModelGrade(
       JobInspectionResponseModelItem data) async {
     // Mevcut job inspection listesini al
     List<JobInspectionResponseModelItem?> currentJobInspection =

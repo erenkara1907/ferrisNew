@@ -19,19 +19,19 @@ class JobUpdate {
   @HiveField(3)
   final int timestamp;
 
-  @HiveField(4)
-  final int? trackingStatusId;
+  // @HiveField(4)
+  // final int? trackingStatusId;
 
-  @HiveField(5)
+  @HiveField(4)
   final int? fuelChargeLevelDelivery;
 
-  @HiveField(6)
+  @HiveField(5)
   final int? fuelChargeLevelCollection;
 
-  @HiveField(7)
+  @HiveField(6)
   final String? vehicleFeedback;
 
-  @HiveField(8)
+  @HiveField(7)
   final String? customerFeedback;
 
   JobUpdate({
@@ -39,7 +39,7 @@ class JobUpdate {
     required this.jobId,
     required this.isSynced,
     required this.timestamp,
-    this.trackingStatusId,
+    // this.trackingStatusId,
     this.fuelChargeLevelDelivery,
     this.fuelChargeLevelCollection,
     this.vehicleFeedback,
@@ -58,7 +58,7 @@ class JobUpdate {
       jobId: jobId,
       isSynced: isSynced,
       timestamp: timestampInSec,
-      trackingStatusId: updateJobStatusPostModel.trackingStatusId,
+      // trackingStatusId: updateJobStatusPostModel.trackingStatusId,
       fuelChargeLevelDelivery: updateJobStatusPostModel.fuelChargeLevelDelivery,
       fuelChargeLevelCollection:
           updateJobStatusPostModel.fuelChargeLevelCollection,
@@ -70,7 +70,7 @@ class JobUpdate {
   UpdateJobStatusPostModel get asUpdateJobStatusPostModel {
     return UpdateJobStatusPostModel(
       timestamp: timestamp.toString(),
-      trackingStatusId: trackingStatusId,
+      // trackingStatusId: trackingStatusId,
       fuelChargeLevelDelivery: fuelChargeLevelDelivery,
       fuelChargeLevelCollection: fuelChargeLevelCollection,
       vehicleFeedback: vehicleFeedback,
@@ -98,7 +98,7 @@ class JobUpdate {
           fuelChargeLevelDelivery ?? this.fuelChargeLevelDelivery,
       fuelChargeLevelCollection:
           fuelChargeLevelCollection ?? this.fuelChargeLevelCollection,
-      trackingStatusId: trackingStatusId ?? this.trackingStatusId,
+      // trackingStatusId: trackingStatusId ?? this.trackingStatusId,
       vehicleFeedback: vehicleFeedback ?? this.vehicleFeedback,
       customerFeedback: customerFeedback ?? this.customerFeedback,
     );
@@ -110,7 +110,7 @@ class JobUpdate {
       'jobId': jobId,
       'isSynced': isSynced,
       'timestamp': timestamp,
-      'trackingStatusId': trackingStatusId,
+      // 'trackingStatusId': trackingStatusId,
       'fuelChargeLevelDelivery': fuelChargeLevelDelivery,
       'fuelChargeLevelCollection': fuelChargeLevelCollection,
       'vehicleFeedback': vehicleFeedback,

@@ -72,7 +72,8 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Edit Details",
-                      containerColor: context.theme.colorScheme.surface,
+                      containerColor:
+                          context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/edit_details_page", extra: {
                           "jobInspectionId": widget.inspection.id,
@@ -84,9 +85,11 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                               : "${state.odo == 0 ? widget.inspection.odoReading!.toInt() : state.odo.toInt()}",
                           "fuelLevel": widget.inspection.fuelLevel == null
                               ? state.fuelLevel == 0
-                                  ? '-'
-                                  : "${state.fuelLevel.toString()}%"
-                              : '${state.fuelLevel == 0 ? widget.inspection.fuelLevel : state.fuelLevel}%',
+                                  ? 0
+                                  : state.fuelLevel
+                              : state.fuelLevel == 0
+                                  ? widget.inspection.fuelLevel
+                                  : state.fuelLevel,
                         });
                       }),
                   const HorizontalSpace.xSmall(),
@@ -94,7 +97,8 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Condition Images",
-                      containerColor: context.theme.colorScheme.surface,
+                      containerColor:
+                          context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/condition_image_page", extra: {
                           "jobInspectionId": widget.inspection.id,
@@ -110,7 +114,8 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Item Checklist",
-                      containerColor: context.theme.colorScheme.surface,
+                      containerColor:
+                          context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/item_checklist_page", extra: {
                           "inspectionId": widget.inspection.id,
@@ -121,7 +126,8 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Damages",
-                      containerColor: context.theme.colorScheme.surface,
+                      containerColor:
+                          context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/recorded_damages_page", extra: {
                           "jobInspectionId": widget.inspection.id,
@@ -137,7 +143,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                     width: context.dynamicWidth(0.91),
                     textColor: context.theme.colorScheme.primary,
                     text: "Sign Inspection",
-                    containerColor: context.theme.colorScheme.surface,
+                    containerColor: context.theme.colorScheme.onSurfaceVariant,
                     ontap: () {
                       context.push("/sign_inspection_page", extra: {
                         "inspection": widget.inspection,
@@ -174,7 +180,9 @@ class JobInspectionDetailWidget extends StatelessWidget {
     final gradeText = state.gradeId != ""
         ? state.gradeId
         : inspection.gradleItem != null
-            ? inspection.gradleItem!.name
+            ? inspection.gradleItem!.name != "0"
+                ? inspection.gradleItem!.name
+                : "-"
             : "-";
 
     late String formattedDate = formatDate(inspection.date!);
@@ -191,7 +199,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -253,7 +261,8 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        inspection.odoReading == null
+                        inspection.odoReading == null ||
+                                inspection.odoReading == 0
                             ? state.odo == 0
                                 ? '-'
                                 : "${state.odo.toInt()} Miles"
@@ -273,7 +282,8 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        inspection.fuelLevel == null
+                        inspection.fuelLevel == null ||
+                                inspection.fuelLevel == 0
                             ? state.fuelLevel == 0
                                 ? '-'
                                 : "${state.fuelLevel.toString()}%"

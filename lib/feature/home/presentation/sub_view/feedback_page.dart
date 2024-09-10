@@ -53,7 +53,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
     setState(() {
       final result = hiveStorageManager.getJopUpdatePage();
       updateModel = result;
-      // print(updateModel);
     });
   }
 

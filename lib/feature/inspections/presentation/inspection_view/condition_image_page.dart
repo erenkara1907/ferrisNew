@@ -1,6 +1,7 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -29,6 +30,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
 
@@ -44,8 +46,9 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
   HiveStorageManager? _hiveStorageManager;
   List<File> _imageFiles = [];
   final List<ConditionImageResponseModel> _deletedImages = [];
-  static const int maxImages = 12;
+  static const int maxImages = 75;
   String? filePath;
+  bool _isLoading = false;
 
   Future<void> compressImage(File image) async {
     final documentPath = (await getApplicationDocumentsDirectory()).path;
@@ -95,56 +98,93 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
         return;
       }
     }
-    final currentUploadedImages = _imageFiles.length +
-        state.conditionImageResponse.length -
-        _deletedImages.length;
-    final remainingImages = maxImages - currentUploadedImages;
 
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CameraPageCondition(
-          limit: remainingImages,
-          onCapture: (File image) async {
-            if (_imageFiles.length < 12) {
-              await compressImage(image);
-            } else {
-              BotToast.showText(text: 'You can only select 12 images in total');
-            }
-          },
-          capturedImages: _imageFiles,
+    try {
+      final currentUploadedImages = _imageFiles.length +
+          state.conditionImageResponse.length -
+          _deletedImages.length;
+      final remainingImages = maxImages - currentUploadedImages;
+
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CameraPageCondition(
+            limit: remainingImages,
+            onCapture: (File image) async {
+              if (_imageFiles.length < 75) {
+                await compressImage(image);
+              } else {
+                BotToast.showText(
+                    text: 'You can only select 75 images in total');
+              }
+            },
+            capturedImages: _imageFiles,
+          ),
         ),
-      ),
-    );
+      );
 
-    if (result != null && result is List<File>) {
-      setState(() {
-        _imageFiles = result;
-      });
-    }
+      if (result != null && result is List<File>) {
+        setState(() {
+          _imageFiles = result;
+        });
+      }
 
-    permissionStatus = await Permission.camera.status;
-    if (!permissionStatus.isGranted) {
-      BotToast.showText(text: 'Camera access denied');
-      return;
-    }
-    if (remainingImages <= 0) {
-      BotToast.showText(text: 'You cannot add more than $maxImages images');
-      return;
+      permissionStatus = await Permission.camera.status;
+      if (!permissionStatus.isGranted) {
+        BotToast.showText(text: 'Camera access denied');
+        return;
+      }
+      if (remainingImages <= 0) {
+        BotToast.showText(text: 'You cannot add more than $maxImages images');
+        return;
+      }
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
     }
   }
 
   Future<void> _getImagesFromGallery(InspectionsState state) async {
     final picker = ImagePicker();
-    final pickedFiles = await picker.pickMultiImage();
-    for (var pickedFile in pickedFiles) {
-      File file = File(pickedFile.path);
-      if (_imageFiles.length < 12) {
-        await compressImage(file);
-      } else {
-        BotToast.showText(text: 'You can only select 12 images in total');
-        break;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final pickedFiles = await picker.pickMultiImage();
+      for (var pickedFile in pickedFiles) {
+        File file = File(pickedFile.path);
+        if (_imageFiles.length < 75) {
+          await compressImage(file);
+        } else {
+          BotToast.showText(text: 'You can only select 75 images in total');
+          break;
+        }
       }
+    } catch (e, s) {
+      SentryErrorHandler.instance.capture(e, stackTrace: s);
+      BotToast.showText(text: 'Failed to pick images: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _buildLoadingIndicator() {
+    if (_isLoading) {
+      return const Stack(
+        children: [
+          // Arka planı karartan yarı saydam Container
+          Opacity(
+            opacity: 0.5,
+            child: ModalBarrier(dismissible: false, color: Colors.black),
+          ),
+          Center(
+            child: LoadingProgress(),
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox(); // Boş bir alan, gösterilecek bir şey yok.
     }
   }
 
@@ -199,243 +239,292 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
         backgroundColor: context.theme.colorScheme.surface,
         title: Text('Condition Images', style: context.textTheme.titleSmall),
       ),
-      body: BlocConsumer<InspectionsBloc, InspectionsState>(
-        listener: (context, state) {
-          if (state.status == ViewStatus.failure) {
-            BotToast.showText(text: state.failure.toString());
-            // print(state.failure.toString());
-          }
-          if (state.status == ViewStatus.success) {
-            context
-                .read<InspectionsBloc>()
-                .add(SetGetConditionImages(widget.jobInspectionId));
-          }
-        },
-        builder: (context, state) {
-          if (state.status == ViewStatus.loading || filePath == null) {
-            _imageFiles.clear();
-            return const Center(child: LoadingProgress());
-          }
-          final bool isSigned = ProductStateItems.hiveDatabaseManager
+      body: Stack(
+        children: [
+          BlocConsumer<InspectionsBloc, InspectionsState>(
+            listener: (context, state) {
+              if (state.status == ViewStatus.failure) {
+                // BotToast.showText(text: state.failure.toString());
+              }
+              if (state.status == ViewStatus.success) {
+                context
+                    .read<InspectionsBloc>()
+                    .add(SetGetConditionImages(widget.jobInspectionId));
+              }
+            },
+            builder: (context, state) {
+              if (state.status == ViewStatus.loading || filePath == null) {
+                return const Center(child: LoadingProgress());
+              }
+              final bool isSigned = ProductStateItems.hiveDatabaseManager
+                          .getUserModel()!
+                          .inspectionsSign !=
+                      null &&
+                  ProductStateItems.hiveDatabaseManager
                       .getUserModel()!
-                      .inspectionsSign !=
-                  null &&
-              ProductStateItems.hiveDatabaseManager
-                  .getUserModel()!
-                  .inspectionsSign!
-                  .contains(widget.jobInspectionId);
-          return SingleChildScrollView(
-            child: Padding(
-              padding: context.paddingAllDefault,
-              child: Column(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                      .inspectionsSign!
+                      .contains(widget.jobInspectionId);
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: context.paddingAllDefault,
+                  child: Column(
                     children: [
-                      if (!isSigned)
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Add Images",
-                              style: context.textTheme.bodyLarge?.copyWith(
-                                  color: context.theme.colorScheme.primary,
-                                  fontWeight: FontWeight.w600),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isSigned)
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Add Images",
+                                  style: context.textTheme.bodyLarge?.copyWith(
+                                      color: context.theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                const VerticalSpace.small(),
+                                InkWell(
+                                  child: Image.asset(
+                                    width: context.width,
+                                    "assets/images/fr_upload_image75.png",
+                                  ),
+                                  onTap: () {
+                                    _showImagePickerDialog(context, state);
+                                  },
+                                ),
+                                const VerticalSpace.xSmall(),
+                              ],
                             ),
-                            const VerticalSpace.small(),
-                            InkWell(
-                              child: Image.asset(
-                                width: context.width,
-                                "assets/images/fr_upload_image12.png",
-                              ),
-                              onTap: () {
-                                _showImagePickerDialog(context, state);
-                              },
-                            ),
-                            const VerticalSpace.xSmall(),
-                          ],
-                        ),
-                      if (_imageFiles.isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "New Images",
-                              style: context.textTheme.titleMedium?.copyWith(
-                                  color: context.theme.colorScheme.primary,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            const VerticalSpace.xSmall(),
-                            SizedBox(
-                              height: context.dynamicHeight(0.15),
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        const HorizontalSpace.xSmall(),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _imageFiles.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Image.file(
-                                          _imageFiles[index],
-                                          fit: BoxFit.cover,
-                                          height: context.dynamicHeight(0.15),
-                                          width: context.dynamicWidth(0.35),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: -5,
-                                        right: -5,
-                                        child: IconButton(
-                                          icon: Icon(Icons.cancel_outlined,
-                                              color: context
-                                                  .theme.colorScheme.error),
-                                          onPressed: () {
-                                            setState(() {
-                                              _imageFiles.removeAt(index);
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (!isSigned)
-                        SizedBox(
-                          height: context.defaultValue,
-                        ),
-                      if (_hiveStorageManager!
-                          .getConditionImages(widget.jobInspectionId)
-                          .isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Recently Added Images",
-                              style: context.textTheme.titleMedium?.copyWith(
-                                  color: context.theme.colorScheme.primary,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            const VerticalSpace.xSmall(),
-                            SizedBox(
-                              height: context.dynamicHeight(0.15),
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        const HorizontalSpace.xSmall(),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _hiveStorageManager!
-                                    .getConditionImages(widget.jobInspectionId)
-                                    .length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final pathImage = _hiveStorageManager!
-                                      .getConditionImages(
-                                          widget.jobInspectionId)[index]
-                                      .imageFile!
-                                      .path;
-                                  int documentsIndex =
-                                      pathImage.indexOf("Documents/");
-                                  String result = pathImage.substring(
-                                      documentsIndex + "Documents/".length);
-                                  final path = '$filePath/$result';
-                                  // print('path: $path');
-                                  return Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Image.file(
-                                          File(path),
-                                          fit: BoxFit.cover,
-                                          height: context.dynamicHeight(0.15),
-                                          width: context.dynamicWidth(0.35),
-                                        ),
-                                      ),
-                                      isSigned
-                                          ? const SizedBox()
-                                          : Positioned(
-                                              top: -5,
-                                              right: -5,
-                                              child: IconButton(
-                                                icon: Icon(
-                                                    Icons.cancel_outlined,
-                                                    color: context.theme
-                                                        .colorScheme.error),
-                                                onPressed: () async {
-                                                  final deletedImage = state
-                                                          .conditionImageResponse[
-                                                      index];
-                                                  setState(() {
-                                                    _deletedImages
-                                                        .add(deletedImage);
-                                                  });
-                                                  context
-                                                      .read<InspectionsBloc>()
-                                                      .add(DeleteConditionImage(
-                                                          deletedImage.id ?? 0,
-                                                          widget
-                                                              .jobInspectionId,
-                                                          index));
-                                                },
-                                              ),
+                          if (_imageFiles.isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "New Images",
+                                  style: context.textTheme.titleMedium
+                                      ?.copyWith(
+                                          color:
+                                              context.theme.colorScheme.primary,
+                                          fontWeight: FontWeight.w600),
+                                ),
+                                const VerticalSpace.xSmall(),
+                                SizedBox(
+                                  height: context.dynamicHeight(0.15),
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            const HorizontalSpace.xSmall(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _imageFiles.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.file(
+                                              _imageFiles[index],
+                                              fit: BoxFit.cover,
+                                              height:
+                                                  context.dynamicHeight(0.15),
+                                              width: context.dynamicWidth(0.35),
                                             ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                          ),
+                                          Positioned(
+                                            top: -5,
+                                            right: -5,
+                                            child: IconButton(
+                                              icon: Icon(Icons.cancel_outlined,
+                                                  color: context
+                                                      .theme.colorScheme.error),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _imageFiles.removeAt(index);
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          if (!isSigned)
+                            SizedBox(
+                              height: context.defaultValue,
+                            ),
+                          if (_hiveStorageManager!
+                              .getConditionImages(widget.jobInspectionId)
+                              .isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Recently Added Images",
+                                  style: context.textTheme.titleMedium
+                                      ?.copyWith(
+                                          color:
+                                              context.theme.colorScheme.primary,
+                                          fontWeight: FontWeight.w600),
+                                ),
+                                const VerticalSpace.xSmall(),
+                                SizedBox(
+                                  height: context.dynamicHeight(0.15),
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            const HorizontalSpace.xSmall(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _hiveStorageManager!
+                                        .getConditionImages(
+                                            widget.jobInspectionId)
+                                        .length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final pathImage = _hiveStorageManager!
+                                          .getConditionImages(
+                                              widget.jobInspectionId)[index]
+                                          .imageFile!
+                                          .path;
+                                      int documentsIndex =
+                                          pathImage.indexOf("Documents/");
+                                      String result = pathImage.substring(
+                                          documentsIndex + "Documents/".length);
+                                      final path = '$filePath/$result';
+                                      return Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.file(
+                                              File(path),
+                                              fit: BoxFit.cover,
+                                              height:
+                                                  context.dynamicHeight(0.15),
+                                              width: context.dynamicWidth(0.35),
+                                            ),
+                                          ),
+                                          isSigned
+                                              ? const SizedBox()
+                                              : Positioned(
+                                                  top: -5,
+                                                  right: -5,
+                                                  child: IconButton(
+                                                    icon: Icon(
+                                                        Icons.cancel_outlined,
+                                                        color: context.theme
+                                                            .colorScheme.error),
+                                                    onPressed: () async {
+                                                      var conditionImage =
+                                                          await _hiveStorageManager!
+                                                              .getInspectionConditionImages(
+                                                                  widget
+                                                                      .jobInspectionId);
+
+                                                      print(
+                                                          "CONDIT LIST : ${conditionImage.length}");
+                                                      // final deletedImage = state
+                                                      //         .conditionImageResponse[
+                                                      //     index];
+                                                      // setState(() {
+                                                      //   _deletedImages
+                                                      //       .add(deletedImage);
+                                                      // });
+
+                                                      print(
+                                                          "CONDIT ID : ${conditionImage[index].id}");
+
+                                                      context
+                                                          .read<
+                                                              InspectionsBloc>()
+                                                          .add(
+                                                            DeleteConditionImage(
+                                                                conditionImage[
+                                                                            index]
+                                                                        .id ??
+                                                                    0,
+                                                                widget
+                                                                    .jobInspectionId,
+                                                                index,
+                                                                conditionImage[
+                                                                    index]),
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                      const VerticalSpace.large(),
+                      if (!isSigned)
+                        CustomAppButton(
+                          text: "Save",
+                          ontap: () {
+                            final totalImagesCount = _imageFiles.length +
+                                state.conditionImageResponse.length -
+                                _deletedImages.length;
+                            if (totalImagesCount > maxImages) {
+                              BotToast.showText(
+                                  text:
+                                      "Please select up to $maxImages images");
+                              return;
+                            }
+
+                            int generateUniqueId() {
+                              final timestamp =
+                                  DateTime.now().millisecondsSinceEpoch;
+                              final random = Random();
+                              final randomNumber = random.nextInt(
+                                  10000); // 0 ile 9999 arasında rastgele bir sayı
+                              return int.parse(
+                                  '$timestamp$randomNumber'); // Benzersiz id
+                            }
+
+                            final int uniqueId = generateUniqueId();
+
+                            context
+                                .read<InspectionsBloc>()
+                                .add(PostConditionImages(
+                                  isAsync: false,
+                                  jobInspectionId: widget.jobInspectionId,
+                                  imageFiles: _imageFiles,
+                                  dataList: _imageFiles.map((imageFile) {
+                                    return ConditionImageResponseModel(
+                                      id: uniqueId,
+                                      jobInspectionId: widget.jobInspectionId,
+                                      imageFile: imageFile,
+                                    );
+                                  }).toList(),
+                                ));
+                            setState(() {
+                              _deletedImages.clear();
+                              _imageFiles.clear();
+                            });
+                            context.pop();
+                            showTopSnackBarFr(context,
+                                message: 'Condition images added successfully');
+                          },
                         ),
                     ],
                   ),
-                  const VerticalSpace.large(),
-                  if (!isSigned)
-                    CustomAppButton(
-                      text: "Save",
-                      ontap: () {
-                        final totalImagesCount = _imageFiles.length +
-                            state.conditionImageResponse.length -
-                            _deletedImages.length;
-                        if (totalImagesCount > maxImages) {
-                          BotToast.showText(
-                              text: "Please select up to $maxImages images");
-                          return;
-                        }
-                        for (var imageFile in _imageFiles) {
-                          context
-                              .read<InspectionsBloc>()
-                              .add(PostConditionImages(
-                                isAsync: false,
-                                jobInspectionId: widget.jobInspectionId,
-                                data: ConditionImageResponseModel(
-                                  jobInspectionId: widget.jobInspectionId,
-                                  imageFile: imageFile,
-                                ),
-                              ));
-                        }
-                        setState(() {
-                          _deletedImages.clear();
-                          _imageFiles.clear();
-                        });
-                        context.pop();
-                        showTopSnackBarFr(context,
-                            message: 'Condition images added successfully');
-                      },
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
+                ),
+              );
+            },
+          ),
+          _buildLoadingIndicator(),
+        ],
       ),
     );
   }
@@ -450,7 +539,7 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
             ),
             width: context.dynamicWidth(0.98),
             height: context.dynamicHeight(0.38),
@@ -469,20 +558,24 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                       CustomGreyAppButton(
                         textColor: context.theme.colorScheme.primary,
                         text: "Open Camera",
-                        containerColor: context.theme.colorScheme.surface,
+                        containerColor:
+                            context.theme.colorScheme.onSurfaceVariant,
                         ontap: () async {
-                          await _getImageFromCamera(state);
                           Navigator.of(context).pop();
+
+                          await _getImageFromCamera(state);
                         },
                       ),
                       const VerticalSpace.xxSmall(),
                       CustomGreyAppButton(
                         textColor: context.theme.colorScheme.primary,
                         text: "Pick From Gallery",
-                        containerColor: context.theme.colorScheme.surface,
+                        containerColor:
+                            context.theme.colorScheme.onSurfaceVariant,
                         ontap: () async {
-                          await _getImagesFromGallery(state);
                           Navigator.of(context).pop();
+
+                          await _getImagesFromGallery(state);
                         },
                       ),
                     ],
@@ -553,21 +646,6 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     _cameraController.dispose();
     super.dispose();
   }
-
-  // Future<void> _captureImage() async {
-  //   try {
-  //     await _initializeControllerFuture;
-  //     final XFile image = await _cameraController.takePicture();
-  //     final File file = File(image.path);
-  //     widget.onCapture(file);
-  //     setState(() {
-  //       _capturedImages.add(file);
-  //     });
-  //   } catch (e) {
-  //     print("EROR CAMERA : $e");
-  //     BotToast.showText(text: 'Error capturing image: $e');
-  //   }
-  // }
 
   bool _isTakingPicture = false;
 

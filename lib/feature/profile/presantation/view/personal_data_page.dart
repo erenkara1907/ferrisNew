@@ -10,7 +10,7 @@ import 'package:ferrisfwt/feature/profile/presantation/view/profile_page.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 
 class PersonalDataPage extends StatelessWidget {
-  PersonalDataPage({
+  const PersonalDataPage({
     Key? key,
   }) : super(key: key);
 
@@ -24,9 +24,9 @@ class PersonalDataPage extends StatelessWidget {
           );
         }
         return Scaffold(
-          backgroundColor: context.theme.colorScheme.background,
+          backgroundColor: context.theme.colorScheme.surface,
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: BackButton(
               onPressed: () {
                 context.go("/profile_page");
@@ -39,7 +39,7 @@ class PersonalDataPage extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                      color: context.theme.colorScheme.surface,
+                      color: context.theme.colorScheme.onSurfaceVariant,
                       borderRadius: BorderRadius.circular(12)),
                   child: Column(
                     children: [
@@ -72,7 +72,7 @@ class PersonalDataPage extends StatelessWidget {
 }
 
 Future<dynamic> ChangeEmail(BuildContext context) {
-  bool _isValidEmail(String email) {
+  bool isValidEmail(String email) {
     return email.contains('@');
   }
 

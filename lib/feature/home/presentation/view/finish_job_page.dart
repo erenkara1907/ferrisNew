@@ -76,19 +76,12 @@ class _FinishJobPageState extends State<FinishJobPage> {
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await userHiveOperation.getJobExpenseAsync();
-      // print('result: $result');
 
       final resultStop = await userHiveOperation.getJobStopAsync();
 
-      // print('resultStop: $resultStop');
-
       final resultJobUpdate = await userHiveOperation.getJobUpdate();
 
-      // print('resultJobUpdate: $resultJobUpdate');
-
       final resultPatch = await userHiveOperation.getJobExpensePatchAsync();
-
-      // print('resultPatch: $resultPatch');
 
       if (result != [] && result.isNotEmpty && result != {}) {
         for (var item in result) {
@@ -144,13 +137,10 @@ class _FinishJobPageState extends State<FinishJobPage> {
               ?.inspectionsJobId ??
           [];
 
-      // print('jobInspectionsId: $jobInspectionsId');
-
       for (var id in jobInspectionsId) {
         try {
           final resultInspection =
               await userHiveOperation.getChecklistPostModel(id);
-          // print('resultInspectionChekList: $resultInspection');
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
               context
@@ -164,7 +154,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
           /*
           final resultInspectionPatch =
               await _userHiveOperation.getConditionImagePostModel(id);
-          print('resultInspectionConditionsImage: $resultInspectionPatch');
           if (resultInspectionPatch != null &&
               resultInspectionPatch.isNotEmpty) {
             await Future.forEach(resultInspectionPatch, (item) async {
@@ -177,7 +166,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
 */
           final resultInspectionEditDetail =
               await userHiveOperation.getInspectionDetails(id);
-          // print('resultInspectionEditDetail: $resultInspectionEditDetail');
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
@@ -193,7 +181,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
 /*
           final resultInspectionEdit =
               await _userHiveOperation.getDamagePostModel(id);
-          print('resultInspectionDamage $resultInspectionEdit');
           if (resultInspectionEdit != null && resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
               context
@@ -210,7 +197,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
               await userHiveOperation.getSignCustomerPostModel(id);
           final resultInspectionSign =
               await userHiveOperation.getSignInspectorPostModel(id);
-          // print('resultInspectionSign $resultInspectionCustomerSign');
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
@@ -257,7 +243,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 4),
       );
-      // print('resultJOBExpemde: $result');
       for (var item in result) {
         context.read<HomeBloc>().add(UpdateJob(
               ProductStateItems.hiveDatabaseManager
@@ -283,9 +268,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 8),
       );
-      // print(
-      //   'resultPatchsssss: $resultPatch',
-      // );
+
       for (var item in resultPatch) {
         context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
         await Future.delayed(const Duration(seconds: 1));
@@ -581,9 +564,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                       final currentTime = DateTime.now()
                                               .millisecondsSinceEpoch ~/
                                           1000;
-                                      // print(widget.isFuelView);
-                                      // print(widget.feedbackInputAvailability);
-                                      // print(widget.feedbackInputAvailability);
 
                                       context.read<HomeBloc>().add(EndJob(
                                             isViewFuel: widget.isFuelView ==
@@ -601,9 +581,9 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                             context: context,
                                             id: state.showJob!.id.toString(),
                                             data: EndJobPostModel(
-                                              departedHubTime: date,
-                                              arrivedCustomerTime: date,
-                                              departedCustomerTime: date,
+                                              // departedHubTime: date,
+                                              // arrivedCustomerTime: date,
+                                              // departedCustomerTime: date,
                                               endDate: currentTime,
                                               spendCharging: _spendCharging,
                                               valetStandardId: valetStandardId,
@@ -648,7 +628,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                 //                 element.name ==
                                 //                 _selectedValletStandart)
                                 //             .id;
-                                //         print('akjsdhfaklsjdhflkasjdfh$id');
                                 //         DateTime now = DateTime.now();
                                 //         final date =
                                 //             '${_twoDigits(now.hour)}:${_twoDigits(now.minute)}';

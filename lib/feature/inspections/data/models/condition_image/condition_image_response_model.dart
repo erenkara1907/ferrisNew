@@ -1,9 +1,10 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:hive/hive.dart';
 
 import 'package:ferrisfwt/product/state/base/model/i_response_model.dart';
-import 'package:hive/hive.dart';
 
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
@@ -20,6 +21,7 @@ class ConditionImageResponseModel implements IResponseModel {
   @HiveField(2)
   final String? imagePath;
 
+  @HiveField(3)
   final File? imageFile;
 
   ConditionImageResponseModel({
@@ -49,7 +51,6 @@ class ConditionImageResponseModel implements IResponseModel {
       // Verify if the file exists
       File file = File(evidencePath.path);
       if (!file.existsSync()) {
-        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -64,7 +65,6 @@ class ConditionImageResponseModel implements IResponseModel {
       return multipartFile;
     } catch (e, s) {
       SentryErrorHandler.instance.capture(e, stackTrace: s);
-      // print('Error processing file at path: $evidencePath');
 
       return null;
     }
@@ -72,4 +72,18 @@ class ConditionImageResponseModel implements IResponseModel {
 
   @override
   String toString() => toMap().toString();
+
+  ConditionImageResponseModel copyWith({
+    int? id,
+    int? jobInspectionId,
+    String? imagePath,
+    File? imageFile,
+  }) {
+    return ConditionImageResponseModel(
+      id: id ?? this.id,
+      jobInspectionId: jobInspectionId ?? this.jobInspectionId,
+      imagePath: imagePath ?? this.imagePath,
+      imageFile: imageFile ?? this.imageFile,
+    );
+  }
 }

@@ -57,7 +57,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
 
   void _onPostJobStopsControl(
       PostJobStopsControl event, Emitter<StopJobState> emit) async {
-    emit(state.copyWith(isError: true));
+    emit(state.copyWith(status: ViewStatus.failure, isError: true));
   }
 
   void _onPostJobStops(PostJobStops event, Emitter<StopJobState> emit) async {
@@ -103,11 +103,10 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       }
       _hiveStorageManager.setJobStopAsync(event.data);
       await Future.delayed(const Duration(seconds: 1));
-      // print("No network");
       emit(state.copyWith(
         status: ViewStatus.success,
         totalStop: state.totalStop + 1,
-        isError: true,
+        isError: false,
       ));
 
       _hiveDatabaseManager.saveTotalStop(state.totalStop);

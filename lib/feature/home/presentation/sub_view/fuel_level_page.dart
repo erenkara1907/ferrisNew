@@ -1,5 +1,7 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
+import 'package:ferrisfwt/feature/profile/presantation/widget/custom_popup.dart';
 import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_status_post_model.dart';
@@ -48,7 +50,6 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
     setState(() {
       final result = hiveStorageManager.getJopUpdatePage();
       updateModel = result;
-      // print(updateModel);
     });
   }
 
@@ -142,8 +143,11 @@ class _FuelLevelPageState extends State<FuelLevelPage> {
                   ontap: () {
                     if (_selectedLevelAtHub == null &&
                         _selectedLevelDelivery == null) {
-                      showTopSnackBarFr(context,
-                          message: 'Please select fuel level');
+                      // showTopSnackBarFr(context,
+                      //     message: 'Please select fuel level');
+                      // showTopSnackBar(context,
+                      //     message: "Please select fuel level");
+                      BotToast.showText(text: "Please select fuel level");
                       return;
                     }
                     context.read<HomeBloc>().add(

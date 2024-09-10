@@ -20,7 +20,7 @@ class EditDetailsPage extends StatefulWidget {
   final int jobInspectionId;
   final JobInspectionResponseModelItem inspection;
   final String odo;
-  final String fuelLevel;
+  final int fuelLevel;
   const EditDetailsPage({
     super.key,
     required this.jobInspectionId,
@@ -82,7 +82,7 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
               context.pop();
             }
             if (state.status == ViewStatus.failure) {
-              BotToast.showText(text: state.failure.toString());
+              // BotToast.showText(text: state.failure.toString());
             }
           },
           builder: (context, state) {
@@ -103,7 +103,8 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
                   ),
                   const VerticalSpace.small(),
                   DropdownButtonWidget(
-                    hintText: widget.fuelLevel,
+                    hintText:
+                        widget.fuelLevel == 0 ? "-" : "${widget.fuelLevel}%",
                     items: fuelLevel.map((int value) {
                       return DropdownMenuItem<String>(
                         value: value.toString(),
@@ -116,7 +117,7 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
                         _selectedFuelLevel = int.parse(text!);
                       });
                     },
-                    textSpanEnable: true,
+                    textSpanEnable: false,
                     value: _selectedFuelLevel?.toString(),
                     // value: _selectedFuelLevel != null
                     //     ? _selectedFuelLevel.toString()
@@ -127,28 +128,25 @@ class _EditDetailsPageState extends State<EditDetailsPage> {
                     CustomAppButton(
                         text: "Save",
                         ontap: () {
-                          if (int.tryParse(_odoReadingController.text) ==
-                              null) {
-                            BotToast.showText(
-                                text: "Please enter valid Odo Reading");
-                            return;
-                          }
-                          if (_selectedFuelLevel == null) {
-                            BotToast.showText(text: "Please select Fuel Level");
-                            return;
-                          }
-                          context
-                              .read<InspectionsBloc>()
-                              .add(InspectionsItemDetail(
-                                isAsync: false,
-                                odoReading:
-                                    double.parse(_odoReadingController.text),
-                                fuelLevel: _selectedFuelLevel!,
-                                inspectionId: widget.jobInspectionId,
-                              ));
-                          context.read<InspectionsBloc>().add(GetJobInspections(
-                                jobId: widget.jobInspectionId,
-                              ));
+                          context.read<InspectionsBloc>().add(
+                                InspectionsItemDetail(
+                                  isAsync: false,
+                                  odoReading:
+                                      _odoReadingController.text.isNotEmpty
+                                          ? double.tryParse(
+                                                  _odoReadingController.text
+                                                      .trim()) ??
+                                              0
+                                          : widget.odo.isNotEmpty
+                                              ? double.tryParse(
+                                                      widget.odo.trim()) ??
+                                                  0
+                                              : 0,
+                                  fuelLevel:
+                                      _selectedFuelLevel ?? widget.fuelLevel,
+                                  inspectionId: widget.jobInspectionId,
+                                ),
+                              );
                         }),
                 ]),
               ),
@@ -214,7 +212,7 @@ class DropdownButtonWidget extends StatelessWidget {
               weight: 1.0,
             ),
             decoration: InputDecoration(
-              fillColor: context.theme.colorScheme.surface,
+              fillColor: context.theme.colorScheme.onSurfaceVariant,
               filled: true,
               hintText: hintText,
               hintStyle: context.textTheme.bodyLarge?.copyWith(

@@ -31,7 +31,7 @@ class _QuestionPopupState extends State<QuestionPopup> {
             vertical: context.dynamicHeight(0.020),
             horizontal: context.dynamicWidth(0.06)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        backgroundColor: context.theme.colorScheme.background,
+        backgroundColor: context.theme.colorScheme.surface,
         insetPadding: EdgeInsets.symmetric(
             vertical: context.dynamicHeight(0.02),
             horizontal: context.dynamicWidth(0.02)),
@@ -74,7 +74,7 @@ class _QuestionPopupState extends State<QuestionPopup> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Expanded(
                 flex: 8,
                 child: SizedBox(
@@ -111,7 +111,7 @@ void showTopSnackBarFr(
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: context.theme.colorScheme.surface,
+            color: context.theme.colorScheme.onSurfaceVariant,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(

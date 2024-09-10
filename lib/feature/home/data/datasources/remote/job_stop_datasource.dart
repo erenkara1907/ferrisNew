@@ -136,7 +136,6 @@ final class JobStopRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
 
-      print("DATA STOP : ${response.data["data"]}");
       return StopsResponseModelItem.fromMap(response.data["data"]);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);

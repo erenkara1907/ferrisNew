@@ -55,7 +55,6 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     _failure = widget.damageResponse.failureId.name;
     _repair = widget.damageResponse.repairId.name;
 
-    // print('damage detail page${widget.damageResponse.damageImage}');
     getImage();
 
     super.initState();
@@ -89,7 +88,6 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
       int documentsIndex = path.indexOf("Documents/");
 
       String result = path.substring(documentsIndex + "Documents/".length);
-      // print("documentsIndex: $result");
       final pathLast = '$directory/$result';
       _selectedImage = pathLast;
     }
@@ -141,9 +139,6 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
           );
         }
 
-        // print("selected image: $_selectedImage");
-        // print("selected context image: $_selectedContextImage");
-
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -157,7 +152,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
               },
             ),
             backgroundColor: context.theme.colorScheme.surface,
-            title: Text('Add Damage', style: context.textTheme.titleSmall),
+            title: Text('Damage Detail', style: context.textTheme.titleSmall),
           ),
           body: SingleChildScrollView(
               child: Padding(

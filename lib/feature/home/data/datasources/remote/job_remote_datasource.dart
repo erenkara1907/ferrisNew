@@ -27,7 +27,7 @@ abstract interface class JobRemoteDataSource {
   Future<JobsResponseModelItem> getJobShow({
     required String id,
   });
-  Future<List<JobStartModel>> startJob({
+  Future<String> startJob({
     required StartJobPostModel data,
     required int jobId,
   });
@@ -84,13 +84,26 @@ final class JobRemoteDataSourceImpl
             },
           ));
 
-      if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
-      }
-      final List<dynamic> productData = response.data["data"];
+      // if (response.data['newAccessToken'] != null) {
+      //   ProductStateItems.hiveDatabaseManager
+      //       .setToken(response.data['newAccessToken']);
+      // }
 
-      return productData.map((e) => JobsResponseModelItem.fromMap(e)).toList();
+      dynamic productData = response.data["data"];
+
+      // Verinin bir liste olduğundan emin olun
+      if (productData is List) {
+        return productData.map((e) {
+          // Her bir elemanın doğru tipte olduğundan emin olun
+          if (e is Map<String, dynamic>) {
+            return JobsResponseModelItem.fromMap(e);
+          } else {
+            throw Exception('Invalid data format in productData');
+          }
+        }).toList();
+      } else {
+        throw Exception('Data is not a list');
+      }
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
@@ -145,7 +158,7 @@ final class JobRemoteDataSourceImpl
   }
 
   @override
-  Future<List<JobStartModel>> startJob({
+  Future<String> startJob({
     required StartJobPostModel data,
     required int jobId,
   }) async {
@@ -168,11 +181,7 @@ final class JobRemoteDataSourceImpl
             .setToken(response.data['newAccessToken']);
       }
 
-      print(
-          "JOB START DATA : ${response.data["vehicleDamagePricingTemplates"]}");
-      final List<dynamic> productData =
-          response.data["vehicleDamagePricingTemplates"];
-      return productData.map((e) => JobStartModel.fromMap(e)).toList();
+      return response.data.toString();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
@@ -440,7 +449,6 @@ final class JobRemoteDataSourceImpl
   @override
   Future<List<JobStartModel>> getJobPrice({required int jobId}) async {
     try {
-      print("JOB ID : $jobId");
       final response = await _networkClient.get(
         "${ServicePath.jobPrice.value}/$jobId",
         options: Options(headers: {
@@ -460,6 +468,7 @@ final class JobRemoteDataSourceImpl
 
       final List<dynamic> productData =
           response.data["vehicleDamagePricingTemplates"];
+
       return productData.map((e) => JobStartModel.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);

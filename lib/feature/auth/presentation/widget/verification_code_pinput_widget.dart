@@ -29,7 +29,7 @@ class _VerificationCodeWidgetState extends State<VerificationCodeWidget> {
   @override
   Widget build(BuildContext context) {
     Color? focusedBorderColor = context.theme.colorScheme.outline;
-    Color? fillColor = context.theme.colorScheme.surface;
+    Color? fillColor = context.theme.colorScheme.onSurfaceVariant;
     Color? borderColor = context.theme.colorScheme.primary.withOpacity(0.3);
 
     final defaultPinTheme = PinTheme(

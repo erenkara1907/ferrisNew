@@ -87,7 +87,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
   void _initializeJob() async {
     job = await ProductStateItems.hiveStorageManager
         .getJobWorkingOnModel(int.parse(widget.jobId));
-    // print("job: $job");
     if (widget.asyncJob == false) {
       context.read<HomeBloc>().add(GetJob(widget.jobId));
     } else if (job != null && job!.id.toString() == widget.jobId) {
@@ -234,7 +233,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
     // _trackingCoordinate =
     //     await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
-    // print("trackingCoordinate: $_trackingCoordinate");
 
     final googleMapAvailable = await MapLauncher.isMapAvailable(MapType.google);
     final appleMapAvailable = await MapLauncher.isMapAvailable(MapType.apple);
@@ -253,9 +251,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
             job!.endAddressCordinates!.longitude ?? 0.00),
         title: job!.endAddress!,
       );
-    } else {
-      print("Neither Google Maps nor Apple Maps is available.");
-    }
+    } else {}
   }
 
   @override
@@ -456,7 +452,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
               : state.showJob?.status != 2)
             Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surface,
+                color: context.theme.colorScheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Padding(
@@ -553,7 +549,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           CustomGreyAppButton(
                             textColor: context.theme.colorScheme.primary,
                             text: "Inspect",
-                            containerColor: context.theme.colorScheme.surface,
+                            containerColor:
+                                context.theme.colorScheme.onSurfaceVariant,
                             ontap: () async {
                               BotToast.showLoading();
                               final result = await hasNetwork();
@@ -572,9 +569,21 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           CustomGreyAppButton(
                             textColor: context.theme.colorScheme.primary,
                             text: "Open Map",
-                            containerColor: context.theme.colorScheme.surface,
+                            containerColor:
+                                context.theme.colorScheme.onSurfaceVariant,
                             ontap: () {
-                              context.push("/map_view_page2");
+                              if (state.showJob != null) {
+                                if (state.showJob?.startAddress != null &&
+                                    state.showJob?.endAddress != null &&
+                                    state.showJob?.startAddressCordinates !=
+                                        null &&
+                                    state.showJob?.endAddressCordinates !=
+                                        null) {
+                                  context.push("/map_view_page2");
+                                } else {
+                                  BotToast.showText(text: "Address Not Found");
+                                }
+                              }
                             },
                           ),
                           const VerticalSpace.xSmall(),
@@ -588,8 +597,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     textColor:
                                         context.theme.colorScheme.primary,
                                     text: "Add Stop",
-                                    containerColor:
-                                        context.theme.colorScheme.surface,
+                                    containerColor: context
+                                        .theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
                                       context.push("/add_stop_page");
                                     }),
@@ -599,8 +608,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     textColor:
                                         context.theme.colorScheme.primary,
                                     text: "View Expenses",
-                                    containerColor:
-                                        context.theme.colorScheme.surface,
+                                    containerColor: context
+                                        .theme.colorScheme.onSurfaceVariant,
                                     ontap: () async {
                                       BotToast.showLoading();
                                       final result = await hasNetwork();
@@ -622,8 +631,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     textColor:
                                         context.theme.colorScheme.primary,
                                     text: "Add Expense",
-                                    containerColor:
-                                        context.theme.colorScheme.surface,
+                                    containerColor: context
+                                        .theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
                                       context.push("/expense_details", extra: {
                                         "jobId": state.showJob!.id,
@@ -635,8 +644,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                     textColor:
                                         context.theme.colorScheme.primary,
                                     text: "Navigation",
-                                    containerColor:
-                                        context.theme.colorScheme.surface,
+                                    containerColor: context
+                                        .theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
                                       if (state.showJob
                                                   ?.startAddressCordinates ==
@@ -675,8 +684,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                         textColor:
                                             context.theme.colorScheme.primary,
                                         text: "Fuel/EV Level",
-                                        containerColor:
-                                            context.theme.colorScheme.surface,
+                                        containerColor: context
+                                            .theme.colorScheme.onSurfaceVariant,
                                         ontap: () {
                                           context.push("/fuel_level_page",
                                               extra: {
@@ -696,14 +705,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                         textColor:
                                             context.theme.colorScheme.primary,
                                         text: "Feedback",
-                                        containerColor:
-                                            context.theme.colorScheme.surface,
+                                        containerColor: context
+                                            .theme.colorScheme.onSurfaceVariant,
                                         ontap: () {
-                                          // print(ProductStateItems
-                                          //     .hiveDatabaseManager
-                                          //     .getUserModel()
-                                          //     ?.currentJobId);
-                                          // print(state.showJob!.id);
                                           context
                                               .push("/feedback_page", extra: {
                                             "feedbackInputAvailability": job
@@ -718,7 +722,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           ],
                           const VerticalSpace.xxSmall(),
                           CustomGreyAppButton(
-                            containerColor: context.theme.colorScheme.surface,
+                            containerColor:
+                                context.theme.colorScheme.onSurfaceVariant,
                             textColor: context.theme.colorScheme.primary,
                             text: showExtraButtons ? "Less" : "More",
                             ontap: () {

@@ -12,6 +12,11 @@ mixin PostExpenseSaveImageOperationMixin {
     try {
       final expense = _postExpenseSaveImagesBox.values.firstWhere(
         (element) => element.price == price && element.categoryId == categoryId,
+        orElse: () => ExpensePostModel(
+          jobId: 0,
+          categoryId: categoryId,
+          price: price,
+        ), // Eğer hiçbir öğe bulunamazsa null döndür
       );
       return expense;
     } catch (e, s) {

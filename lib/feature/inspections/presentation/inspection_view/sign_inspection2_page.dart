@@ -537,7 +537,7 @@ class _SignMapViewState extends State<SignMapView> {
   Widget _showDraggedLatlang() {
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.colorScheme.onSurfaceVariant,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.4),
@@ -666,22 +666,16 @@ class _SignMapViewState extends State<SignMapView> {
     LocationPermission locationPermission;
     bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
 
-    if (!isLocationServiceEnabled) {
-      print("User has not enabled location services");
-    }
+    if (!isLocationServiceEnabled) {}
 
     locationPermission = await Geolocator.checkPermission();
 
     if (locationPermission == LocationPermission.denied) {
       locationPermission = await Geolocator.requestPermission();
-      if (locationPermission == LocationPermission.denied) {
-        print('User denied location permissions');
-      }
+      if (locationPermission == LocationPermission.denied) {}
     }
 
-    if (locationPermission == LocationPermission.deniedForever) {
-      print('User denied location permissions permanently');
-    }
+    if (locationPermission == LocationPermission.deniedForever) {}
 
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,

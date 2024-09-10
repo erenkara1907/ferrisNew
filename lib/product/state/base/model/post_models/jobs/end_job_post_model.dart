@@ -17,22 +17,22 @@ class EndJobPostModel extends INetworkSentDataModel {
   @HiveField(2)
   final int? valetStandardId;
 
-  @HiveField(3)
-  final String? departedHubTime; // format H:i
+  // @HiveField(3)
+  // final String? departedHubTime; // format H:i
 
-  @HiveField(4)
-  final String? arrivedCustomerTime; // format H:i
+  // @HiveField(4)
+  // final String? arrivedCustomerTime; // format H:i
 
-  @HiveField(5)
-  final String? departedCustomerTime; // format H:i
+  // @HiveField(5)
+  // final String? departedCustomerTime; // format H:i
 
   EndJobPostModel({
     required this.endDate,
     this.spendCharging,
     this.valetStandardId,
-    this.departedHubTime,
-    this.arrivedCustomerTime,
-    this.departedCustomerTime,
+    // this.departedHubTime,
+    // this.arrivedCustomerTime,
+    // this.departedCustomerTime,
   });
 
   factory EndJobPostModel.fromMap(Map<String, dynamic> map) {
@@ -40,9 +40,9 @@ class EndJobPostModel extends INetworkSentDataModel {
       endDate: map['endDate'],
       spendCharging: map['spendCharging'],
       valetStandardId: map['valetStandardId'],
-      departedHubTime: map['departedHubTime'],
-      arrivedCustomerTime: map['arrivedCustomerTime'],
-      departedCustomerTime: map['departedCustomerTime'],
+      // departedHubTime: map['departedHubTime'],
+      // arrivedCustomerTime: map['arrivedCustomerTime'],
+      // departedCustomerTime: map['departedCustomerTime'],
     );
   }
 
@@ -56,9 +56,9 @@ class EndJobPostModel extends INetworkSentDataModel {
       'endDate': endDate,
       'spendCharging': spendCharging,
       'valetStandardId': valetStandardId,
-      'departedHubTime': departedHubTime,
-      'arrivedCustomerTime': arrivedCustomerTime,
-      'departedCustomerTime': departedCustomerTime,
+      // 'departedHubTime': departedHubTime,
+      // 'arrivedCustomerTime': arrivedCustomerTime,
+      // 'departedCustomerTime': departedCustomerTime,
     };
   }
 

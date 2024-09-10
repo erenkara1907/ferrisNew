@@ -165,14 +165,26 @@ class RecordedDamagesState extends State<RecordedDamages> {
                                           top: 7,
                                           right: 0,
                                           child: IconButton(
-                                            onPressed: () {
+                                            onPressed: () async {
+                                              List<DamageResponseModel> damage =
+                                                  await _hiveStorageManager
+                                                      .getGetDamage(widget
+                                                          .jobInspectionId);
+
                                               context
                                                   .read<InspectionsBloc>()
-                                                  .add(DeleteRecordedDamage(
-                                                      state
+                                                  .add(
+                                                    DeleteRecordedDamage(
+                                                      damage[index].id,
+                                                      widget.jobInspectionId,
+                                                      damage[index]
+                                                              .combinationId ??
+                                                          0,
+                                                      stateDamageId: state
                                                           .damageResponse[index]
                                                           .id,
-                                                      widget.jobInspectionId));
+                                                    ),
+                                                  );
                                             },
                                             icon: Icon(
                                               Icons.cancel_outlined,

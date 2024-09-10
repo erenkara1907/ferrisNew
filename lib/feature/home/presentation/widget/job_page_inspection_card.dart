@@ -31,11 +31,17 @@ class InspectionCustomInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedDate = _formatDate(inspection.date!);
-    final gradeText = (damageResponse != null &&
-            damageResponse!.gradeId != null &&
-            damageResponse!.gradeId!.isNotEmpty)
-        ? damageResponse!.gradeId
-        : (inspection.gradleItem != null ? inspection.gradleItem!.name : "-");
+    // final gradeText = (damageResponse != null &&
+    //         damageResponse!.gradeId != null &&
+    //         damageResponse!.gradeId!.isNotEmpty)
+    //     ? damageResponse!.gradeId
+    //     : (inspection.gradleItem != null ? inspection.gradleItem!.name : "-");
+
+    final gradeText = inspection.gradleItem != null
+        ? inspection.gradleItem!.name != "0"
+            ? inspection.gradleItem!.name
+            : "-"
+        : "-";
 
     final bool isSigned =
         ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
@@ -80,7 +86,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSigned || inspection.reportSigned == true
                       ? const Color.fromARGB(255, 71, 214, 66)
-                      : context.theme.colorScheme.surface,
+                      : context.theme.colorScheme.onSurfaceVariant,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -154,7 +160,8 @@ class InspectionCustomInfoCard extends StatelessWidget {
                           ),
                           Text(
                             // odoText,
-                            inspection.odoReading != null
+                            inspection.odoReading != null &&
+                                    inspection.odoReading != 0
                                 ? "${inspection.odoReading!.toInt()} Miles"
                                 : "-",
                             style: context.textTheme.bodySmall,
@@ -172,7 +179,8 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            inspection.fuelLevel != null
+                            inspection.fuelLevel != null &&
+                                    inspection.fuelLevel != 0
                                 ? '${inspection.fuelLevel}%'
                                 : "-",
                             style: context.textTheme.bodySmall,
@@ -267,7 +275,7 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                       "Collect From Customer",
                       style: context.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.surface),
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     )
                   ],
                 ),
@@ -279,12 +287,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                       '15th Apr 2024',
                       style: context.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.surface),
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '10:15',
-                      style: context.textTheme.bodySmall
-                          ?.copyWith(color: context.theme.colorScheme.surface),
+                      style: context.textTheme.bodySmall?.copyWith(
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     )
                   ],
                 ),
@@ -296,12 +304,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                       'ODO',
                       style: context.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.surface),
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '11 Miles',
-                      style: context.textTheme.bodySmall
-                          ?.copyWith(color: context.theme.colorScheme.surface),
+                      style: context.textTheme.bodySmall?.copyWith(
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -313,12 +321,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                       'Fuel Level',
                       style: context.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.surface),
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '%20',
-                      style: context.textTheme.bodySmall
-                          ?.copyWith(color: context.theme.colorScheme.surface),
+                      style: context.textTheme.bodySmall?.copyWith(
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -330,12 +338,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                       'Abort Type',
                       style: context.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.surface),
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '-',
-                      style: context.textTheme.bodySmall
-                          ?.copyWith(color: context.theme.colorScheme.surface),
+                      style: context.textTheme.bodySmall?.copyWith(
+                          color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -343,7 +351,7 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                 Container(
                   width: context.dynamicWidth(0.2),
                   decoration: BoxDecoration(
-                    color: context.theme.colorScheme.surface,
+                    color: context.theme.colorScheme.onSurfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(

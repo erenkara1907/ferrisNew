@@ -57,7 +57,7 @@ class _LoginPageState extends BaseMixin<LoginPage> with LoginMixin {
         return SafeArea(
           child: Scaffold(
             appBar: AppBar(
-              backgroundColor: context.theme.colorScheme.background,
+              backgroundColor: context.theme.colorScheme.surface,
             ),
             body: SingleChildScrollView(
               child: Column(

@@ -20,9 +20,7 @@ class _MyImagePickerState extends State<MyImagePicker> {
     setState(() {
       if (pickedImage != null) {
         _imageFile = File(pickedImage.path);
-      } else {
-        // print('No image selected.');
-      }
+      } else {}
     });
   }
 

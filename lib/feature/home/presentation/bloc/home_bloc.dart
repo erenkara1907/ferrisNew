@@ -72,7 +72,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
     if (id == null || id == "") {
-      print("GİRDİ INTERNET");
       // // İlk API çağrısı: Bugünkü jobları al
       final todayJobsResult = await _ucGetJob.getJob(
         status: "0",
@@ -126,7 +125,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       return;
     }
 
-    print("GİRDİ INTERNET NO");
     final jobWorkingOn = await _hiveStorageManager
         .getJobWorkingOnModel(int.parse(id.toString()));
 
@@ -185,7 +183,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onStartJob(StartJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    // print("START DATE : ${event.jobShowModel.startDate}");
     // Şu anki tarih ve zaman
     DateTime now = DateTime.now();
 
@@ -211,7 +208,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onPriceJob(PriceJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    // print("START DATE : ${event.jobShowModel.startDate}");
     // Şu anki tarih ve zaman
 
     // UNIX zaman damgası (saniye cinsinden)
@@ -225,7 +221,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       emit(state.copyWith(
         status: ViewStatus.success,
-        isStarted: true,
       ));
     });
   }
@@ -402,16 +397,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
     emit(state.copyWith(status: ViewStatus.loading, jobsTomorrow: []));
 
+    String formattedDate = "${DateTime.now().year}-"
+        "${DateTime.now().month.toString().padLeft(2, '0')}-"
+        "${(DateTime.now().day + 1).toString().padLeft(2, '0')}";
+
     final result = await _ucGetJob.getJob(
-        date:
-            "${DateTime.now().year}-${DateTime.now().month < 9 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day + 1 < 9 ? "0${DateTime.now().day + 1}" : "${DateTime.now().day + 1}"}");
-    // print(
-    //     "${DateTime.now().year}-${DateTime.now().month < 9 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day + 1 < 9 ? "0${DateTime.now().day + 1}" : "${DateTime.now().day + 1}"}");
+      status: "0",
+      date: formattedDate,
+    );
+
     result.fold(
         (failure) =>
             emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
         (data) {
-      // print("data: $data");
       emit(state.copyWith(status: ViewStatus.success, jobsTomorrow: data));
     });
   }

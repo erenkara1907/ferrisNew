@@ -27,14 +27,14 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       height: context.dynamicHeight(0.7),
-      color: context.theme.colorScheme.background,
+      color: context.theme.colorScheme.onSurfaceVariant,
       child: Column(
         children: [
           Padding(
             padding: context.paddingAllDefault,
             child: Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surfaceVariant,
+                color: context.theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -43,7 +43,8 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
               initialDateTime: selectedDate,
-              minimumDate: DateTime.now().subtract(const Duration(days: 365 * 100)),
+              minimumDate:
+                  DateTime.now().subtract(const Duration(days: 365 * 100)),
               maximumDate: DateTime.now(),
               onDateTimeChanged: (DateTime newDate) {
                 setState(() {
@@ -79,8 +80,8 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
               ontap: () {
                 context.pop();
               },
-              textColor: context.theme.colorScheme.onBackground,
-              containerColor: context.theme.colorScheme.surface,
+              textColor: context.theme.colorScheme.onSurface,
+              containerColor: context.theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const VerticalSpace.small()

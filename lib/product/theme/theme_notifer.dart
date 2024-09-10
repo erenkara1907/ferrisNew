@@ -19,7 +19,7 @@ class ThemeNotifier extends ChangeNotifier {
   AppThemes get currentThemeEnum => _currentThemeEnum;
 
   Future<void> _loadTheme() async {
-    final themeMode = await _hiveManager.getThemeMode();
+    final themeMode = _hiveManager.getThemeMode();
     _currentThemeEnum = themeMode ?? AppThemes.LIGHT;
     _currentTheme = _buildTheme(_currentThemeEnum);
     notifyListeners();
@@ -28,8 +28,8 @@ class ThemeNotifier extends ChangeNotifier {
   void changeValue(AppThemes theme) async {
     _currentThemeEnum = theme;
     _currentTheme = _buildTheme(theme);
-    await _hiveManager.saveThemeMode(theme);
     notifyListeners();
+    await _hiveManager.saveThemeMode(theme);
   }
 
   ThemeData _buildTheme(AppThemes theme) {

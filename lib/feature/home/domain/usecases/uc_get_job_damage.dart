@@ -18,34 +18,34 @@ final class UCGetJobDamage {
 
   final JobDamageRepository _repository;
 
-  Future<Either<Failure, List<DamagesCategory>>> getDamageCategories(
-      {required int inspectionId}) {
-    return _repository.getDamageCategories(inspectionId: inspectionId);
-  }
+  // Future<Either<Failure, List<DamagesCategory>>> getDamageCategories(
+  //     {required int inspectionId}) {
+  //   return _repository.getDamageCategories(inspectionId: inspectionId);
+  // }
 
-  Future<Either<Failure, List<DamagesFailure>>> getDamageFailures(
-      {required int inspectionId, required int issueId}) {
-    return _repository.getDamageFailures(
-        inspectionId: inspectionId, issueId: issueId);
-  }
+  // Future<Either<Failure, List<DamagesFailure>>> getDamageFailures(
+  //     {required int inspectionId, required int issueId}) {
+  //   return _repository.getDamageFailures(
+  //       inspectionId: inspectionId, issueId: issueId);
+  // }
 
-  Future<Either<Failure, List<DamagesIssue>>> getDamageIssues(
-      {required int inspectionId, required int partId}) {
-    return _repository.getDamageIssues(
-        inspectionId: inspectionId, partId: partId);
-  }
+  // Future<Either<Failure, List<DamagesIssue>>> getDamageIssues(
+  //     {required int inspectionId, required int partId}) {
+  //   return _repository.getDamageIssues(
+  //       inspectionId: inspectionId, partId: partId);
+  // }
 
-  Future<Either<Failure, List<DamagesPart>>> getDamageParts(
-      {required int inspectionId, required int categoryId}) {
-    return _repository.getDamageParts(
-        inspectionId: inspectionId, categoryId: categoryId);
-  }
+  // Future<Either<Failure, List<DamagesPart>>> getDamageParts(
+  //     {required int inspectionId, required int categoryId}) {
+  //   return _repository.getDamageParts(
+  //       inspectionId: inspectionId, categoryId: categoryId);
+  // }
 
-  Future<Either<Failure, List<DamagesRepair>>> getDamageRepairs(
-      {required int inspectionId, required int failureId}) {
-    return _repository.getDamageRepairs(
-        inspectionId: inspectionId, failureId: failureId);
-  }
+  // Future<Either<Failure, List<DamagesRepair>>> getDamageRepairs(
+  //     {required int inspectionId, required int failureId}) {
+  //   return _repository.getDamageRepairs(
+  //       inspectionId: inspectionId, failureId: failureId);
+  // }
 
   Future<Either<Failure, List<DamageAssetsModel>>> getAllDamageAssets() {
     return _repository.getAllDamageAssets();

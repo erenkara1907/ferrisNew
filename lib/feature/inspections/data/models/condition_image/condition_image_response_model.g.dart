@@ -21,19 +21,22 @@ class ConditionImageResponseModelAdapter
       id: fields[0] as int?,
       jobInspectionId: fields[1] as int,
       imagePath: fields[2] as String?,
+      imageFile: fields[3] as File?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ConditionImageResponseModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.jobInspectionId)
       ..writeByte(2)
-      ..write(obj.imagePath);
+      ..write(obj.imagePath)
+      ..writeByte(3)
+      ..write(obj.imageFile);
   }
 
   @override

@@ -32,7 +32,6 @@ class FCMManager {
   }) async {
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
-    // print("initialMessage $initialMessage");
     if (initialMessage != null) {
       _handleMessage(
         message: initialMessage,
@@ -68,7 +67,6 @@ class FCMManager {
     required RemoteMessage message,
   }) async {
     // show the dialog and wait for the user to confirm the job
-    // print('******************************${message.data}');
     final data = JobAssignmentAnnouncementData.fromMap(message.data);
     if (data.jobId == null) throw ArgumentError('jobId is null');
     if (_notificationJobIds.contains(data.jobId)) return;

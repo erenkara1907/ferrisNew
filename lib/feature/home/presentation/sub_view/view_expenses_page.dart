@@ -34,12 +34,18 @@ class _ViewExpensesState extends State<ViewExpenses> {
     super.initState();
 
     _initializeJob();
-    if (widget.isAsync) {
-      context.read<JobExpenseBloc>().add(SetExpensePost(int.parse(
-          ProductStateItems.hiveDatabaseManager
-              .getUserModel()!
-              .currentJobId
-              .toString())));
+    if (widget.isAsync &&
+        ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
+      context.read<JobExpenseBloc>().add(
+            SetExpensePost(
+              int.parse(
+                ProductStateItems.hiveDatabaseManager
+                    .getUserModel()!
+                    .currentJobId
+                    .toString(),
+              ),
+            ),
+          );
     } else {
       _onCheck();
       String? _currentJobId = "";
@@ -79,9 +85,10 @@ class _ViewExpensesState extends State<ViewExpenses> {
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 4),
       );
-      // print('resultJOBExpemde: $result');
       for (var item in result) {
-        context.read<JobExpenseBloc>().add(PostExpense(item!, true));
+        if (item != null) {
+          context.read<JobExpenseBloc>().add(PostExpense(item, true));
+        }
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
@@ -99,11 +106,11 @@ class _ViewExpensesState extends State<ViewExpenses> {
         contentColor: context.theme.colorScheme.primary,
         duration: const Duration(seconds: 8),
       );
-      // print(
-      //   'resultPatchsssss: $resultPatch',
-      // );
+
       for (var item in resultPatch) {
-        context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
+        if (item != null) {
+          context.read<JobExpenseBloc>().add(PatchExpense(item, true, 0));
+        }
         await Future.delayed(const Duration(milliseconds: 300));
       }
       ProductStateItems.hiveStorageManager.deleteJobExpensePatchAsync();
@@ -128,7 +135,9 @@ class _ViewExpensesState extends State<ViewExpenses> {
 
         final expenseMap = <int, dynamic>{};
         for (var expense in state.expenses) {
-          expenseMap[expense!.id] = expense;
+          if (expense != null) {
+            expenseMap[expense.id] = expense;
+          }
         }
         final uniqueExpenseList = expenseMap.values.toList();
         if (state.status != ViewStatus.loading) {
@@ -194,7 +203,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                               border: Border.all(
                                   color: context.theme.colorScheme.primary
                                       .withOpacity(0.4)),
-                              color: context.theme.colorScheme.surface,
+                              color: context.theme.colorScheme.onSurfaceVariant,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -218,8 +227,8 @@ class _ViewExpensesState extends State<ViewExpenses> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              uniqueExpenseList[index]!
-                                                  .categoryId!
+                                              uniqueExpenseList[index]
+                                                  .categoryId
                                                   .name,
                                               style: context
                                                   .textTheme.bodyMedium
@@ -228,7 +237,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                                                           FontWeight.w500),
                                             ),
                                             Text(
-                                              "Price: £ ${uniqueExpenseList[index]!.price?.toStringAsFixed(2) ?? '0.00'}",
+                                              "Price: £ ${uniqueExpenseList[index].price?.toStringAsFixed(2) ?? '0.00'}",
                                               style:
                                                   context.textTheme.bodySmall,
                                             ),

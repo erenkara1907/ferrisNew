@@ -22,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../auth/data/models/user_model.dart';
+import '../../data/models/job_start/job_start_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -82,7 +83,12 @@ class _HomePageState extends State<HomePage>
                       indicatorColor: const Color.fromARGB(0, 156, 115, 115),
                       controller: _tabController,
                       labelStyle: context.textTheme.bodySmall?.copyWith(
-                        color: context.theme.colorScheme.surface,
+                        color: context.theme.colorScheme.onSurface,
+                      ),
+                      unselectedLabelStyle:
+                          context.textTheme.bodySmall?.copyWith(
+                        color: context.theme.colorScheme.onSurface
+                            .withOpacity(0.6),
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
                       indicator: BoxDecoration(
@@ -136,7 +142,7 @@ class HomeTextfieldSearchWidget extends StatelessWidget {
         child: Container(
             height: 41,
             decoration: BoxDecoration(
-              color: context.theme.colorScheme.surface,
+              color: context.theme.colorScheme.onSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.only(left: 12.0),
@@ -170,7 +176,7 @@ class HomeSearchTextfieldSearchWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.colorScheme.onSurfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
@@ -198,7 +204,7 @@ Color determineColor(
   final result =
       ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted;
   if (jobModel.status == 2) {
-    return context.theme.colorScheme.surface;
+    return context.theme.colorScheme.onSurfaceVariant;
   } else {
     return context.theme.colorScheme.onPrimary;
   }
@@ -216,7 +222,7 @@ Color determineContainerColor(
   } else if (jobModel.status == 2) {
     return context.theme.colorScheme.primaryContainer;
   } else {
-    return context.theme.colorScheme.surface;
+    return context.theme.colorScheme.onSurfaceVariant;
   }
 }
 
@@ -266,12 +272,6 @@ class CustomCard extends StatelessWidget {
     return InkWell(
       onTap: isToday
           ? () async {
-              Sentry.metrics().set(
-                'job_item', // key
-                stringValue: '${jobModel.regNumber}',
-                unit: CustomSentryMeasurementUnit('username'),
-                tags: {'page': 'home'},
-              );
               BotToast.showLoading();
               final result = await hasNetwork();
               if (context.mounted) {
@@ -284,9 +284,17 @@ class CustomCard extends StatelessWidget {
                   _hiveDatabaseManager.saveJob(
                       jobModel.id.toString(), jobModel.regNumber!);
                   hiveStorageManager.setJobWorkingOn(jobModel);
+
+                  List<JobStartModel?> jobPrices =
+                      await hiveStorageManager.getJobs();
+
+                  if (jobPrices.isEmpty) {
+                    context.read<HomeBloc>().add(
+                          PriceJob(jobModel.id),
+                        );
+                  }
                 }
 
-                print("JOB ID : ${jobModel.id}");
                 context.push('/job_detail_page', extra: {
                   'jobId': jobModel.id.toString(),
                   'asyncJob': !result,
@@ -299,7 +307,7 @@ class CustomCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isDetail
-              ? context.theme.colorScheme.surface
+              ? context.theme.colorScheme.onSurfaceVariant
               : determineContainerColor(
                   context,
                   jobModel,
@@ -1021,7 +1029,7 @@ class CustomCard extends StatelessWidget {
                           builder: (context) {
                             return AlertDialog(
                               backgroundColor:
-                                  context.theme.colorScheme.surface,
+                                  context.theme.colorScheme.onSurfaceVariant,
                               title: Text(
                                 'Confirm Job',
                                 style: context.textTheme.titleLarge?.copyWith(

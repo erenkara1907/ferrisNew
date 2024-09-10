@@ -46,7 +46,6 @@ class InspectionInspectorSignPostModel extends INetworkSentDataModel {
       // Verify if the file exists
       File file = File(evidencePath.path);
       if (!file.existsSync()) {
-        // print('File not found at path: $evidencePath');
         return null;
       }
 
@@ -61,7 +60,6 @@ class InspectionInspectorSignPostModel extends INetworkSentDataModel {
       return multipartFile;
     } catch (e, s) {
       SentryErrorHandler.instance.capture(e, stackTrace: s);
-      // print('Error processing file at path: $evidencePath');
 
       return null;
     }

@@ -19,7 +19,7 @@ class _PermissionsPageState extends State<PermissionsPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             title: Text('Permission Page', style: context.textTheme.titleSmall),
           ),
           body: Padding(
@@ -28,7 +28,7 @@ class _PermissionsPageState extends State<PermissionsPage> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: context.theme.colorScheme.surface,
+                    color: context.theme.colorScheme.onSurfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(
@@ -102,7 +102,7 @@ class PermissionWidget extends StatelessWidget {
   final bool condition;
   final void Function()? onTap;
 
-  PermissionWidget({
+  const PermissionWidget({
     Key? key,
     required this.text,
     required this.onTap,

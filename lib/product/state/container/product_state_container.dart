@@ -60,6 +60,7 @@ import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.d
 import 'package:ferrisfwt/product/firebase/service/analytics_service.dart';
 import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/router/app_router.dart';
+import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:get_it/get_it.dart';
 
@@ -94,7 +95,7 @@ abstract final class Locator {
 
       // Managers
       ..registerFactory(NetworkListener.new)
-      ..registerFactory(() => UCGetAuth(repository: _instance()))
+      ..registerFactory(() => UCGetAuth(repositoryV: _instance()))
       ..registerFactory(() => UCGetJob(repository: _instance()))
       ..registerFactory(() => UCGetJobDamage(repository: _instance()))
       ..registerFactory(() => UCGetJobExpense(repository: _instance()))
@@ -148,7 +149,9 @@ abstract final class Locator {
 
       // RemoteDataSources
       ..registerFactory<AuthRemoteDataSource>(
-        () => AuthRemoteDataSourceImpl(networkClient: _instance()),
+        () => AuthRemoteDataSourceImpl(
+            networkClient: _instance(),
+            hiveDatabaseManager: ProductStateItems.hiveDatabaseManager),
       )
       ..registerFactory<JobRemoteDataSource>(
         () => JobRemoteDataSourceImpl(networkClient: _instance()),

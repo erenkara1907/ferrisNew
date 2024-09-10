@@ -9,6 +9,7 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 
+import '../../../../../product/database/hive/core/hive_database_manager.dart';
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -42,16 +43,20 @@ abstract interface class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl
     with HandleRequestMixin
     implements AuthRemoteDataSource {
-  AuthRemoteDataSourceImpl({required NetworkClient networkClient})
-      : _networkClient = networkClient;
+  AuthRemoteDataSourceImpl(
+      {required NetworkClient networkClient,
+      required HiveDatabaseManager hiveDatabaseManager})
+      : _networkClient = networkClient,
+        _hiveDatabaseManager = hiveDatabaseManager;
 
   final NetworkClient _networkClient;
+  final HiveDatabaseManager _hiveDatabaseManager;
 
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization':
-        'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
-  };
+  // final headers = {
+  //   'Content-Type': 'application/json',
+  //   'Authorization':
+  //       'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+  // };
 
   @override
   Future<LoginResponseModel> login({
@@ -116,7 +121,7 @@ class AuthRemoteDataSourceImpl
     final data = {
       'password': oldPassword,
       'password_confirmation': newPassword,
-      'token': ProductStateItems.hiveDatabaseManager.getUserModel()?.token,
+      'token': _hiveDatabaseManager.getUserModel()?.token,
     };
     return handleRequest<String>(
       _networkClient.post(ServicePath.changePassword.value,
@@ -124,7 +129,7 @@ class AuthRemoteDataSourceImpl
           options: Options(headers: {
             'Content-Type': 'application/json',
             'Authorization':
-                'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );
@@ -137,7 +142,7 @@ class AuthRemoteDataSourceImpl
           options: Options(headers: {
             'Content-Type': 'application/json',
             'Authorization':
-                'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       UserResponseModel.fromJson,
       manipulateData: (p0) => p0['data'] as Map<String, dynamic>,
@@ -157,7 +162,7 @@ class AuthRemoteDataSourceImpl
           options: Options(headers: {
             'Content-Type': 'application/json',
             'Authorization':
-                'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );
@@ -176,7 +181,7 @@ class AuthRemoteDataSourceImpl
           options: Options(headers: {
             'Content-Type': 'application/json',
             'Authorization':
-                'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );

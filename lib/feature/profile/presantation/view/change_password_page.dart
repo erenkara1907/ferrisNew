@@ -18,9 +18,10 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _repeatPasswordController = TextEditingController();
-  TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
+  final TextEditingController _oldPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureRepeatNewPassword = true;
   bool _obscureRepeatPassword = true;
@@ -50,13 +51,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           showTopSnackBarFr(context, message: 'Password changed successfully');
         }
         if (state.status == ViewStatus.failure) {
-          BotToast.showText(text: state.failure.toString());
+          // BotToast.showText(text: state.failure.toString());
         }
       },
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: context.theme.colorScheme.background,
+            backgroundColor: context.theme.colorScheme.surface,
             leading: IconButton(
               onPressed: () {
                 context.pop();

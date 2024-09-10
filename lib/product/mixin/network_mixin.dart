@@ -20,10 +20,8 @@ Future<bool> hasNetwork(
     // Return based on speed check
     return speedIsAdequate;
   } on SocketException catch (e, s) {
-    await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
   } on TimeoutException catch (e, s) {
-    await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
   }
 }
@@ -52,10 +50,9 @@ Future<bool> _checkInternetSpeed(
     stopwatch.stop();
     final downloadTimeSec = stopwatch.elapsedMilliseconds / 1000;
     final speedKbps = (totalBytes / 1024) / downloadTimeSec;
-    // print('Speed: $speedKbps KB/s');
     return speedKbps >= speedThresholdKbps;
   } catch (e, s) {
-    await SentryErrorHandler.instance.capture(e, stackTrace: s);
+    // await SentryErrorHandler.instance.capture(e, stackTrace: s);
     return false;
   }
 }

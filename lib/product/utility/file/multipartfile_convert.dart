@@ -12,7 +12,6 @@ List<MultipartFile> convertToMultipartFileList(List<String> evidencePaths) {
       // Verify if the file exists
       File file = File(path);
       if (!file.existsSync()) {
-        // print('File not found at path: $path');
         continue; // Skip this path and proceed to the next one
       }
 
@@ -26,8 +25,6 @@ List<MultipartFile> convertToMultipartFileList(List<String> evidencePaths) {
       multipartFiles.add(multipartFile);
     } catch (e, s) {
       SentryErrorHandler.instance.capture(e, stackTrace: s);
-
-      // print('Error processing file at path: $path');
 
       // Handle the error as needed
     }

@@ -19,29 +19,26 @@ class UpdateJobStatusPostModelAdapter
     };
     return UpdateJobStatusPostModel(
       timestamp: fields[0] as String,
-      trackingStatusId: fields[1] as int?,
-      fuelChargeLevelDelivery: fields[2] as int?,
-      fuelChargeLevelCollection: fields[3] as int?,
-      vehicleFeedback: fields[4] as String?,
-      customerFeedback: fields[5] as String?,
+      fuelChargeLevelDelivery: fields[1] as int?,
+      fuelChargeLevelCollection: fields[2] as int?,
+      vehicleFeedback: fields[3] as String?,
+      customerFeedback: fields[4] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UpdateJobStatusPostModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.timestamp)
       ..writeByte(1)
-      ..write(obj.trackingStatusId)
-      ..writeByte(2)
       ..write(obj.fuelChargeLevelDelivery)
-      ..writeByte(3)
+      ..writeByte(2)
       ..write(obj.fuelChargeLevelCollection)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.vehicleFeedback)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.customerFeedback);
   }
 

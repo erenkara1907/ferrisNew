@@ -42,49 +42,49 @@ class GetAllGradeRuleUplift extends JobDamageEvent {
   List<Object> get props => [];
 }
 
-class GetDamageCategories extends JobDamageEvent {
-  final int inspectionId;
-  const GetDamageCategories(this.inspectionId);
+// class GetDamageCategories extends JobDamageEvent {
+//   final int inspectionId;
+//   const GetDamageCategories(this.inspectionId);
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
-class GetDamageIssues extends JobDamageEvent {
-  final int damagePartId;
-  final int inspectionId;
-  const GetDamageIssues(this.damagePartId, this.inspectionId);
+// class GetDamageIssues extends JobDamageEvent {
+//   final int damagePartId;
+//   final int inspectionId;
+//   const GetDamageIssues(this.damagePartId, this.inspectionId);
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
-class GetDamageFailures extends JobDamageEvent {
-  final int damageIssueId;
-  final int inspectionId;
-  const GetDamageFailures(this.damageIssueId, this.inspectionId);
+// class GetDamageFailures extends JobDamageEvent {
+//   final int damageIssueId;
+//   final int inspectionId;
+//   const GetDamageFailures(this.damageIssueId, this.inspectionId);
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
-class GetDamageParts extends JobDamageEvent {
-  final int damageCategoryId;
-  final int inspectionId;
-  const GetDamageParts(this.damageCategoryId, this.inspectionId);
+// class GetDamageParts extends JobDamageEvent {
+//   final int damageCategoryId;
+//   final int inspectionId;
+//   const GetDamageParts(this.damageCategoryId, this.inspectionId);
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
-class GetDamageRepairs extends JobDamageEvent {
-  final int damageFailureId;
-  final int inspectionId;
-  const GetDamageRepairs(this.damageFailureId, this.inspectionId);
+// class GetDamageRepairs extends JobDamageEvent {
+//   final int damageFailureId;
+//   final int inspectionId;
+//   const GetDamageRepairs(this.damageFailureId, this.inspectionId);
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
 class SetDamageCategories extends JobDamageEvent {
   const SetDamageCategories();

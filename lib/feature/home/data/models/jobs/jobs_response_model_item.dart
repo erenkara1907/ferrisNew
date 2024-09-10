@@ -277,8 +277,10 @@ class JobsResponseModelItem implements IResponseModel {
               .toList(),
       stopsCount: map['stopsCount'] as int?,
       inspectionsCount: map['inspectionsCount'] as int?,
-      predictedStartLocationTime: map['predictedStartLocationTime'] as String?,
-      predictedEndLocationTime: map['predictedEndLocationTime'] as String?,
+      predictedStartLocationTime:
+          map['predictedStartLocationDepartedTime'] as String?,
+      predictedEndLocationTime:
+          map['predictedEndLocationArrivedTime'] as String?,
       billableHoursStartTime: map['billableHoursStartTime'] as String?,
       billableHoursEndTime: map['billableHoursEndTime'] as String?,
       predictedCheckpoint1ArrivedTime:

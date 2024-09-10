@@ -14,7 +14,6 @@ class CubitPermissions extends Cubit<StatePermissions> {
 
   /// Check permissions and update the state.
   checkPermissions() async {
-    print("Check Permission");
     bool location = await requestLocation();
     bool camera = await PermissionHandlerManager().checkCamera();
     bool notification = await PermissionHandlerManager().checkNotification();
@@ -27,13 +26,11 @@ class CubitPermissions extends Cubit<StatePermissions> {
 
   /// Request the location permission.
   // Future<bool> requestLocation() async {
-  //   print("Location Girdi State : ${state.location}");
   //   if (state.location) {
   //     await PermissionHandlerManager().checkLocationAlways();
   //     return true;
   //   }
   //   final result = await PermissionHandlerManager().requestLocationPermission();
-  //   print("Location Girdi : $result");
 
   //   if (result) {
   //     await PermissionHandlerManager().checkLocationAlways();
@@ -44,8 +41,6 @@ class CubitPermissions extends Cubit<StatePermissions> {
   // }
 
   Future<bool> requestLocation() async {
-    print("Location izni durumu: ${state.location}");
-
     if (state.location) {
       // Eğer already izin verilmişse, location always iznini kontrol edin.
       return await PermissionHandlerManager().requestLocationAlwaysPermission();
@@ -53,8 +48,6 @@ class CubitPermissions extends Cubit<StatePermissions> {
 
     // İlk olarak location iznini isteyin.
     final result = await PermissionHandlerManager().requestLocationPermission();
-
-    print("Location izni sonucu: $result");
 
     // Eğer location izni verildiyse, location always iznini kontrol edin.
     if (result) {

@@ -83,6 +83,17 @@ mixin InspectionDamagePostOperationsMixin {
     }
   }
 
+  Future<void> deleteSpecificDamage(int damageId) async {
+    final box = await _inspectionsDamageBox;
+    final keys = box.keys.toList();
+    for (final key in keys) {
+      final inspectionDetailsPostModel = await box.get(key);
+      if (inspectionDetailsPostModel?.damageId == damageId) {
+        await box.delete(key);
+      }
+    }
+  }
+
   Future<void> clearAllDamagePostModels() async {
     final box = await _inspectionsDamageBox;
     await box.clear();

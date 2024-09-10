@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:camera/camera.dart';
@@ -53,117 +54,6 @@ class _DamagesPageState extends State<DamagesPage> {
   File? _selectedImage;
   File? _selectedContextImage;
 
-  // Future<File?> _getImage(ImageSource source) async {
-  //   if (source == ImageSource.camera) {
-  //     PermissionStatus permissionStatus = await Permission.camera.status;
-  //     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-  //       final result = await showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Camera Permission'),
-  //             content: const Text(
-  //                 'This app needs camera access to take pictures. Please allow camera access in settings.'),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop(false);
-  //                 },
-  //                 child: const Text('Cancel'),
-  //               ),
-  //               TextButton(
-  //                 onPressed: () async {
-  //                   context.read<CubitPermissions>().requestCamera();
-  //                   final permissionStatus = await Permission.camera.status;
-  //                   if (permissionStatus.isDenied ||
-  //                       permissionStatus.isPermanentlyDenied) {
-  //                     await openAppSettings();
-  //                   }
-  //                   context.pop();
-  //                 },
-  //                 child: const Text('Open Settings'),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-
-  //       if (result != true) {
-  //         return null;
-  //       }
-  //     }
-
-  //     permissionStatus = await Permission.camera.status;
-  //     if (!permissionStatus.isGranted) {
-  //       BotToast.showText(text: 'Camera access denied');
-  //       return null;
-  //     }
-  //   }
-
-  //   final picker = ImagePicker();
-  //   final pickedImage = await picker.pickImage(source: source);
-
-  //   if (pickedImage != null) {
-  //     File file = File(pickedImage.path);
-
-  //     final documentPath = (await getApplicationDocumentsDirectory()).path;
-  //     file = await file.copy('$documentPath/${path.basename(file.path)}');
-
-  //     File compressedImage = await _resizeImage(file);
-
-  //     return compressedImage;
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
-  // Future<void> captureImages(InspectionsState state) async {
-  //   // Önce contextImage'ı çekmek için fonksiyonu çağır
-  //   // final contextImage = await _getImage(
-  //   //   ImageSource.camera,
-  //   //   state,
-  //   //   isDamage: 0, // Context Image için 0 veya başka bir değer
-  //   // );
-  //   print("GİRDİ KRAL cONTEXT");
-  //   final contextImage =
-  //       await _getImage(ImageSource.camera, state, isDamage: 0).then((value) {
-  //     if (value != null) {
-  //       setState(() {
-  //         _selectedContextImage = value;
-  //       });
-  //     }
-  //   });
-  //   print("GİRDİ KRAL");
-
-  //   if (contextImage == null) {
-  //     print("GİRDİ KRAL 2");
-  //     // Eğer kullanıcı contextImage'i çekmeyi iptal ederse, damageImage işlemini başlatma
-  //     return;
-  //   }
-
-  //   print("GİRDİ KRAL 3");
-
-  //   // Sonrasında damageImage'ı çekmek için fonksiyonu çağır
-  //   final damageImage =
-  //       await _getImage(ImageSource.camera, state, isDamage: 1).then((value) {
-  //     if (value != null) {
-  //       setState(() {
-  //         _selectedImage = value;
-  //       });
-  //     }
-  //   });
-
-  //   if (damageImage == null) {
-  //     // Eğer kullanıcı damageImage'i çekmeyi iptal ederse, işlemi burada bitir
-  //     return;
-  //   }
-
-  //   // Eğer her iki fotoğraf da başarılı bir şekilde çekildiyse, burada işlemlerinize devam edebilirsiniz
-  //   // Örneğin, contextImage ve damageImage'i state'e ekleyebilir veya API'ye gönderebilirsiniz.
-  //   print("Context Image Path: ${contextImage.path}");
-  //   print("Damage Image Path: ${damageImage.path}");
-  // }
-
   void _submitDamageToAPI(InspectionsState state) {
     if (_category.isEmpty) {
       BotToast.showText(text: "Please select Category");
@@ -215,6 +105,7 @@ class _DamagesPageState extends State<DamagesPage> {
             isAsync: false,
             jobInspectionId: widget.jobInspectionId,
             data: InspectionDamagePostModel(
+              damageId: Random().nextInt(10000),
               damageImage: _selectedImage,
               contextImage: _selectedContextImage,
               jobInspectionId: widget.jobInspectionId,
@@ -351,7 +242,6 @@ class _DamagesPageState extends State<DamagesPage> {
 
   Future<void> captureImages(InspectionsState state) async {
     // Context Image için kamera açılıyor
-    print("Context Image için kamera açılıyor...");
 
     final contextImage =
         await _getImage(ImageSource.camera, state, isDamage: 0);
@@ -360,9 +250,7 @@ class _DamagesPageState extends State<DamagesPage> {
       setState(() {
         _selectedContextImage = contextImage;
       });
-      print("Context Image çekildi: ${contextImage.path}");
     } else {
-      print("Context Image çekme işlemi iptal edildi veya başarısız oldu.");
       return; // Eğer iptal edildiyse veya başarısız olduysa devam etme.
     }
 
@@ -391,7 +279,6 @@ class _DamagesPageState extends State<DamagesPage> {
 
     if (shouldContinue == true) {
       // Damage Image için kamera açılıyor
-      print("Damage Image için kamera açılıyor...");
 
       final damageImage =
           await _getImage(ImageSource.camera, state, isDamage: 1);
@@ -400,13 +287,8 @@ class _DamagesPageState extends State<DamagesPage> {
         setState(() {
           _selectedImage = damageImage;
         });
-        print("Damage Image çekildi: ${damageImage.path}");
-      } else {
-        print("Damage Image çekme işlemi iptal edildi veya başarısız oldu.");
-      }
-    } else {
-      print("Kullanıcı devam etmek istemedi.");
-    }
+      } else {}
+    } else {}
   }
 
   Future<File?> _getImage(ImageSource source, InspectionsState state,
@@ -596,9 +478,6 @@ class _DamagesPageState extends State<DamagesPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
-        // print("CATEGORY RESPONSE 1 : ${state.getDamageCategoriesResponse}");
-        // print(
-        //     "CATEGORY RESPONSE 2 : ${state.getDamageCategoriesResponse[1]!.name}");
         if (state.status == ViewStatus.loading ||
             state.getDamageCategoriesResponse.isEmpty) {
           return const Scaffold(
@@ -1159,6 +1038,7 @@ class _DamagesPageState extends State<DamagesPage> {
                                 isAsync: false,
                                 jobInspectionId: widget.jobInspectionId,
                                 data: InspectionDamagePostModel(
+                                  damageId: Random().nextInt(10000),
                                   damageImage: _selectedImage,
                                   contextImage: _selectedContextImage,
                                   jobInspectionId: widget.jobInspectionId,
@@ -1369,7 +1249,6 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
   //       _capturedImages.add(file);
   //     });
   //   } catch (e) {
-  //     print("EROR CAMERA : $e");
   //     BotToast.showText(text: 'Error capturing image: $e');
   //   }
   // }
@@ -1404,11 +1283,8 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
         });
       }
 
-      print("LENGTH : ${_capturedImages.length}");
-
       if (_capturedImages.length == 2) {
         Navigator.pop(context, _capturedImages);
-        print("OKAY 2");
         Future.delayed(
           const Duration(seconds: 1),
           () async {

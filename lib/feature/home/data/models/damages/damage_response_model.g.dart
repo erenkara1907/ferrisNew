@@ -28,13 +28,14 @@ class DamageResponseModelAdapter extends TypeAdapter<DamageResponseModel> {
       damageImage: fields[7] as String?,
       contextImage: fields[8] as String?,
       price: fields[9] as double?,
+      combinationId: fields[11] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, DamageResponseModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class DamageResponseModelAdapter extends TypeAdapter<DamageResponseModel> {
       ..writeByte(9)
       ..write(obj.price)
       ..writeByte(10)
-      ..write(obj.gradeId);
+      ..write(obj.gradeId)
+      ..writeByte(11)
+      ..write(obj.combinationId);
   }
 
   @override

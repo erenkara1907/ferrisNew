@@ -70,11 +70,8 @@ class _ChangePersonalPhoneNumberState extends State<ChangePersonalPhoneNumber> {
               languageCode: "en",
               onChanged: (phone) {
                 setState(() {});
-                // print(phone.completeNumber);
               },
-              onCountryChanged: (country) {
-                // print('Country changed to: ' + country.name);
-              },
+              onCountryChanged: (country) {},
             ),
             const VerticalSpace.small(),
             CustomAppButton(

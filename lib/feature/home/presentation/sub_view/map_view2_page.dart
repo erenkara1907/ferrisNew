@@ -461,7 +461,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.surface,
+                      color: context.theme.colorScheme.onSurfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -480,7 +480,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.surface,
+                      color: context.theme.colorScheme.onSurfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -499,7 +499,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     height: context.dynamicHeight(0.07),
                     width: context.dynamicWidth(0.13),
                     decoration: BoxDecoration(
-                      color: context.theme.colorScheme.surface,
+                      color: context.theme.colorScheme.onSurfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(

@@ -29,8 +29,8 @@ mixin BottomNavigationBarMixin on State<BottomNavBuilder> {
           width: 48,
           decoration: BoxDecoration(
             color: index == tabContext.index
-                ? Theme.of(context).colorScheme.outlineVariant
-                : Theme.of(context).colorScheme.surface,
+                ? Theme.of(context).colorScheme.surface
+                : Theme.of(context).colorScheme.onSurfaceVariant,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(

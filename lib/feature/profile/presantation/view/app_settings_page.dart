@@ -13,9 +13,9 @@ class AppSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.theme.colorScheme.surfaceVariant,
+      backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
       appBar: AppBar(
-        backgroundColor: context.theme.colorScheme.surfaceVariant,
+        backgroundColor: context.theme.colorScheme.surfaceContainerHighest,
         leading: IconButton(
           onPressed: () {
             context.pop();
@@ -40,7 +40,7 @@ class AppSettingsPage extends StatelessWidget {
             const VerticalSpace.small(),
             Container(
               decoration: BoxDecoration(
-                color: context.theme.colorScheme.surface,
+                color: context.theme.colorScheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

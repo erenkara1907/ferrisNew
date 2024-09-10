@@ -35,7 +35,7 @@ import '../../../../feature/home/data/models/damages/damage_combination/damage_c
 import '../../../state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
 
 @immutable
-final class HiveDatabaseManager {
+class HiveDatabaseManager {
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
@@ -89,6 +89,7 @@ final class HiveDatabaseManager {
     await Hive.openBox<ChecklistResponseModelItem>(
         HiveDatabaseConstants.checklistBox);
     await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamage);
+    await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamageNew);
     await Hive.openBox<ConditionImageResponseModel>(
         HiveDatabaseConstants.conditionImagesBox);
     await Hive.openBox<ExpensesResponseModelItem>(
