@@ -9,7 +9,7 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_s
 
 import '../../data/models/job_start/job_start_model.dart';
 
-final class UCGetJob {
+class UCGetJob {
   UCGetJob({required JobRepository repository}) : _repository = repository;
 
   final JobRepository _repository;

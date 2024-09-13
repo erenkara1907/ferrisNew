@@ -3,7 +3,7 @@ import 'package:ferrisfwt/feature/home/data/models/job_tracking_coordinates/trac
 import 'package:ferrisfwt/feature/home/domain/repositories/job_tracking_coordinates_repository.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 
-final class UCGetJobTrackingCoordinates {
+class UCGetJobTrackingCoordinates {
   UCGetJobTrackingCoordinates(
       {required JobTrackingCoordinatesRepository repository})
       : _repository = repository;

@@ -5,7 +5,7 @@ import 'package:ferrisfwt/feature/home/domain/repositories/job_stop_repository.d
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/stops/stop_post_model.dart';
 
-final class UCGetJobStop {
+class UCGetJobStop {
   UCGetJobStop({required JobStopRepository repository})
       : _repository = repository;
 

@@ -34,7 +34,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../../feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
 import '../../../state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
 
-@immutable
+// @immutable
 class HiveDatabaseManager {
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();

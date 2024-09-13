@@ -76,22 +76,46 @@ abstract final class Locator {
         () => FirebaseAnalytics.instance);
 
     _instance
-      ..registerFactory(() => HomeBloc(
-          ucGetJob: _instance(), ucGetJobTrackingCoordinates: _instance()))
+      ..registerFactory(
+        () => HomeBloc(
+          ucGetJob: _instance(),
+          ucGetJobTrackingCoordinates: _instance(),
+          hiveDatabaseManager: ProductStateItems.hiveDatabaseManager,
+          hiveStorageManager: ProductStateItems.hiveStorageManager,
+        ),
+      )
       ..registerFactory(() => LandingBloc())
       ..registerFactory(() => AuthTimeoutBloc())
-      ..registerFactory(() => AuthBloc(ucGetAuth: _instance()))
-      ..registerFactory(() => StopJobBloc(ucGetJobStop: _instance()))
-      ..registerFactory(() => JobExpenseBloc(ucGetJobExpense: _instance()))
-      ..registerFactory(() => JobDamageBloc(ucGetJobDamage: _instance()))
+      ..registerFactory(() => AuthBloc(
+          ucGetAuth: _instance(),
+          hiveDatabaseManager: ProductStateItems.hiveDatabaseManager))
+      ..registerFactory(() => StopJobBloc(
+            ucGetJobStop: _instance(),
+            hiveDatabaseManager: ProductStateItems.hiveDatabaseManager,
+            hiveStorageManager: ProductStateItems.hiveStorageManager,
+          ))
+      ..registerFactory(() => JobExpenseBloc(
+            ucGetJobExpense: _instance(),
+            hiveStorageManager: ProductStateItems.hiveStorageManager,
+            hiveDatabaseManager: ProductStateItems.hiveDatabaseManager,
+          ))
+      ..registerFactory(() => JobDamageBloc(
+            ucGetJobDamage: _instance(),
+            hiveStorageManager: ProductStateItems.hiveStorageManager,
+          ))
       // ucGetJobDamage: _instance(), ucGetInspectionsDamage: _instance()))
       ..registerFactory(() => CubitPermissions())
-      ..registerFactory(() => InspectionsBloc(
+      ..registerFactory(
+        () => InspectionsBloc(
           ucGetJobInspections: _instance(),
           ucGetJobInspectionsSign: _instance(),
           ucGetJobInspectionsDamages: _instance(),
           ucGetJobInspectionsCheckList: _instance(),
-          ucGetJobInspectionsConditionImages: _instance()))
+          ucGetJobInspectionsConditionImages: _instance(),
+          hiveDatabaseManager: ProductStateItems.hiveDatabaseManager,
+          hiveStorageManager: ProductStateItems.hiveStorageManager,
+        ),
+      )
 
       // Managers
       ..registerFactory(NetworkListener.new)

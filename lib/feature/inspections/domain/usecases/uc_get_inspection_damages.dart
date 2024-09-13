@@ -7,7 +7,7 @@ import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_patch_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_post_model.dart';
 
-final class UCGetJobInspectionsDamages {
+class UCGetJobInspectionsDamages {
   UCGetJobInspectionsDamages(
       {required JobInspectionsDamagesRepository repository})
       : _repository = repository;

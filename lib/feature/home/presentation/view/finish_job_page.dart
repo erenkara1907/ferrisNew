@@ -387,7 +387,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                 feedbackInputAvailability:
                                     job?.movementTypeId!.feedbackInputs ??
                                         job?.movementTypeId!.feedbackInputs,
-                                context: context,
                                 id: ProductStateItems.hiveDatabaseManager
                                     .getUserModel()!
                                     .currentJobId
@@ -578,7 +577,6 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                                     : true,
                                             feedbackInputAvailability: widget
                                                 .feedbackInputAvailability,
-                                            context: context,
                                             id: state.showJob!.id.toString(),
                                             data: EndJobPostModel(
                                               // departedHubTime: date,

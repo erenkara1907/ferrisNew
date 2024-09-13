@@ -32,14 +32,11 @@ import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.d
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/checklist/inspection_checklist_post_model.dart';
-import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/condition_image/inspection_condition_image_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_patch_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_customer_sign_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
-import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/Item_check_list_enum.dart';
-import 'package:ferrisfwt/product/utility/enums/network_result.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -57,15 +54,17 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     required UCGetJobInspectionsCheckList ucGetJobInspectionsCheckList,
     required UCGetJobInspectionsConditionImages
         ucGetJobInspectionsConditionImages,
+    required HiveDatabaseManager hiveDatabaseManager,
+    required HiveStorageManager hiveStorageManager,
   })  : _ucGetJobInspections = ucGetJobInspections,
         _ucGetJobInspectionsSign = ucGetJobInspectionsSign,
         _ucGetJobInspectionsDamages = ucGetJobInspectionsDamages,
         _ucGetJobInspectionsCheckList = ucGetJobInspectionsCheckList,
         _ucGetJobInspectionsConditionImages =
             ucGetJobInspectionsConditionImages,
+        _hiveStorageManager = hiveStorageManager,
+        _hiveDatabaseManager = hiveDatabaseManager,
         super(const InspectionsState()) {
-    _hiveStorageManager = ProductStateItems.hiveStorageManager;
-    _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
     on<GetJobInspections>(_onGetJobInspections);
     on<GetJobInspectionsCheckList>(_getJobInspectionsCheckList);
     on<PostJobInspectionsCheckList>(_postJobInspectionsCheckList);
@@ -132,19 +131,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     emit(const InspectionsState());
   }
 
-  // Future<void> _getDamageCategories(GetInspectionsDamageCategories event,
-  //     Emitter<InspectionsState> emit) async {
-  //   emit(state.copyWith(status: ViewStatus.loading));
-  //   final result = await _hiveStorageManager.getDamageCategories();
-
-  //   if (result != []) {
-  //     emit(state.copyWith(
-  //       getDamageCategoriesResponse: result,
-  //       status: ViewStatus.success,
-  //     ));
-  //   }
-  // }
-
   Future<void> _onConditionImages(
       ConditionsImagesEvent event, Emitter<InspectionsState> emit) async {
     state.conditionImages.add(event.conditionImage);
@@ -210,16 +196,6 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
             return;
           }
 
-          // final updatedInspections = inspections.map((e) {
-          //   return data
-          //       .firstWhere(
-          //         (element) => element.id == e?.id,
-          //       )
-          //       .copyWith(
-          //         odoReading: data.odoReading,
-          //         fuelLevel: e?.fuelLevel,
-          //       );
-          // }).toList();
           final updatedInspections = inspections.map((e) {
             var index = data.indexWhere((element) => element.id == e?.id);
 

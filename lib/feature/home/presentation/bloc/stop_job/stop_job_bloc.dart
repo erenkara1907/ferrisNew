@@ -17,10 +17,14 @@ part 'stop_job_state.dart';
 class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
   StopJobBloc({
     required UCGetJobStop ucGetJobStop,
+    required HiveDatabaseManager hiveDatabaseManager,
+    required HiveStorageManager hiveStorageManager,
   })  : _ucGetJobStop = ucGetJobStop,
+        _hiveDatabaseManager = hiveDatabaseManager,
+        _hiveStorageManager = hiveStorageManager,
         super(const StopJobState()) {
-    _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
-    _hiveStorageManager = ProductStateItems.hiveStorageManager;
+    // _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
+    // _hiveStorageManager = ProductStateItems.hiveStorageManager;
     on<GetJobStops>(_onGetJobStops);
     on<PostJobStops>(_onPostJobStops);
     on<PostJobStopsControl>(_onPostJobStopsControl);

@@ -15,6 +15,7 @@ import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
 
+import '../../../../../product/database/hive/core/hive_database_manager.dart';
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 part 'job_expense_event.dart';
@@ -23,9 +24,12 @@ part 'job_expense_state.dart';
 class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
   JobExpenseBloc({
     required UCGetJobExpense ucGetJobExpense,
+    required HiveStorageManager hiveStorageManager,
+    required HiveDatabaseManager hiveDatabaseManager,
   })  : _ucGetJobExpense = ucGetJobExpense,
+        _hiveStorageManager = hiveStorageManager,
+        _hiveDatabaseManager = hiveDatabaseManager,
         super(const JobExpenseState()) {
-    _hiveStorageManager = ProductStateItems.hiveStorageManager;
     on<GetJobExpenses>(_onGetJobExpenses);
     on<PostExpense>(_onPostExpense);
     on<PatchExpense>(_onPatchExpense);
@@ -38,6 +42,7 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
 
   final UCGetJobExpense _ucGetJobExpense;
   late final HiveStorageManager _hiveStorageManager;
+  late final HiveDatabaseManager _hiveDatabaseManager;
 
   Future<void> _clearExpensePost(
       ClearExpensePost event, Emitter<JobExpenseState> emit) async {
@@ -145,10 +150,8 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
         (data) {
           if (event.isAsync) {
             add(GetJobExpenses(
-                jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                        .getUserModel()
-                        ?.currentJobId ??
-                    "")));
+                jobId: int.parse(
+                    _hiveDatabaseManager.getUserModel()?.currentJobId ?? "")));
             return;
           }
           final expenses = state.expenses;
@@ -157,10 +160,8 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
               data.newExpense, data.oldExpense.id);
 
           final model = ExpensePostModel(
-              jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                      .getUserModel()
-                      ?.currentJobId ??
-                  ""),
+              jobId: int.parse(
+                  _hiveDatabaseManager.getUserModel()?.currentJobId ?? "0"),
               categoryId: event.data.categoryId ?? 0,
               price: event.data.price ?? 0,
               reasonNoReceipt: event.data.reasonNoReceipt ??
@@ -201,10 +202,8 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
         return;
       }
       final model = ExpensePostModel(
-          jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                  .getUserModel()
-                  ?.currentJobId ??
-              ""),
+          jobId: int.parse(
+              _hiveDatabaseManager.getUserModel()?.currentJobId ?? ""),
           categoryId: event.data.categoryId ?? 0,
           price: event.data.price ?? 0,
           reasonNoReceipt: event.data.reasonNoReceipt,
@@ -225,10 +224,8 @@ class JobExpenseBloc extends Bloc<JobExpenseEvent, JobExpenseState> {
           .firstWhere((element) => element.id == event.data.categoryId)
           .name;
       final data = ExpensesResponseModelItem(
-        jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                .getUserModel()
-                ?.currentJobId ??
-            ""),
+        jobId:
+            int.parse(_hiveDatabaseManager.getUserModel()?.currentJobId ?? ""),
         id: event.data.expenseId ?? 0,
         price: event.data.price,
         categoryId: ExpenseCategoriesResponseModelItem(

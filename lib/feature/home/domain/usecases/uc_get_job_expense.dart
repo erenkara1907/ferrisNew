@@ -7,7 +7,7 @@ import 'package:ferrisfwt/product/errors/failures/failures.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_patch_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_post_model.dart';
 
-final class UCGetJobExpense {
+class UCGetJobExpense {
   UCGetJobExpense({required JobExpenseRepository repository})
       : _repository = repository;
 

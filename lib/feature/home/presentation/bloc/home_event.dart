@@ -62,9 +62,8 @@ class GetJobShowValetByType extends HomeEvent {
 
 class StartJob extends HomeEvent {
   final JobsResponseModelItem jobShowModel;
-  final BuildContext context;
 
-  const StartJob(this.jobShowModel, this.context);
+  const StartJob(this.jobShowModel);
 
   @override
   List<Object> get props => [
@@ -86,7 +85,6 @@ class PriceJob extends HomeEvent {
 class EndJob extends HomeEvent {
   final String id;
   final EndJobPostModel data;
-  final BuildContext context;
   final bool isViewFuel;
   final bool isFeedBackView;
   final FeedbackInputAvailability? feedbackInputAvailability;
@@ -94,7 +92,6 @@ class EndJob extends HomeEvent {
   const EndJob({
     required this.id,
     required this.data,
-    required this.context,
     required this.isViewFuel,
     required this.isFeedBackView,
     this.feedbackInputAvailability,
@@ -104,7 +101,6 @@ class EndJob extends HomeEvent {
   List<Object> get props => [
         id,
         data,
-        context,
         isViewFuel,
         isFeedBackView,
         feedbackInputAvailability ?? '',

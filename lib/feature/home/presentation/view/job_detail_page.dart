@@ -140,7 +140,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             feedbackInputAvailability:
                                 job?.movementTypeId!.feedbackInputs ??
                                     job?.movementTypeId!.feedbackInputs,
-                            context: context,
                             id: ProductStateItems.hiveDatabaseManager
                                 .getUserModel()!
                                 .currentJobId
@@ -528,9 +527,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                                 .feedbackInputs,
                                   });
                                 } else {
-                                  context
-                                      .read<HomeBloc>()
-                                      .add(StartJob(state.showJob!, context));
+                                  context.read<HomeBloc>().add(StartJob(
+                                        state.showJob!,
+                                      ));
 
                                   context
                                       .read<HomeBloc>()

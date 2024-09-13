@@ -4,7 +4,7 @@ import 'package:ferrisfwt/feature/inspections/data/models/job_inspection_respons
 import 'package:ferrisfwt/feature/inspections/domain/repositories/job_inspections_repository.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
 
-final class UCGetJobInspections {
+class UCGetJobInspections {
   UCGetJobInspections({required JobInspectionsRepository repository})
       : _repository = repository;
 

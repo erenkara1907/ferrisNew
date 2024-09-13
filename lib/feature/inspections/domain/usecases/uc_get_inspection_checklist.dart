@@ -4,10 +4,9 @@ import 'package:ferrisfwt/feature/inspections/data/models/checklist/checklist_re
 import 'package:ferrisfwt/feature/inspections/data/models/checklist/checklist_update_response_model.dart';
 import 'package:ferrisfwt/feature/inspections/domain/repositories/inspection_checklist_repository.dart';
 import 'package:ferrisfwt/product/errors/failures/failures.dart';
-import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/checklist/inspection_checklist_patch_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/checklist/inspection_checklist_post_model.dart';
 
-final class UCGetJobInspectionsCheckList {
+class UCGetJobInspectionsCheckList {
   UCGetJobInspectionsCheckList(
       {required JobInspectionsCheckListRepository repository})
       : _repository = repository;

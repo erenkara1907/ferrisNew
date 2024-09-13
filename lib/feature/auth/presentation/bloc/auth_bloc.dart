@@ -19,16 +19,18 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
+    required HiveDatabaseManager hiveDatabaseManager,
     required UCGetAuth ucGetAuth,
   })  : _ucGetAuth = ucGetAuth,
+        _hiveDatabaseManager = hiveDatabaseManager,
         super(const AuthState()) {
-    _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
+    // _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
     on<LoginEvent>(onLogin);
-    on<LogoutEvent>(_onLogout);
+    on<LogoutEvent>(onLogout);
     on<SetDeviceIdEvent>(_onSetDeviceId);
     on<ChangePasswordEvent>(_onChangePassword);
     on<VerifyOtpEvent>(_onVerifyOtp);
-    on<GetUserEvent>(_onGetUser);
+    on<GetUserEvent>(onGetUser);
     on<ResetStateEvent>(_onResetState);
     on<ResetVerificationEvent>(_resetVerificationEvent);
     on<ChangeOtpEvent>(_changeOtp);
@@ -69,7 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthState());
   }
 
-  Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
+  Future<void> onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final result = await _ucGetAuth.logout(
@@ -95,7 +97,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             return;
           }
         }
-        await _hiveDatabaseManager.deleteUserModel();
+        _hiveDatabaseManager.deleteUserModel();
+
         emit(state.copyWith(
           status: ViewStatus.success,
         ));
@@ -172,7 +175,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onGetUser(GetUserEvent event, Emitter<AuthState> emit) async {
+  Future<void> onGetUser(GetUserEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final result = await _ucGetAuth.getUserInfo();

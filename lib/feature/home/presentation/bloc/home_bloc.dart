@@ -29,33 +29,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
     required UCGetJob ucGetJob,
     required UCGetJobTrackingCoordinates ucGetJobTrackingCoordinates,
+    required HiveDatabaseManager hiveDatabaseManager,
+    required HiveStorageManager hiveStorageManager,
   })  : _ucGetJob = ucGetJob,
         _ucGetJobTrackingCoordinates = ucGetJobTrackingCoordinates,
+        _hiveDatabaseManager = hiveDatabaseManager,
+        _hiveStorageManager = hiveStorageManager,
         super(const HomeState()) {
-    _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
-    _hiveStorageManager = ProductStateItems.hiveStorageManager;
-    on<GetJobs>(_onGetJobs);
-    on<StartJob>(_onStartJob);
-    on<EndJob>(_onEndJob);
-    on<UpdateJob>(_onUpdateJob);
-    on<GetJob>(_onGetJob);
-    on<GetJobsValet>(_onGetJobsValet);
-    on<GetJobShowValetByType>(_onGetJobShowValetByType);
-    on<GetJobTracingCordinates>(_onGetJobTracingCordinates);
+    // _hiveDatabaseManager = ProductStateItems.hiveDatabaseManager;
+    // _hiveStorageManager = ProductStateItems.hiveStorageManager;
+    on<GetJobs>(onGetJobs);
+    on<StartJob>(onStartJob);
+    on<EndJob>(onEndJob);
+    on<UpdateJob>(onUpdateJob);
+    on<GetJob>(onGetJob);
+    on<GetJobsValet>(onGetJobsValet);
+    on<GetJobShowValetByType>(onGetJobShowValetByType);
+    on<GetJobTracingCordinates>(onGetJobTracingCordinates);
     // on<GetTrackingCoordinate>(_onGetTrackingCoordinate);
     on<SetJob>(_onSetJob);
-    on<GetJobTomorrow>(_getJobTomorrow);
-    on<GetJobHistory>(_getJobHistory);
-    on<ClearJob>(_onClearJob);
-    on<SetValetJob>(_onSetValetJob);
-    on<PriceJob>(_onPriceJob);
-    on<SetTrackingCoordinate>(_onSetTrackingCoordinate);
-    on<SetExpenseCount>(_onSetExpenseCount);
+    on<GetJobTomorrow>(getJobTomorrow);
+    on<GetJobHistory>(getJobHistory);
+    on<ClearJob>(onClearJob);
+    on<SetValetJob>(onSetValetJob);
+    on<PriceJob>(onPriceJob);
+    on<SetTrackingCoordinate>(onSetTrackingCoordinate);
+    on<SetExpenseCount>(onSetExpenseCount);
     on<SetStopCount>(_onSetStopCount);
     on<UpdateTrackingCoordinate>(_onUpdateTrackingCoordinate);
     on<UpdateTrackingCoordinateBulk>(_onUpdateTrackingCoordinateBulk);
     on<ConfirmJob>(_onConfirmJob);
-    on<FinishJobResetHome>(_resetHomeFinishJob);
+    on<FinishJobResetHome>(resetHomeFinishJob);
   }
 
   final UCGetJob _ucGetJob;
@@ -63,11 +67,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   late final HiveDatabaseManager _hiveDatabaseManager;
   late final HiveStorageManager _hiveStorageManager;
 
-  void _resetHomeFinishJob(FinishJobResetHome event, Emitter<HomeState> emit) {
+  void resetHomeFinishJob(FinishJobResetHome event, Emitter<HomeState> emit) {
     emit(state.copyWith(status: null));
   }
 
-  Future<void> _onGetJobs(GetJobs event, Emitter<HomeState> emit) async {
+  Future<void> onGetJobs(GetJobs event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading, jobs: []));
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
@@ -171,7 +175,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(status: ViewStatus.success, jobs: allJobs));
   }
 
-  Future<void> _onGetJob(GetJob event, Emitter<HomeState> emit) async {
+  Future<void> onGetJob(GetJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading, showJob: null));
     final result = await _ucGetJob.getJobShow(id: event.jobId.toString());
     result.fold(
@@ -181,7 +185,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  Future<void> _onStartJob(StartJob event, Emitter<HomeState> emit) async {
+  Future<void> onStartJob(StartJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     // Şu anki tarih ve zaman
     DateTime now = DateTime.now();
@@ -206,7 +210,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  Future<void> _onPriceJob(PriceJob event, Emitter<HomeState> emit) async {
+  Future<void> onPriceJob(PriceJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     // Şu anki tarih ve zaman
 
@@ -225,7 +229,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  Future<void> _onEndJob(EndJob event, Emitter<HomeState> emit) async {
+  Future<void> onEndJob(EndJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading, isFinished: false));
     final network = await hasNetwork();
 
@@ -287,7 +291,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<void> _onUpdateJob(UpdateJob event, Emitter<HomeState> emit) async {
+  Future<void> onUpdateJob(UpdateJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await hasNetwork();
     if (result) {
@@ -316,7 +320,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<void> _onGetJobsValet(
+  Future<void> onGetJobsValet(
       GetJobsValet event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJob.getJobValetStandards();
@@ -329,7 +333,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  Future<void> _onGetJobShowValetByType(
+  Future<void> onGetJobShowValetByType(
       GetJobShowValetByType event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJob.showJobValetStandards(
@@ -344,7 +348,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  Future<void> _onGetJobTracingCordinates(
+  Future<void> onGetJobTracingCordinates(
       GetJobTracingCordinates event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
@@ -390,7 +394,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         status: ViewStatus.success, showJob: event.jobModel, isAsync: true));
   }
 
-  void _getJobTomorrow(GetJobTomorrow event, Emitter<HomeState> emit) async {
+  void getJobTomorrow(GetJobTomorrow event, Emitter<HomeState> emit) async {
     final resultNetwork = await hasNetwork();
     if (!resultNetwork) {
       return;
@@ -414,7 +418,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  void _getJobHistory(GetJobHistory event, Emitter<HomeState> emit) async {
+  void getJobHistory(GetJobHistory event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading, jobsHistory: []));
 
     final result = await _ucGetJob.getJob(
@@ -429,11 +433,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
-  void _onClearJob(ClearJob event, Emitter<HomeState> emit) async {
+  void onClearJob(ClearJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(showJob: null));
   }
 
-  void _onSetValetJob(SetValetJob event, Emitter<HomeState> emit) async {
+  void onSetValetJob(SetValetJob event, Emitter<HomeState> emit) async {
     final valetStandard = await _hiveStorageManager.getValetStandards();
 
     emit(state.copyWith(
@@ -441,7 +445,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ));
   }
 
-  void _onSetTrackingCoordinate(
+  void onSetTrackingCoordinate(
       SetTrackingCoordinate event, Emitter<HomeState> emit) async {
     final trackingCoordinate =
         await _hiveStorageManager.getTrackingCoordinateModel();
@@ -451,8 +455,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ));
   }
 
-  void _onSetExpenseCount(
-      SetExpenseCount event, Emitter<HomeState> emit) async {
+  void onSetExpenseCount(SetExpenseCount event, Emitter<HomeState> emit) async {
     emit(state.copyWith(
       totalExpense: event.totalExpense,
     ));
