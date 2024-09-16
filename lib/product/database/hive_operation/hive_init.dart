@@ -1,5 +1,6 @@
 import 'package:ferrisfwt/feature/auth/data/models/user_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/score_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/grade/grade_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';
@@ -95,6 +96,7 @@ abstract class HiveInit {
     Hive.registerAdapter(DamageAssetsMainClientIdAdapter());
     Hive.registerAdapter(GradeRuleModelAdapter());
     Hive.registerAdapter(DamageCombinationModelAdapter());
+    Hive.registerAdapter(ScoreModelAdapter());
     Hive.registerAdapter(CategoryIdAdapter());
     Hive.registerAdapter(FailureIdAdapter());
     Hive.registerAdapter(IssueIdAdapter());

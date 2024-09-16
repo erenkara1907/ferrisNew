@@ -6,8 +6,7 @@ part of 'feedback_input_availability.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class FeedbackInputAvailabilityAdapter
-    extends TypeAdapter<FeedbackInputAvailability> {
+class FeedbackInputAvailabilityAdapter extends TypeAdapter<FeedbackInputAvailability> {
   @override
   final int typeId = 109;
 
@@ -39,13 +38,10 @@ class FeedbackInputAvailabilityAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FeedbackInputAvailabilityAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is FeedbackInputAvailabilityAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
-class FeedbackInputAvailabilityEnumAdapter
-    extends TypeAdapter<FeedbackInputAvailabilityEnum> {
+class FeedbackInputAvailabilityEnumAdapter extends TypeAdapter<FeedbackInputAvailabilityEnum> {
   @override
   final int typeId = 110;
 

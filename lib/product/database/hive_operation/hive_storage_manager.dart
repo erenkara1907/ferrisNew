@@ -3,6 +3,7 @@ library hive_storage_manager;
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/damage_combination_model.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/score_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule/grade_rule_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/grade_rule_uplift/grade_rule_uplift_model.dart';

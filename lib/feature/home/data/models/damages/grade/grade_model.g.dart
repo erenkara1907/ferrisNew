@@ -22,13 +22,15 @@ class GradeModelAdapter extends TypeAdapter<GradeModel> {
       name: fields[3] as String?,
       order: fields[4] as int?,
       gradeId: fields[5] as String?,
+      rangeFrom: fields[6] as String?,
+      rangeTo: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, GradeModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(1)
       ..write(obj.id)
       ..writeByte(2)
@@ -38,7 +40,11 @@ class GradeModelAdapter extends TypeAdapter<GradeModel> {
       ..writeByte(4)
       ..write(obj.order)
       ..writeByte(5)
-      ..write(obj.gradeId);
+      ..write(obj.gradeId)
+      ..writeByte(6)
+      ..write(obj.rangeFrom)
+      ..writeByte(7)
+      ..write(obj.rangeTo);
   }
 
   @override

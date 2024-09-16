@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bot_toast/bot_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,13 +42,8 @@ class InspectionCustomInfoCard extends StatelessWidget {
             : "-"
         : "-";
 
-    final bool isSigned =
-        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(inspection.id);
+    final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(inspection.id);
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state.status == ViewStatus.loading) {
@@ -160,8 +154,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                           ),
                           Text(
                             // odoText,
-                            inspection.odoReading != null &&
-                                    inspection.odoReading != 0
+                            inspection.odoReading != null && inspection.odoReading != 0
                                 ? "${inspection.odoReading!.toInt()} Miles"
                                 : "-",
                             style: context.textTheme.bodySmall,
@@ -179,8 +172,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            inspection.fuelLevel != null &&
-                                    inspection.fuelLevel != 0
+                            inspection.fuelLevel != null && inspection.fuelLevel != 0
                                 ? '${inspection.fuelLevel}%'
                                 : "-",
                             style: context.textTheme.bodySmall,
@@ -197,10 +189,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          Text(
-                              inspection.abortType != null
-                                  ? inspection.abortType!.name ?? '-'
-                                  : '-',
+                          Text(inspection.abortType != null ? inspection.abortType!.name ?? '-' : '-',
                               style: context.textTheme.bodySmall),
                         ],
                       ),
@@ -215,13 +204,9 @@ class InspectionCustomInfoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            inspection.reportSigned == true || isSigned
-                                ? 'Signed'
-                                : 'Unsigned',
+                            inspection.reportSigned == true || isSigned ? 'Signed' : 'Unsigned',
                             style: context.textTheme.bodySmall?.copyWith(
-                              color: inspection.reportSigned == true || isSigned
-                                  ? Colors.purple
-                                  : Colors.red,
+                              color: inspection.reportSigned == true || isSigned ? Colors.purple : Colors.red,
                             ),
                           ),
                         ],
@@ -273,9 +258,8 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       "Collect From Customer",
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.onSurfaceVariant),
                     )
                   ],
                 ),
@@ -285,14 +269,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       '15th Apr 2024',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '10:15',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall?.copyWith(color: context.theme.colorScheme.onSurfaceVariant),
                     )
                   ],
                 ),
@@ -302,14 +284,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       'ODO',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '11 Miles',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall?.copyWith(color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -319,14 +299,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       'Fuel Level',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '%20',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall?.copyWith(color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -336,14 +314,12 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       'Abort Type',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       '-',
-                      style: context.textTheme.bodySmall?.copyWith(
-                          color: context.theme.colorScheme.onSurfaceVariant),
+                      style: context.textTheme.bodySmall?.copyWith(color: context.theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -359,9 +335,8 @@ class InspectionSucsessCustomInfoCard extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'Sign',
-                        style: context.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: context.theme.colorScheme.primaryContainer),
+                        style: context.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600, color: context.theme.colorScheme.primaryContainer),
                       ),
                     ),
                   ),

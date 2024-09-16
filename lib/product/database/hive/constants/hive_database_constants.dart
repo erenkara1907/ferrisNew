@@ -13,6 +13,7 @@ final class HiveDatabaseConstants {
   static const String damageCategoryBox = 'damageCategoryBox';
   static const String damageAssetsBox = 'damageAssetsBox';
   static const String damageCombinationBox = 'damageCombination';
+  static const String damageCombinationScoreBox = 'damageCombinationScore';
   static const String gradeBox = 'grade';
   static const String gradeRuleBox = 'gradeRule';
   static const String gradeRuleUpliftBox = 'gradeRuleUplift';

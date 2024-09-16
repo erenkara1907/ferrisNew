@@ -16,26 +16,10 @@ import 'package:ferrisfwt/product/manager/network/manager/network_client.dart';
 import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
 abstract interface class JobDamageRemoteDataSource {
-  // Future<List<DamagesCategory>> getDamageCategories(
-  //     {required int inspectionId});
-
-  // Future<List<DamagesFailure>> getDamageFailures(
-  //     {required int inspectionId, required int issueId});
-
-  // Future<List<DamagesIssue>> getDamageIssues(
-  //     {required int inspectionId, required int partId});
-
-  // Future<List<DamagesPart>> getDamageParts(
-  //     {required int inspectionId, required int categoryId});
-
-  // Future<List<DamagesRepair>> getDamageRepairs(
-  //     {required int inspectionId, required int failureId});
-
   Future<List<DamageAssetsModel>> getAllDamageAssets();
 
   Future<List<DamageCombinationModel>> getAllDamageCombination();
@@ -44,11 +28,8 @@ abstract interface class JobDamageRemoteDataSource {
   Future<List<GradeRuleUpliftModel>> getAllGradeRuleUplift();
 }
 
-final class JobDamageRemoteDataSourceImpl
-    with HandleRequestMixin
-    implements JobDamageRemoteDataSource {
-  JobDamageRemoteDataSourceImpl({required NetworkClient networkClient})
-      : _networkClient = networkClient;
+final class JobDamageRemoteDataSourceImpl with HandleRequestMixin implements JobDamageRemoteDataSource {
+  JobDamageRemoteDataSourceImpl({required NetworkClient networkClient}) : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
 
@@ -59,8 +40,7 @@ final class JobDamageRemoteDataSourceImpl
         ServicePath.getAllDamageAssets.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
 
@@ -69,8 +49,7 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       final List<dynamic> productData = response.data["data"];
@@ -80,9 +59,7 @@ final class JobDamageRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
 
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
@@ -101,8 +78,7 @@ final class JobDamageRemoteDataSourceImpl
         ServicePath.getAllDamageCombination.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
 
@@ -111,8 +87,7 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       final List<dynamic> productData = response.data["data"];
@@ -122,9 +97,7 @@ final class JobDamageRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
 
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
@@ -143,8 +116,7 @@ final class JobDamageRemoteDataSourceImpl
         ServicePath.getAllGrade.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
 
@@ -153,8 +125,7 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       final List<dynamic> productData = response.data["data"];
@@ -164,9 +135,7 @@ final class JobDamageRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
 
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
@@ -185,8 +154,7 @@ final class JobDamageRemoteDataSourceImpl
         ServicePath.getAllGradeRule.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
 
@@ -195,8 +163,7 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       final List<dynamic> productData = response.data["data"];
@@ -206,9 +173,7 @@ final class JobDamageRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
 
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
@@ -227,8 +192,7 @@ final class JobDamageRemoteDataSourceImpl
         ServicePath.getAllGradeRuleUplift.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
 
@@ -237,8 +201,7 @@ final class JobDamageRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       final List<dynamic> productData = response.data["data"];
@@ -248,9 +211,7 @@ final class JobDamageRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
 
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');

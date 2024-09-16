@@ -16,8 +16,7 @@ import '../../../home/data/models/damages/damage_response_model.dart';
 class InspectionPage extends StatefulWidget {
   final bool? isAsync;
   final bool? isSigned;
-  const InspectionPage(
-      {super.key, this.isAsync = false, this.isSigned = false});
+  const InspectionPage({super.key, this.isAsync = false, this.isSigned = false});
 
   @override
   State<InspectionPage> createState() => _InspectionPageState();
@@ -30,13 +29,8 @@ class _InspectionPageState extends State<InspectionPage> {
     if (context.read<InspectionsBloc>().state.inspections.isEmpty) {
       if (widget.isAsync == false) {
         context.read<InspectionsBloc>().add(GetJobInspections(
-            jobId: int.parse(ProductStateItems.hiveDatabaseManager
-                    .getUserModel()
-                    ?.currentJobId ??
-                "0"),
-            regnNumber: ProductStateItems.hiveDatabaseManager
-                .getUserModel()
-                ?.regnNumber));
+            jobId: int.parse(ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ?? "0"),
+            regnNumber: ProductStateItems.hiveDatabaseManager.getUserModel()?.regnNumber));
       }
     }
   }
@@ -72,9 +66,7 @@ class _InspectionPageState extends State<InspectionPage> {
                   onPressed: () {
                     if (widget.isSigned == true) {
                       context.replace('/job_detail_page', extra: {
-                        'jobId': ProductStateItems.hiveDatabaseManager
-                            .getUserModel()
-                            ?.currentJobId,
+                        'jobId': ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId,
                         'asyncJob': false,
                       });
                       return;
@@ -117,9 +109,7 @@ class _InspectionPageState extends State<InspectionPage> {
                   final result = await hasNetwork();
                   if (widget.isSigned == true) {
                     context.replace('/job_detail_page', extra: {
-                      'jobId': ProductStateItems.hiveDatabaseManager
-                          .getUserModel()
-                          ?.currentJobId,
+                      'jobId': ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId,
                       'asyncJob': !result,
                       'isSigned': true,
                     });

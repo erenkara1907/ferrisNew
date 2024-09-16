@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ferrisfwt/feature/auth/data/models/user_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_assets/damage_assets_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_categories/damage_category.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_combination/score_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_failures/damage_failure.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_issues/damage_issue.dart';
 import 'package:ferrisfwt/feature/home/data/models/damages/damage_parts/damage_part.dart';
@@ -40,19 +41,15 @@ class HiveDatabaseManager {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
     Hive.registerAdapter<UserModel>(UserModelAdapter());
-    Hive.registerAdapter<StopCategoriesResponseModelItem>(
-        StopCategoriesResponseModelItemAdapter());
-    Hive.registerAdapter<ValetStandardResponseModelItem>(
-        ValetStandardResponseModelItemAdapter());
-    Hive.registerAdapter<ExpenseCategoriesResponseModelItem>(
-        ExpenseCategoriesResponseModelItemAdapter());
+    Hive.registerAdapter<StopCategoriesResponseModelItem>(StopCategoriesResponseModelItemAdapter());
+    Hive.registerAdapter<ValetStandardResponseModelItem>(ValetStandardResponseModelItemAdapter());
+    Hive.registerAdapter<ExpenseCategoriesResponseModelItem>(ExpenseCategoriesResponseModelItemAdapter());
     Hive.registerAdapter<DamagesCategory>(DamagesCategoryAdapter());
     Hive.registerAdapter<DamagesFailure>(DamagesFailureAdapter());
     Hive.registerAdapter<DamagesIssue>(DamagesIssueAdapter());
     Hive.registerAdapter<DamagesPart>(DamagesPartAdapter());
     Hive.registerAdapter<DamagesRepair>(DamagesRepairAdapter());
-    Hive.registerAdapter<ChecklistResponseModelItem>(
-        ChecklistResponseModelItemAdapter());
+    Hive.registerAdapter<ChecklistResponseModelItem>(ChecklistResponseModelItemAdapter());
     Hive.registerAdapter(ConditionImageResponseModelAdapter());
     Hive.registerAdapter(DamageResponseModelAdapter());
     Hive.registerAdapter(ExpensePostModelAdapter());
@@ -64,56 +61,38 @@ class HiveDatabaseManager {
     await Hive.openBox<UserModel>(HiveDatabaseConstants.userModelBox);
     await Hive.openBox<JobStartModel>(HiveDatabaseConstants.jobStartModelBox);
     await Hive.openBox<int>(HiveDatabaseConstants.themeModeBox);
-    await Hive.openBox<StopCategoriesResponseModelItem>(
-        HiveDatabaseConstants.jobStopCategoriesBox);
-    await Hive.openBox<ValetStandardResponseModelItem>(
-        HiveDatabaseConstants.jobValetStandardBox);
-    await Hive.openBox<ExpenseCategoriesResponseModelItem>(
-        HiveDatabaseConstants.jobExpenseBox);
-    await Hive.openBox<DamagesCategory>(
-        HiveDatabaseConstants.damageCategoryBox);
-    await Hive.openBox<DamageAssetsModel>(
-        HiveDatabaseConstants.damageAssetsBox);
-    await Hive.openBox<DamageCombinationModel>(
-        HiveDatabaseConstants.damageCombinationBox);
+    await Hive.openBox<StopCategoriesResponseModelItem>(HiveDatabaseConstants.jobStopCategoriesBox);
+    await Hive.openBox<ValetStandardResponseModelItem>(HiveDatabaseConstants.jobValetStandardBox);
+    await Hive.openBox<ExpenseCategoriesResponseModelItem>(HiveDatabaseConstants.jobExpenseBox);
+    await Hive.openBox<DamagesCategory>(HiveDatabaseConstants.damageCategoryBox);
+    await Hive.openBox<DamageAssetsModel>(HiveDatabaseConstants.damageAssetsBox);
+    await Hive.openBox<DamageCombinationModel>(HiveDatabaseConstants.damageCombinationBox);
+    await Hive.openBox<ScoreModel>(HiveDatabaseConstants.damageCombinationScoreBox);
     await Hive.openBox<GradeModel>(HiveDatabaseConstants.gradeBox);
     await Hive.openBox<GradeRuleModel>(HiveDatabaseConstants.gradeRuleBox);
-    await Hive.openBox<GradeRuleUpliftModel>(
-        HiveDatabaseConstants.gradeRuleUpliftBox);
+    await Hive.openBox<GradeRuleUpliftModel>(HiveDatabaseConstants.gradeRuleUpliftBox);
     await Hive.openBox(HiveDatabaseConstants.location);
 
     await Hive.openBox<DamagesIssue>(HiveDatabaseConstants.damageIssueBox);
     await Hive.openBox<DamagesFailure>(HiveDatabaseConstants.damageFailureBox);
     await Hive.openBox<DamagesPart>(HiveDatabaseConstants.damagePartBox);
     await Hive.openBox<DamagesRepair>(HiveDatabaseConstants.damageRepairBox);
-    await Hive.openBox<ChecklistResponseModelItem>(
-        HiveDatabaseConstants.checklistBox);
+    await Hive.openBox<ChecklistResponseModelItem>(HiveDatabaseConstants.checklistBox);
     await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamage);
     await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamageNew);
-    await Hive.openBox<ConditionImageResponseModel>(
-        HiveDatabaseConstants.conditionImagesBox);
-    await Hive.openBox<ExpensesResponseModelItem>(
-        HiveDatabaseConstants.expensePostResponse);
-    await Hive.openBox<ExpensePatchResponseModel>(
-        HiveDatabaseConstants.expensePatchResponse);
-    await Hive.openBox<UpdateJobStatusPostModel>(
-        HiveDatabaseConstants.jobUpdate);
-    await Hive.openBox<InspectionDamagePostModel>(
-        HiveDatabaseConstants.getDamages);
-    await Hive.openBox<InspectionChecklistPostModel>(
-        HiveDatabaseConstants.itemcheckListBox);
-    await Hive.openBox<ConditionImageResponseModel>(
-        HiveDatabaseConstants.conditionImage);
-    await Hive.openBox<InspectionDamagePostModel>(
-        HiveDatabaseConstants.recordedDamages);
-    await Hive.openBox<ExpensePostModel>(
-        HiveDatabaseConstants.postExpenseSaveImage);
-    await Hive.openBox<JobInspectionResponseModelItem>(
-        HiveDatabaseConstants.inspectEditDetail);
+    await Hive.openBox<ConditionImageResponseModel>(HiveDatabaseConstants.conditionImagesBox);
+    await Hive.openBox<ExpensesResponseModelItem>(HiveDatabaseConstants.expensePostResponse);
+    await Hive.openBox<ExpensePatchResponseModel>(HiveDatabaseConstants.expensePatchResponse);
+    await Hive.openBox<UpdateJobStatusPostModel>(HiveDatabaseConstants.jobUpdate);
+    await Hive.openBox<InspectionDamagePostModel>(HiveDatabaseConstants.getDamages);
+    await Hive.openBox<InspectionChecklistPostModel>(HiveDatabaseConstants.itemcheckListBox);
+    await Hive.openBox<ConditionImageResponseModel>(HiveDatabaseConstants.conditionImage);
+    await Hive.openBox<InspectionDamagePostModel>(HiveDatabaseConstants.recordedDamages);
+    await Hive.openBox<ExpensePostModel>(HiveDatabaseConstants.postExpenseSaveImage);
+    await Hive.openBox<JobInspectionResponseModelItem>(HiveDatabaseConstants.inspectEditDetail);
   }
 
-  static final userModelBoxHive =
-      Hive.box<UserModel>(HiveDatabaseConstants.userModelBox);
+  static final userModelBoxHive = Hive.box<UserModel>(HiveDatabaseConstants.userModelBox);
 
   Future<void> clearUserModel() async {
     await userModelBoxHive.clear();
@@ -137,8 +116,7 @@ class HiveDatabaseManager {
     await saveUserModel(user);
   }
 
-  Future<void> updateToken(
-      {required String mail, required String token}) async {
+  Future<void> updateToken({required String mail, required String token}) async {
     UserModel? currentUserModel = getUserModel();
     UserModel user = currentUserModel!.copyWith(token: token, mail: mail);
     await saveUserModel(user);
@@ -150,10 +128,7 @@ class HiveDatabaseManager {
   Future<void> saveInspectionsSign(int inspectionsId) async {
     UserModel? currentUserModel = getUserModel();
     UserModel user = currentUserModel!.copyWith(
-      inspectionsSign: [
-        inspectionsId,
-        ...currentUserModel.inspectionsSign ?? []
-      ],
+      inspectionsSign: [inspectionsId, ...currentUserModel.inspectionsSign ?? []],
     );
     await saveUserModel(user);
   }

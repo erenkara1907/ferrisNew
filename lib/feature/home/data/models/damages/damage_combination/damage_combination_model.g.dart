@@ -6,8 +6,7 @@ part of 'damage_combination_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class DamageCombinationModelAdapter
-    extends TypeAdapter<DamageCombinationModel> {
+class DamageCombinationModelAdapter extends TypeAdapter<DamageCombinationModel> {
   @override
   final int typeId = 130;
 
@@ -25,13 +24,14 @@ class DamageCombinationModelAdapter
       failureId: fields[5] as FailureId?,
       repairId: fields[6] as RepairId?,
       damageStandards: (fields[7] as List?)?.cast<int>(),
+      score: fields[8] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, DamageCombinationModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(1)
       ..write(obj.id)
       ..writeByte(2)
@@ -45,7 +45,9 @@ class DamageCombinationModelAdapter
       ..writeByte(6)
       ..write(obj.repairId)
       ..writeByte(7)
-      ..write(obj.damageStandards);
+      ..write(obj.damageStandards)
+      ..writeByte(8)
+      ..write(obj.score);
   }
 
   @override
@@ -54,9 +56,7 @@ class DamageCombinationModelAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DamageCombinationModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is DamageCombinationModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class CategoryIdAdapter extends TypeAdapter<CategoryId> {
@@ -91,9 +91,7 @@ class CategoryIdAdapter extends TypeAdapter<CategoryId> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CategoryIdAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is CategoryIdAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class FailureIdAdapter extends TypeAdapter<FailureId> {
@@ -130,10 +128,7 @@ class FailureIdAdapter extends TypeAdapter<FailureId> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FailureIdAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      identical(this, other) || other is FailureIdAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class IssueIdAdapter extends TypeAdapter<IssueId> {
@@ -170,10 +165,7 @@ class IssueIdAdapter extends TypeAdapter<IssueId> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is IssueIdAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      identical(this, other) || other is IssueIdAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class PartIdAdapter extends TypeAdapter<PartId> {
@@ -210,10 +202,7 @@ class PartIdAdapter extends TypeAdapter<PartId> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PartIdAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      identical(this, other) || other is PartIdAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class RepairIdAdapter extends TypeAdapter<RepairId> {
@@ -250,8 +239,5 @@ class RepairIdAdapter extends TypeAdapter<RepairId> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RepairIdAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      identical(this, other) || other is RepairIdAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

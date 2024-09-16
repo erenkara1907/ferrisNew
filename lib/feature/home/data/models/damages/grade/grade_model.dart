@@ -9,8 +9,7 @@ import 'package:hive/hive.dart';
 
 part 'grade_model.g.dart';
 
-GradeModel gradeModelFromMap(String str) =>
-    GradeModel.fromMap(json.decode(str));
+GradeModel gradeModelFromMap(String str) => GradeModel.fromMap(json.decode(str));
 
 String gradeModelToMap(GradeModel data) => json.encode(data.toMap());
 
@@ -26,6 +25,10 @@ class GradeModel {
   int? order;
   @HiveField(5)
   String? gradeId;
+  @HiveField(6)
+  String? rangeFrom;
+  @HiveField(7)
+  String? rangeTo;
 
   GradeModel({
     this.id,
@@ -33,15 +36,17 @@ class GradeModel {
     this.name,
     this.order,
     this.gradeId,
+    this.rangeFrom,
+    this.rangeTo,
   });
 
   factory GradeModel.fromMap(Map<String, dynamic> json) => GradeModel(
         id: json["id"],
-        subClientId: json["subClientId"] == null
-            ? null
-            : SubClientId.fromMap(json["subClientId"]),
+        subClientId: json["subClientId"] == null ? null : SubClientId.fromMap(json["subClientId"]),
         name: json["name"],
         order: json["order"],
+        rangeFrom: json["range_from"],
+        rangeTo: json["range_to"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -109,9 +114,7 @@ class SubClientId {
 
   factory SubClientId.fromMap(Map<String, dynamic> json) => SubClientId(
         id: json["id"],
-        mainClientId: json["mainClientId"] == null
-            ? null
-            : GradeMainClientId.fromMap(json["mainClientId"]),
+        mainClientId: json["mainClientId"] == null ? null : GradeMainClientId.fromMap(json["mainClientId"]),
         name: json["name"],
         address1: json["address1"],
         postalCode: json["postalCode"],
@@ -168,8 +171,7 @@ class GradeMainClientId {
     this.contactNumber,
   });
 
-  factory GradeMainClientId.fromMap(Map<String, dynamic> json) =>
-      GradeMainClientId(
+  factory GradeMainClientId.fromMap(Map<String, dynamic> json) => GradeMainClientId(
         id: json["id"],
         name: json["name"],
         address1: json["address1"],

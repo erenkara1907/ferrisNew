@@ -33,8 +33,7 @@ mixin GradeOperationMixin {
 
     for (final key in keys) {
       final damageCombination = box.get(key);
-      if (damageCombination != null &&
-          standardIds.contains(damageCombination.id)) {
+      if (damageCombination != null && standardIds.contains(damageCombination.id)) {
         matchingAssets.add(damageCombination);
       }
     }

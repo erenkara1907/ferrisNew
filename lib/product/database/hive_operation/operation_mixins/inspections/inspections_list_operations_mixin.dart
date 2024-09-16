@@ -11,14 +11,12 @@ mixin InspectionsListOperationsMixin {
   /// Returns the expenses box. Creates it if it doesn't exist.
   Future<LazyBox<JobInspectionResponseModelItem>> get _jobInspectionsBox async {
     return _inspectionsListBoxInstance ??=
-        await Hive.openLazyBox<JobInspectionResponseModelItem>(
-            _keyJobInspectionsList);
+        await Hive.openLazyBox<JobInspectionResponseModelItem>(_keyJobInspectionsList);
   }
 
   /// Saves the given job as the job working on.
   /// If [job] is null, it will remove the job working on
-  Future<void> setInspectionsListModel(
-      List<JobInspectionResponseModelItem?> data) async {
+  Future<void> setInspectionsListModel(List<JobInspectionResponseModelItem?> data) async {
     final box = await _jobInspectionsBox;
 
     await box.clear();
@@ -31,8 +29,7 @@ mixin InspectionsListOperationsMixin {
     }
   }
 
-  Future<void> updateInspectionsListModel(
-      List<JobInspectionResponseModelItem?> data) async {
+  Future<void> updateInspectionsListModel(List<JobInspectionResponseModelItem?> data) async {
     final box = await _jobInspectionsBox;
 
     // Yeni job'u kaydet veya mevcut olanı güncelle
@@ -52,11 +49,9 @@ mixin InspectionsListOperationsMixin {
   //   await box.put(data.id, data);
   // }
 
-  Future<void> updateInspectionsListModelGrade(
-      JobInspectionResponseModelItem data) async {
+  Future<void> updateInspectionsListModelGrade(JobInspectionResponseModelItem data) async {
     // Mevcut job inspection listesini al
-    List<JobInspectionResponseModelItem?> currentJobInspection =
-        await getInspectionsListModel();
+    List<JobInspectionResponseModelItem?> currentJobInspection = await getInspectionsListModel();
 
     final box = await _jobInspectionsBox;
 
@@ -88,8 +83,7 @@ mixin InspectionsListOperationsMixin {
   }
 
   /// Returns the job working on. If there is no job working on, it will return null.
-  Future<List<JobInspectionResponseModelItem?>>
-      getInspectionsListModel() async {
+  Future<List<JobInspectionResponseModelItem?>> getInspectionsListModel() async {
     final box = await _jobInspectionsBox;
     final keys = box.keys.toList();
     final List<Future<JobInspectionResponseModelItem?>> futures = [];
@@ -100,14 +94,12 @@ mixin InspectionsListOperationsMixin {
     return Future.wait(futures);
   }
 
-  Future<JobInspectionResponseModelItem?> getInspectionById(
-      int inspectionId) async {
+  Future<JobInspectionResponseModelItem?> getInspectionById(int inspectionId) async {
     final box = await _jobInspectionsBox; // _jobInspectionsBox'tan veriyi al
     final keys = box.keys.toList(); // Box'taki tüm anahtarları al
 
     for (final key in keys) {
-      final jobInspection =
-          await box.get(key); // Her bir anahtara göre JobInspection öğesini al
+      final jobInspection = await box.get(key); // Her bir anahtara göre JobInspection öğesini al
       if (jobInspection?.id == inspectionId) {
         // Eğer inspectionId ile eşleşen öğe varsa
         return jobInspection; // O öğeyi döndür
