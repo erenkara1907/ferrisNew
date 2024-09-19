@@ -33,13 +33,8 @@ class RecordedDamagesState extends State<RecordedDamages> {
   late final bool isSigned;
   @override
   void initState() {
-    isSigned =
-        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(widget.jobInspectionId);
+    isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(widget.jobInspectionId);
     super.initState();
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
 
@@ -61,14 +56,8 @@ class RecordedDamagesState extends State<RecordedDamages> {
             ),
           );
         }
-        final bool isSigned = ProductStateItems.hiveDatabaseManager
-                    .getUserModel()!
-                    .inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(widget.jobInspectionId);
+        final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+            ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(widget.jobInspectionId);
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -124,9 +113,8 @@ class RecordedDamagesState extends State<RecordedDamages> {
                 child: Padding(
                   padding: context.paddingHorizontalDefault,
                   child: Column(
-                    mainAxisAlignment: state.damageResponse.isEmpty
-                        ? MainAxisAlignment.center
-                        : MainAxisAlignment.start,
+                    mainAxisAlignment:
+                        state.damageResponse.isEmpty ? MainAxisAlignment.center : MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (state.damageResponse.isEmpty)
@@ -167,29 +155,22 @@ class RecordedDamagesState extends State<RecordedDamages> {
                                           child: IconButton(
                                             onPressed: () async {
                                               List<DamageResponseModel> damage =
-                                                  await _hiveStorageManager
-                                                      .getGetDamage(widget
-                                                          .jobInspectionId);
+                                                  await _hiveStorageManager.getGetDamage(widget.jobInspectionId);
 
-                                              context
-                                                  .read<InspectionsBloc>()
-                                                  .add(
+                                              context.read<InspectionsBloc>().add(
                                                     DeleteRecordedDamage(
                                                       damage[index].id,
                                                       widget.jobInspectionId,
-                                                      damage[index]
-                                                              .combinationId ??
-                                                          0,
-                                                      stateDamageId: state
-                                                          .damageResponse[index]
-                                                          .id,
+                                                      damage[index].combinationId ?? 0,
+                                                      repairId: damage[index].repairId.id,
+                                                      stateDamageId: state.damageResponse[index].id,
+                                                      model: damage[index],
                                                     ),
                                                   );
                                             },
                                             icon: Icon(
                                               Icons.cancel_outlined,
-                                              color: context
-                                                  .theme.colorScheme.error,
+                                              color: context.theme.colorScheme.error,
                                             ),
                                           ),
                                         )
@@ -245,8 +226,7 @@ class DamageCardWidget extends StatelessWidget {
         ),
         margin: context.paddingVerticalLow,
         child: Padding(
-          padding:
-              context.paddingHorizontalDefault + context.paddingVerticalLow,
+          padding: context.paddingHorizontalDefault + context.paddingVerticalLow,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,13 +239,12 @@ class DamageCardWidget extends StatelessWidget {
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Category: ',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white, fontWeight: FontWeight.w600),
+                          style:
+                              context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                         ),
                         TextSpan(
                           text: damageResponse.categoryId.name,
-                          style: context.textTheme.bodyMedium
-                              ?.copyWith(color: Colors.white),
+                          style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                         )
                       ],
                     ),
@@ -277,13 +256,11 @@ class DamageCardWidget extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Part: ',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
                       text: damageResponse.partId.name,
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                     )
                   ],
                 ),
@@ -293,13 +270,11 @@ class DamageCardWidget extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Issue: ',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
                       text: damageResponse.issueId.name,
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                     )
                   ],
                 ),
@@ -309,13 +284,11 @@ class DamageCardWidget extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Failure: ',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
                       text: damageResponse.failureId.name,
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                     )
                   ],
                 ),
@@ -325,13 +298,11 @@ class DamageCardWidget extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Repair: ',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
                       text: damageResponse.repairId.name,
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                     )
                   ],
                 ),
@@ -341,15 +312,11 @@ class DamageCardWidget extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Price: ',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
-                      text: damageResponse.price != null
-                          ? '£${damageResponse.price}0'
-                          : "-",
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      text: damageResponse.price != null ? '£${damageResponse.price}0' : "-",
+                      style: context.textTheme.bodyMedium?.copyWith(color: Colors.white),
                     )
                   ],
                 ),

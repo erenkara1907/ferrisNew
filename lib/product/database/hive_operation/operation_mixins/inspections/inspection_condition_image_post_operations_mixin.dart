@@ -24,7 +24,7 @@ mixin InspectionConditionImagePostOperationsMixin {
 
   /// Returns the cache box for deleted condition image ids. Creates it if it doesn't exist.
   Future<LazyBox<ConditionImageResponseModel>>
-      get _deletedConditionImageCache async {
+      get _deletedConditionImageCache async { 
     return _deletedConditionImageCacheOperations ??=
         await Hive.openLazyBox<ConditionImageResponseModel>(
             _keyDeletedConditionImageCacheOperationsMixin);
@@ -108,7 +108,7 @@ mixin InspectionConditionImagePostOperationsMixin {
     final cacheBox = await _deletedConditionImageCache;
     final deletedImages = <ConditionImageResponseModel?>[];
 
-    // Cache'deki tüm anahtarları al
+    // Cache'deki tüm anahtarları al 
     final keys = cacheBox.keys.toList();
 
     // Her bir anahtarı gezerek modele eriş ve jobInspectionId'ye göre filtrele

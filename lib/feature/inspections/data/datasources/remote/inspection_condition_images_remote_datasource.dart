@@ -28,16 +28,14 @@ abstract interface class JobInspectionsConditionImagesRemoteDataSource {
 class JobInspectionsConditionImagesRemoteDataSourceImpl
     with HandleRequestMixin
     implements JobInspectionsConditionImagesRemoteDataSource {
-  JobInspectionsConditionImagesRemoteDataSourceImpl(
-      {required NetworkClient networkClient})
+  JobInspectionsConditionImagesRemoteDataSourceImpl({required NetworkClient networkClient})
       : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
 
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization':
-        'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+    'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
   };
 
   @override
@@ -47,13 +45,11 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   }) async {
     try {
       final formData = FormData(); // Create a FormData instance
-      formData.fields
-          .add(MapEntry('jobInspectionId', jobInspectionId.toString()));
+      formData.fields.add(MapEntry('jobInspectionId', jobInspectionId.toString()));
 
       final documentPath = (await getApplicationDocumentsDirectory()).path;
       int documentsIndex = data.imageFile!.path.indexOf("Documents/");
-      String result =
-          data.imageFile!.path.substring(documentsIndex + "Documents/".length);
+      String result = data.imageFile!.path.substring(documentsIndex + "Documents/".length);
 
       final path = '$documentPath/$result';
       formData.files.add(MapEntry(
@@ -66,8 +62,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
         options: Options(headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
         data: formData,
       );
@@ -76,8 +71,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       return ConditionImageResponseModel.fromMap(response.data["data"]);
@@ -97,13 +91,11 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   }) async {
     try {
       final response = await http.delete(
-        Uri.parse(
-            "https://dev.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
+        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         },
       );
       // final response = await _networkClient.delete(
@@ -117,8 +109,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (responseData['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(responseData['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(responseData['newAccessToken']);
       }
       return responseData['message'];
     } on DioException catch (e, s) {

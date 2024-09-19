@@ -51,8 +51,7 @@ class PostJobInspectionsCheckList extends InspectionsEvent {
   final bool isAsync;
   final bool isUpdate;
   final int? checklistId;
-  const PostJobInspectionsCheckList(
-      this.data, this.isAsync, this.isUpdate, this.checklistId);
+  const PostJobInspectionsCheckList(this.data, this.isAsync, this.isUpdate, this.checklistId);
 }
 
 class PostConditionImages extends InspectionsEvent {
@@ -98,10 +97,11 @@ class DeleteRecordedDamage extends InspectionsEvent {
   final int jobInspectionId;
   final int combinationId;
   final int stateDamageId;
+  final int repairId;
+  final DamageResponseModel model;
 
-  const DeleteRecordedDamage(
-      this.damageId, this.jobInspectionId, this.combinationId,
-      {required this.stateDamageId});
+  const DeleteRecordedDamage(this.damageId, this.jobInspectionId, this.combinationId,
+      {required this.stateDamageId, required this.repairId, required this.model});
 }
 
 class DeleteRecordedDamageRemote extends InspectionsEvent {
@@ -275,11 +275,7 @@ class CleanDamages extends InspectionsEvent {
   final bool isPart;
 
   final bool isFailure;
-  const CleanDamages(
-      {this.isCategory = false,
-      this.isIssue = false,
-      this.isPart = false,
-      this.isFailure = false});
+  const CleanDamages({this.isCategory = false, this.isIssue = false, this.isPart = false, this.isFailure = false});
 }
 
 class SetCustomerImage extends InspectionsEvent {

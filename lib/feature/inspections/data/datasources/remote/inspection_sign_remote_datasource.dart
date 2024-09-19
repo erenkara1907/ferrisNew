@@ -7,6 +7,7 @@ import 'package:ferrisfwt/product/mixin/handle_request_mixin.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_customer_sign_post_model.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/sign/inspection_inspector_sign_post_model.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../product/utility/error_handler/sentry_error_handler.dart';
 
@@ -30,19 +31,15 @@ abstract interface class JobInspectionsSignRemoteDataSource {
   });
 }
 
-class JobInspectionsSignRemoteDataSourceImpl
-    with HandleRequestMixin
-    implements JobInspectionsSignRemoteDataSource {
-  JobInspectionsSignRemoteDataSourceImpl({required NetworkClient networkClient})
-      : _networkClient = networkClient;
+class JobInspectionsSignRemoteDataSourceImpl with HandleRequestMixin implements JobInspectionsSignRemoteDataSource {
+  JobInspectionsSignRemoteDataSourceImpl({required NetworkClient networkClient}) : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
 
   final headers = {
     'Accept': 'application/json',
     'Content-Type': 'multipart/form-data',
-    'Authorization':
-        'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+    'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
   };
 
   @override
@@ -60,13 +57,16 @@ class JobInspectionsSignRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return response.data['message'];
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      if (e.response?.data["message"] == "Not authenticated") {
+        ProductStateItems.hiveDatabaseManager.deleteUserToken();
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
+      }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -89,13 +89,16 @@ class JobInspectionsSignRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return response.data['message'];
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
-      // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      if (e.response?.data["message"] == "Not authenticated") {
+        ProductStateItems.hiveDatabaseManager.deleteUserToken();
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
+      }
+      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
@@ -117,8 +120,7 @@ class JobInspectionsSignRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return response.data['message'];
     } on DioException catch (e, s) {
@@ -145,8 +147,7 @@ class JobInspectionsSignRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return response.data['message'];
     } on DioException catch (e, s) {

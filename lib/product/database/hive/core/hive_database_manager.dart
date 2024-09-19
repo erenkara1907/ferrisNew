@@ -79,6 +79,7 @@ class HiveDatabaseManager {
     await Hive.openBox<DamagesRepair>(HiveDatabaseConstants.damageRepairBox);
     await Hive.openBox<ChecklistResponseModelItem>(HiveDatabaseConstants.checklistBox);
     await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamage);
+    await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamageDelete);
     await Hive.openBox<DamageResponseModel>(HiveDatabaseConstants.getDamageNew);
     await Hive.openBox<ConditionImageResponseModel>(HiveDatabaseConstants.conditionImagesBox);
     await Hive.openBox<ExpensesResponseModelItem>(HiveDatabaseConstants.expensePostResponse);

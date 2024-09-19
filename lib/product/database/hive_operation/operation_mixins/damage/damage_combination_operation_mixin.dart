@@ -42,6 +42,41 @@ mixin DamageCombinationOperationMixin {
     return matchingAssets;
   }
 
+  // Future<void> addScore({
+  //   required int score,
+  //   required int inspectionId,
+  // }) async {
+  //   final box = _damageCombinationScore;
+
+  //   // Create a unique key based on repairId and inspectionId
+  //   final uniqueKey = '$inspectionId';
+
+  //   // Retrieve the existing ScoreModel for the unique key
+  //   final existingScoreModel = box.get(uniqueKey);
+
+  //   print("add existingScoreModel: ${existingScoreModel?.score}");
+
+  //   if (existingScoreModel != null) {
+  //     // Update the existing ScoreModel's score
+  //     final updatedScoreModel = existingScoreModel.copyWith(
+  //       score: existingScoreModel.score + score,
+  //     );
+
+  //     // Store the updated ScoreModel in Hive
+  //     await box.put(uniqueKey, updatedScoreModel);
+  //   } else {
+  //     // Create a new ScoreModel and store it
+  //     final newScoreModel = ScoreModel(
+  //       score: score,
+  //       inspectionId: inspectionId,
+  //     );
+
+  //     print("add newScoreModel: ${newScoreModel.score}");
+
+  //     await box.put(uniqueKey, newScoreModel);
+  //   }
+  // }
+
   Future<void> addScore({
     required int score,
     required int inspectionId,
@@ -88,14 +123,41 @@ mixin DamageCombinationOperationMixin {
     return scoreModel?.score;
   }
 
+  Future<void> deleteScore({
+    required int scoreToRemove,
+    required int inspectionId,
+  }) async {
+    final box = _damageCombinationScore;
+
+    // Create a unique key based on inspectionId
+    final uniqueKey = '$inspectionId';
+
+    // Retrieve the existing ScoreModel for the unique key
+    final existingScoreModel = box.get(uniqueKey);
+
+    if (existingScoreModel != null) {
+      // Calculate the new score by subtracting the score to remove
+      final newScore = existingScoreModel.score - scoreToRemove;
+
+      // Ensure that the score does not drop below zero
+      final updatedScore = newScore < 0 ? 0 : newScore;
+
+      // Create an updated ScoreModel
+      final updatedScoreModel = existingScoreModel.copyWith(
+        score: updatedScore,
+      );
+
+      // Store the updated ScoreModel in Hive
+      await box.put(uniqueKey, updatedScoreModel);
+
+      print("Score updated to: ${updatedScoreModel.score}");
+    } else {
+      print("No ScoreModel found with key $uniqueKey.");
+    }
+  }
+
   Future<void> deleteAllScores() async {
     final box = _damageCombinationScore;
     await box.clear();
-  }
-
-  /// Get a damage category by its categoryId.
-  Future<void> deleteDamageCombination() async {
-    final box = _damageCombination;
-    await box.delete(HiveDatabaseConstants.damageCombinationBox);
   }
 }

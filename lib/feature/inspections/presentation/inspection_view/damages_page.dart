@@ -19,6 +19,7 @@ import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_horizontal_spacer.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:go_router/go_router.dart';
@@ -57,46 +58,34 @@ class _DamagesPageState extends State<DamagesPage> {
   void _submitDamageToAPI(InspectionsState state) {
     if (_category.isEmpty) {
       BotToast.showText(text: "Please select Category");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
 
       return;
     }
     if (_part.isEmpty) {
       BotToast.showText(text: "Please select Part");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
       return;
     }
     if (_issue.isEmpty) {
       BotToast.showText(text: "Please select Issue");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
       return;
     }
     if (_failure.isEmpty) {
       BotToast.showText(text: "Please select Failure");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
       return;
     }
     if (_repair.isEmpty) {
       BotToast.showText(text: "Please select Repair");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
       return;
     }
 
     if (_selectedImage == null || _selectedContextImage == null) {
       BotToast.showText(text: "Please upload an image");
-      context
-          .read<InspectionsBloc>()
-          .add(const PostJobInspectionsDamagesControl());
+      context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
       return;
     }
 
@@ -109,25 +98,12 @@ class _DamagesPageState extends State<DamagesPage> {
               damageImage: _selectedImage,
               contextImage: _selectedContextImage,
               jobInspectionId: widget.jobInspectionId,
-              categoryId: state.getDamageCategoriesResponse
-                      .firstWhere((element) => element?.name == _category)!
-                      .id ??
-                  1,
-              partId: state.getDamagePartsResponse
-                      .firstWhere((element) => element.name == _part)
-                      .id ??
-                  1,
-              issueId: state.getDamageIssuesResponse
-                  .firstWhere((element) => element.name == _issue)
-                  .id!,
-              failureId: state.getDamageFailuresResponse
-                      .firstWhere((element) => element.name == _failure)
-                      .id ??
-                  1,
-              repairId: state.getDamageRepairsResponse
-                      .firstWhere((element) => element.name == _repair)
-                      .id ??
-                  1,
+              categoryId:
+                  state.getDamageCategoriesResponse.firstWhere((element) => element?.name == _category)!.id ?? 1,
+              partId: state.getDamagePartsResponse.firstWhere((element) => element.name == _part).id ?? 1,
+              issueId: state.getDamageIssuesResponse.firstWhere((element) => element.name == _issue).id!,
+              failureId: state.getDamageFailuresResponse.firstWhere((element) => element.name == _failure).id ?? 1,
+              repairId: state.getDamageRepairsResponse.firstWhere((element) => element.name == _repair).id ?? 1,
             ),
           ),
         );
@@ -151,15 +127,98 @@ class _DamagesPageState extends State<DamagesPage> {
 
   Future<void> compressImage(File image) async {
     final documentPath = (await getApplicationDocumentsDirectory()).path;
-    final newFile =
-        await image.copy('$documentPath/${path.basename(image.path)}');
+    final newFile = await image.copy('$documentPath/${path.basename(image.path)}');
     File compressedImage = await _resizeImage(newFile);
     setState(() {
       _imageFiles.add(compressedImage);
     });
   }
 
+  // Future<void> _getImageFromCamera(InspectionsState state) async {
+  //   PermissionStatus permissionStatus = await Permission.camera.status;
+  //   if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //     final result = await showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: const Text('Camera Permission'),
+  //           content:
+  //               const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(false);
+  //               },
+  //               child: const Text('Cancel'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () async {
+  //                 context.read<CubitPermissions>().requestCamera();
+  //                 final permissionStatus = await Permission.camera.status;
+  //                 if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //                   await openAppSettings();
+  //                 }
+  //                 context.pop();
+  //               },
+  //               child: const Text('Open Settings'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+
+  //     if (result != true) {
+  //       return;
+  //     }
+  //   }
+
+  //   final currentUploadedImages = _imageFiles.length + state.conditionImageResponse.length - _deletedImages.length;
+  //   final remainingImages = maxImages - currentUploadedImages;
+
+  //   final result = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => CameraPageDamage(
+  //         submitDamageToAPI: () async {
+  //           // Implement the logic to submit damage to API
+  //           _submitDamageToAPI(state);
+  //         },
+  //         limit: remainingImages,
+  //         onCapture: (File image) async {
+  //           if (_imageFiles.length < 2) {
+  //             await compressImage(image);
+  //           } else {
+  //             BotToast.showText(text: 'You can only select 2 images in total');
+  //           }
+  //         },
+  //         capturedImages: _imageFiles,
+  //       ),
+  //     ),
+  //   );
+
+  //   if (result != null && result is List<File>) {
+  //     setState(() {
+  //       _imageFiles = result;
+
+  //       _selectedContextImage = _imageFiles[0];
+  //       _selectedImage = _imageFiles[1];
+  //     });
+  //   }
+
+  //   permissionStatus = await Permission.camera.status;
+  //   if (!permissionStatus.isGranted) {
+  //     BotToast.showText(text: 'Camera access denied');
+  //     return;
+  //   }
+  // }
+
   Future<void> _getImageFromCamera(InspectionsState state) async {
+    // Yalnızca yatay modda ekranı göstermek için
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+
     PermissionStatus permissionStatus = await Permission.camera.status;
     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
       final result = await showDialog(
@@ -167,8 +226,8 @@ class _DamagesPageState extends State<DamagesPage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Camera Permission'),
-            content: const Text(
-                'This app needs camera access to take pictures. Please allow camera access in settings.'),
+            content:
+                const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -180,8 +239,7 @@ class _DamagesPageState extends State<DamagesPage> {
                 onPressed: () async {
                   context.read<CubitPermissions>().requestCamera();
                   final permissionStatus = await Permission.camera.status;
-                  if (permissionStatus.isDenied ||
-                      permissionStatus.isPermanentlyDenied) {
+                  if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
                     await openAppSettings();
                   }
                   context.pop();
@@ -194,13 +252,16 @@ class _DamagesPageState extends State<DamagesPage> {
       );
 
       if (result != true) {
+        // Ekranı önceki durumuna döndür
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
         return;
       }
     }
 
-    final currentUploadedImages = _imageFiles.length +
-        state.conditionImageResponse.length -
-        _deletedImages.length;
+    final currentUploadedImages = _imageFiles.length + state.conditionImageResponse.length - _deletedImages.length;
     final remainingImages = maxImages - currentUploadedImages;
 
     final result = await Navigator.push(
@@ -236,15 +297,19 @@ class _DamagesPageState extends State<DamagesPage> {
     permissionStatus = await Permission.camera.status;
     if (!permissionStatus.isGranted) {
       BotToast.showText(text: 'Camera access denied');
-      return;
     }
+
+    // Ekranı önceki durumuna döndür
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
   Future<void> captureImages(InspectionsState state) async {
     // Context Image için kamera açılıyor
 
-    final contextImage =
-        await _getImage(ImageSource.camera, state, isDamage: 0);
+    final contextImage = await _getImage(ImageSource.camera, state, isDamage: 0);
 
     if (contextImage != null) {
       setState(() {
@@ -280,8 +345,7 @@ class _DamagesPageState extends State<DamagesPage> {
     if (shouldContinue == true) {
       // Damage Image için kamera açılıyor
 
-      final damageImage =
-          await _getImage(ImageSource.camera, state, isDamage: 1);
+      final damageImage = await _getImage(ImageSource.camera, state, isDamage: 1);
 
       if (damageImage != null) {
         setState(() {
@@ -291,8 +355,7 @@ class _DamagesPageState extends State<DamagesPage> {
     } else {}
   }
 
-  Future<File?> _getImage(ImageSource source, InspectionsState state,
-      {required int isDamage}) async {
+  Future<File?> _getImage(ImageSource source, InspectionsState state, {required int isDamage}) async {
     if (source == ImageSource.camera) {
       PermissionStatus permissionStatus = await Permission.camera.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
@@ -301,8 +364,8 @@ class _DamagesPageState extends State<DamagesPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Camera Permission'),
-              content: const Text(
-                  'This app needs camera access to take pictures. Please allow camera access in settings.'),
+              content:
+                  const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -314,8 +377,7 @@ class _DamagesPageState extends State<DamagesPage> {
                   onPressed: () async {
                     context.read<CubitPermissions>().requestCamera();
                     final permissionStatus = await Permission.camera.status;
-                    if (permissionStatus.isDenied ||
-                        permissionStatus.isPermanentlyDenied) {
+                    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
                       await openAppSettings();
                     }
                     context.pop();
@@ -466,9 +528,7 @@ class _DamagesPageState extends State<DamagesPage> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<InspectionsBloc>()
-        .add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
+    context.read<InspectionsBloc>().add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
     // context
     //     .read<JobDamageBloc>()
     //     .add(GetDamageCategories(widget.jobInspectionId));
@@ -478,8 +538,7 @@ class _DamagesPageState extends State<DamagesPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
-        if (state.status == ViewStatus.loading ||
-            state.getDamageCategoriesResponse.isEmpty) {
+        if (state.status == ViewStatus.loading || state.getDamageCategoriesResponse.isEmpty) {
           return const Scaffold(
             body: Center(
               child: LoadingProgress(),
@@ -533,11 +592,8 @@ class _DamagesPageState extends State<DamagesPage> {
                           _failure = "";
                           _repair = "";
                         });
-                        final int id = state.getDamageCategoriesResponse
-                                .firstWhere(
-                                    (element) => element?.name == String)!
-                                .id ??
-                            1;
+                        final int id =
+                            state.getDamageCategoriesResponse.firstWhere((element) => element?.name == String)!.id ?? 1;
 
                         // if (state.getDamagePartsResponse.isNotEmpty &&
                         //     state.getDamageIssuesResponse.isNotEmpty &&
@@ -549,8 +605,7 @@ class _DamagesPageState extends State<DamagesPage> {
                         //   state.getDamageRepairsResponse.clear();
                         // }
 
-                        context.read<InspectionsBloc>().add(
-                            GetInspectionsDamagesPart(id, widget.standarIds));
+                        context.read<InspectionsBloc>().add(GetInspectionsDamagesPart(id, widget.standarIds));
                       }
                     },
                     textSpanEnable: true,
@@ -573,10 +628,8 @@ class _DamagesPageState extends State<DamagesPage> {
                         _failure = "";
                         _repair = "";
 
-                        final int id = state.getDamagePartsResponse
-                                .firstWhere((element) => element.name == String)
-                                .id ??
-                            1;
+                        final int id =
+                            state.getDamagePartsResponse.firstWhere((element) => element.name == String).id ?? 1;
 
                         // if (state.getDamageIssuesResponse.isNotEmpty &&
                         //     state.getDamageFailuresResponse.isNotEmpty &&
@@ -615,9 +668,8 @@ class _DamagesPageState extends State<DamagesPage> {
                           _failure = "";
                           _repair = "";
                         });
-                        final int id = state.getDamageIssuesResponse
-                            .firstWhere((element) => element.name == String)
-                            .id!;
+                        final int id =
+                            state.getDamageIssuesResponse.firstWhere((element) => element.name == String).id!;
 
                         // if (state.getDamageFailuresResponse.isNotEmpty &&
                         //     state.getDamageRepairsResponse.isNotEmpty) {
@@ -654,9 +706,8 @@ class _DamagesPageState extends State<DamagesPage> {
                           _failure = String ?? '';
                           _repair = "";
                         });
-                        final int id = state.getDamageFailuresResponse
-                            .firstWhere((element) => element.name == String)
-                            .id!;
+                        final int id =
+                            state.getDamageFailuresResponse.firstWhere((element) => element.name == String).id!;
                         // if (state.getDamageRepairsResponse.isNotEmpty) {
                         //   state.getDamageRepairsResponse.clear();
                         // }
@@ -753,8 +804,7 @@ class _DamagesPageState extends State<DamagesPage> {
                       height: context.dynamicHeight(0.25),
                       child: ListView.separated(
                         padding: EdgeInsets.zero,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const HorizontalSpace.xSmall(),
+                        separatorBuilder: (BuildContext context, int index) => const HorizontalSpace.xSmall(),
                         scrollDirection: Axis.horizontal,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _imageFiles.length - 1,
@@ -765,9 +815,8 @@ class _DamagesPageState extends State<DamagesPage> {
                             children: [
                               Text(
                                 index == 0 ? "Context Image" : "Damage Image",
-                                style: context.textTheme.bodyLarge?.copyWith(
-                                    color: context.theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w600),
+                                style: context.textTheme.bodyLarge
+                                    ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                               ),
                               const VerticalSpace.xSmall(),
                               Stack(
@@ -785,9 +834,7 @@ class _DamagesPageState extends State<DamagesPage> {
                                     top: -5,
                                     right: -5,
                                     child: IconButton(
-                                      icon: Icon(Icons.cancel_outlined,
-                                          color:
-                                              context.theme.colorScheme.error),
+                                      icon: Icon(Icons.cancel_outlined, color: context.theme.colorScheme.error),
                                       onPressed: () {
                                         setState(() {
                                           _imageFiles.removeAt(index);
@@ -990,46 +1037,33 @@ class _DamagesPageState extends State<DamagesPage> {
                       ontap: () {
                         if (_category.isEmpty) {
                           BotToast.showText(text: "Please select Category");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
                         if (_part.isEmpty) {
                           BotToast.showText(text: "Please select Part");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
                         if (_issue.isEmpty) {
                           BotToast.showText(text: "Please select Issue");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
                         if (_failure.isEmpty) {
                           BotToast.showText(text: "Please select Failure");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
                         if (_repair.isEmpty) {
                           BotToast.showText(text: "Please select Repair");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
 
-                        if (_selectedImage == null ||
-                            _selectedContextImage == null) {
+                        if (_selectedImage == null || _selectedContextImage == null) {
                           BotToast.showText(text: "Please upload an image");
-                          context
-                              .read<InspectionsBloc>()
-                              .add(const PostJobInspectionsDamagesControl());
+                          context.read<InspectionsBloc>().add(const PostJobInspectionsDamagesControl());
                           return;
                         }
 
@@ -1043,27 +1077,20 @@ class _DamagesPageState extends State<DamagesPage> {
                                   contextImage: _selectedContextImage,
                                   jobInspectionId: widget.jobInspectionId,
                                   categoryId: state.getDamageCategoriesResponse
-                                          .firstWhere((element) =>
-                                              element?.name == _category)!
+                                          .firstWhere((element) => element?.name == _category)!
                                           .id ??
                                       1,
-                                  partId: state.getDamagePartsResponse
-                                          .firstWhere((element) =>
-                                              element.name == _part)
-                                          .id ??
-                                      1,
-                                  issueId: state.getDamageIssuesResponse
-                                      .firstWhere(
-                                          (element) => element.name == _issue)
-                                      .id!,
+                                  partId:
+                                      state.getDamagePartsResponse.firstWhere((element) => element.name == _part).id ??
+                                          1,
+                                  issueId:
+                                      state.getDamageIssuesResponse.firstWhere((element) => element.name == _issue).id!,
                                   failureId: state.getDamageFailuresResponse
-                                          .firstWhere((element) =>
-                                              element.name == _failure)
+                                          .firstWhere((element) => element.name == _failure)
                                           .id ??
                                       1,
                                   repairId: state.getDamageRepairsResponse
-                                          .firstWhere((element) =>
-                                              element.name == _repair)
+                                          .firstWhere((element) => element.name == _repair)
                                           .id ??
                                       1,
                                 ),
@@ -1310,8 +1337,13 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
         title: Text(isDamage ? "Damage Image" : "Context Image"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
+          onPressed: () async {
             Navigator.pop(context, _capturedImages);
+
+            await SystemChrome.setPreferredOrientations([
+              DeviceOrientation.portraitUp,
+              DeviceOrientation.portraitDown,
+            ]);
           },
         ),
       ),
@@ -1321,74 +1353,76 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                SizedBox(
-                  height: context.height,
-                  child: CameraPreview(_cameraController),
+                Positioned.fill(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      height: _cameraController.value.previewSize!.height,
+                      width: _cameraController.value.previewSize!.width,
+                      child: CameraPreview(_cameraController),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: EdgeInsets.only(right: _capturedImages.isNotEmpty ? 120.0 : 16.0),
+                    child: FloatingActionButton(
+                      onPressed: _captureImage,
+                      child: const Icon(Icons.camera_alt),
+                    ),
+                  ),
                 ),
                 Positioned(
-                  bottom: 20,
-                  left: 0,
                   right: 0,
+                  bottom: 0,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-                      InkWell(
-                        onTap: _captureImage,
-                        child: const CircleAvatar(
-                          radius: 30,
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-                      const VerticalSpace.xSmall(),
                       if (_capturedImages.isNotEmpty)
                         Container(
                           decoration: BoxDecoration(
-                            color: context.theme.colorScheme.primaryContainer
-                                .withOpacity(0.2),
+                            color: Colors.black.withOpacity(0.5),
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(10),
                             ),
                           ),
-                          width: context.width,
-                          height: 140,
+                          width: 100,
+                          height: MediaQuery.of(context).size.height * 0.8,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.dynamicWidth(0.05),
-                              vertical: context.dynamicHeight(0.02),
-                            ),
+                            padding: const EdgeInsets.all(8.0),
                             child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
+                              scrollDirection: Axis.vertical,
                               itemCount: _capturedImages.length,
                               itemBuilder: (context, index) {
                                 return Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: context.dynamicWidth(0.020)),
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
                                   child: Stack(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.file(
                                           _capturedImages[index],
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
                                       Positioned(
-                                          top: -12,
-                                          right: -10,
-                                          child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _capturedImages
-                                                      .removeAt(index);
-                                                });
-                                              },
-                                              icon: const Icon(
-                                                Icons.cancel_outlined,
-                                                color: Colors.red,
-                                              )))
+                                        top: -8,
+                                        right: -8,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _capturedImages.removeAt(index);
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.cancel_outlined,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -1406,6 +1440,94 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
           }
         },
       ),
+      // body: FutureBuilder<void>(
+      //   future: _initializeControllerFuture,
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.done) {
+      //       return Stack(
+      //         children: [
+      //           SizedBox(
+      //             height: context.height,
+      //             child: CameraPreview(_cameraController),
+      //           ),
+      //           Positioned(
+      //             bottom: 20,
+      //             left: 0,
+      //             right: 0,
+      //             child: Column(
+      //               mainAxisAlignment: MainAxisAlignment.center,
+      //               crossAxisAlignment: CrossAxisAlignment.center,
+      //               children: [
+      //                 InkWell(
+      //                   onTap: _captureImage,
+      //                   child: const CircleAvatar(
+      //                     radius: 30,
+      //                     child: Icon(
+      //                       Icons.camera_alt,
+      //                       size: 30,
+      //                     ),
+      //                   ),
+      //                 ),
+      //                 const VerticalSpace.xSmall(),
+      //                 if (_capturedImages.isNotEmpty)
+      //                   Container(
+      //                     decoration: BoxDecoration(
+      //                       color: context.theme.colorScheme.primaryContainer.withOpacity(0.2),
+      //                       borderRadius: const BorderRadius.vertical(
+      //                         top: Radius.circular(10),
+      //                       ),
+      //                     ),
+      //                     width: context.width,
+      //                     height: 140,
+      //                     child: Padding(
+      //                       padding: EdgeInsets.symmetric(
+      //                         horizontal: context.dynamicWidth(0.05),
+      //                         vertical: context.dynamicHeight(0.02),
+      //                       ),
+      //                       child: ListView.builder(
+      //                         scrollDirection: Axis.horizontal,
+      //                         itemCount: _capturedImages.length,
+      //                         itemBuilder: (context, index) {
+      //                           return Padding(
+      //                             padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.020)),
+      //                             child: Stack(
+      //                               children: [
+      //                                 ClipRRect(
+      //                                   borderRadius: BorderRadius.circular(10),
+      //                                   child: Image.file(
+      //                                     _capturedImages[index],
+      //                                   ),
+      //                                 ),
+      //                                 Positioned(
+      //                                     top: -12,
+      //                                     right: -10,
+      //                                     child: IconButton(
+      //                                         onPressed: () {
+      //                                           setState(() {
+      //                                             _capturedImages.removeAt(index);
+      //                                           });
+      //                                         },
+      //                                         icon: const Icon(
+      //                                           Icons.cancel_outlined,
+      //                                           color: Colors.red,
+      //                                         )))
+      //                               ],
+      //                             ),
+      //                           );
+      //                         },
+      //                       ),
+      //                     ),
+      //                   ),
+      //               ],
+      //             ),
+      //           ),
+      //         ],
+      //       );
+      //     } else {
+      //       return const Center(child: CircularProgressIndicator());
+      //     }
+      //   },
+      // ),
     );
   }
 }

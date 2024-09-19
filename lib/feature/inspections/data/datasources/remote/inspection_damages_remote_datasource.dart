@@ -41,16 +41,14 @@ abstract interface class JobInspectionsDamagesRemoteDataSource {
 class JobInspectionsDamagesRemoteDataSourceImpl
     with HandleRequestMixin
     implements JobInspectionsDamagesRemoteDataSource {
-  JobInspectionsDamagesRemoteDataSourceImpl({required Dio networkClient})
-      : _networkClient = networkClient;
+  JobInspectionsDamagesRemoteDataSourceImpl({required Dio networkClient}) : _networkClient = networkClient;
 
   final Dio _networkClient;
 
   final headers = {
     'Accept': 'application/json',
     'Content-Type': 'multipart/form-data',
-    'Authorization':
-        'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+    'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
   };
 
   @override
@@ -59,8 +57,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
   }) async {
     try {
       final formData = FormData(); // Create a FormData instance
-      formData.fields
-          .add(MapEntry('jobInspectionId', data.jobInspectionId.toString()));
+      formData.fields.add(MapEntry('jobInspectionId', data.jobInspectionId.toString()));
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
       formData.fields.add(MapEntry('partId', data.partId.toString()));
       formData.fields.add(MapEntry('issueId', data.issueId.toString()));
@@ -69,8 +66,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
 
       final documentPath = (await getApplicationDocumentsDirectory()).path;
       int documentsIndex = data.contextImage!.path.indexOf("Documents/");
-      String result = data.contextImage!.path
-          .substring(documentsIndex + "Documents/".length);
+      String result = data.contextImage!.path.substring(documentsIndex + "Documents/".length);
 
       final _path = '$documentPath/$result';
 
@@ -81,8 +77,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
 
       if (data.damageImage != null) {
         int documentsIndex = data.damageImage!.path.indexOf("Documents/");
-        String result = data.damageImage!.path
-            .substring(documentsIndex + "Documents/".length);
+        String result = data.damageImage!.path.substring(documentsIndex + "Documents/".length);
 
         final path = '$documentPath/$result';
         formData.files.add(MapEntry(
@@ -101,8 +96,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       return DamageResponseModel.fromMap(response.data["data"]);
@@ -134,8 +128,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       }
 
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       // List<DamageResponseModel> responseList = [];
@@ -162,14 +155,14 @@ class JobInspectionsDamagesRemoteDataSourceImpl
   Future<void> deleteRecordedDamage({
     required int damageId,
   }) async {
+    print("will delete damage with id: $damageId");
     try {
       final response = await http.delete(
         Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/damages/$damageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         },
       );
       // final response = await http.delete(
@@ -184,11 +177,11 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       }
 
       if (responseData['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(responseData['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(responseData['newAccessToken']);
       }
 
-      // Veri dönüşümünü burada yaparak, modelinizin doğru şekilde oluşturulduğundan emin olun.
+      print("deleted image : $responseData");
+
       return;
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
@@ -206,16 +199,13 @@ class JobInspectionsDamagesRemoteDataSourceImpl
     required InspectionDamagePatchModel data,
   }) async {
     try {
-      final response = await _networkClient.post(
-          "${ServicePath.jobInspectionsDamages.value}/$damageId",
-          options: Options(headers: headers),
-          data: FormData.fromMap(data.toMap(), ListFormat.multiCompatible));
+      final response = await _networkClient.post("${ServicePath.jobInspectionsDamages.value}/$damageId",
+          options: Options(headers: headers), data: FormData.fromMap(data.toMap(), ListFormat.multiCompatible));
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return DamageUpdateResponseModel.fromMap(response.data);
     } on DioException catch (e, s) {

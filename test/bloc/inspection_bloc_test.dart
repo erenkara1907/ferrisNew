@@ -35,8 +35,7 @@ void main() {
       ucGetJobInspectionsSign: InspectionSignServiceMock(),
       ucGetJobInspectionsDamages: InspectionDamageServiceMock(),
       ucGetJobInspectionsCheckList: InspectionChecklistServiceMock(),
-      ucGetJobInspectionsConditionImages:
-          InspectionConditionImagesServiceMock(),
+      ucGetJobInspectionsConditionImages: InspectionConditionImagesServiceMock(),
       hiveDatabaseManager: DatabaseCacheMock(),
       hiveStorageManager: StorageCacheMock(),
     );
@@ -215,7 +214,22 @@ void main() {
     'delete recorded damage',
     build: () => inspectionsBloc,
     act: (bloc) => bloc.add(
-      const DeleteRecordedDamage(1, 1, 1, stateDamageId: 1),
+      DeleteRecordedDamage(
+        1,
+        1,
+        1,
+        stateDamageId: 1,
+        repairId: 1,
+        model: DamageResponseModel(
+          id: 1,
+          jobInspectionId: 1,
+          categoryId: DamagesCategory(id: 1, name: "category 1"),
+          partId: DamagesPart(id: 1, categoryId: 1, name: "part 1"),
+          issueId: DamagesIssue(id: 1, partId: 1, name: "issue 1"),
+          failureId: DamagesFailure(id: 1, issueId: 1, name: "failure 1"),
+          repairId: DamagesRepair(id: 1, failureId: 1, name: "repair 1"),
+        ),
+      ),
     ),
     expect: () => [
       isA<InspectionsState>().having(
@@ -380,8 +394,7 @@ void main() {
     'inspection item detail',
     build: () => inspectionsBloc,
     act: (bloc) => bloc.add(
-      const InspectionsItemDetail(
-          odoReading: 10.0, fuelLevel: 10, inspectionId: 1, isAsync: false),
+      const InspectionsItemDetail(odoReading: 10.0, fuelLevel: 10, inspectionId: 1, isAsync: false),
     ),
     expect: () => [
       isA<InspectionsState>().having(

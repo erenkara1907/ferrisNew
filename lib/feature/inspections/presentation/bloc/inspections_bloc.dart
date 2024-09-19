@@ -449,113 +449,290 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
   Future<void> _onDeleteRecordedDamage(DeleteRecordedDamage event, Emitter<InspectionsState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
-    JobInspectionResponseModelItem? jobInspection = await _hiveStorageManager.getInspectionById(event.jobInspectionId);
+    List<DamageCombinationModel?> damageCombinations = await _hiveStorageManager.getDamageCombination();
+    List<GradeModel?> grades = await _hiveStorageManager.getGrades();
+
+    int? damageCombinationScore = 0;
+
+    damageCombinationScore = damageCombinations
+            .firstWhere(
+              (damageCombination) => damageCombination != null && event.repairId == damageCombination.repairId!.id,
+              orElse: () => null,
+            )
+            ?.score ??
+        0;
+
+    int? existingScore = await _hiveStorageManager.getScore(inspectionId: event.jobInspectionId);
+    int updatedScore = (existingScore ?? 0) - damageCombinationScore;
+    await _hiveStorageManager.deleteScore(scoreToRemove: damageCombinationScore, inspectionId: event.jobInspectionId);
+
+    String? newGradeName;
+    int? newGradeOrder;
+    int? newGradeId;
+    if (grades.isNotEmpty) {
+      for (var grade in grades) {
+        if (grade != null) {
+          /// rangeFrom and rangeTo try to parse double
+          double? rangeFrom = double.tryParse(grade.rangeFrom ?? "0");
+          double? rangeTo = double.tryParse(grade.rangeTo ?? "0");
+
+          /// if the rangeFrom and rangeTo is not null and the damageCombinationScore is greater than or equal to the rangeFrom and less than or equal to the rangeTo
+          if (rangeFrom != null && rangeTo != null && updatedScore >= rangeFrom && updatedScore <= rangeTo) {
+            newGradeName = grade.name; // grade name'ini al
+            newGradeOrder = grade.order;
+            newGradeId = grade.id;
+            break;
+          }
+        }
+      }
+    }
+
+    print("newGradeName: $newGradeName, updatedScore: $updatedScore");
 
     List<DamageResponseModel> newDamages = await _hiveStorageManager.getGetDamageNew(event.jobInspectionId);
 
-    if (newDamages.isNotEmpty) {
-      for (var newDamage in newDamages) {
-        if (newDamage.id == event.damageId) {
-          var result = await _ucGetJobInspectionsDamages.deleteRecordedDamage(
-            damageId: newDamage.id,
-          );
-          await result.fold(
-            (failure) {
-              emit(state.copyWith(
-                status: ViewStatus.failure,
-              ));
-            },
-            (data) async {
-              await _hiveStorageManager.deleteGetDamageNew(event.jobInspectionId, newDamage.id);
+    _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
+    _hiveStorageManager.deleteGetDamage(event.jobInspectionId, event.damageId);
+    _hiveStorageManager.storeDeletedDamageId(event.model);
 
-              await _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
-              await _hiveStorageManager.deleteGetDamage(event.jobInspectionId, newDamage.id);
+    final List<DamageResponseModel> damageResponse = state.damageResponse;
+    await Future.delayed(const Duration(seconds: 1));
+    damageResponse.removeWhere((element) {
+      return element.id == event.stateDamageId;
+    });
 
-              final List<DamageResponseModel> damageResponse = state.damageResponse;
-              damageResponse.removeWhere((element) {
-                return element.id == event.stateDamageId;
-              });
+    print("event combinationId: ${event.combinationId}");
+    await findGrade(event.jobInspectionId, event.combinationId);
 
-              await findGrade(event.jobInspectionId, event.combinationId);
+    List<String> gradeOrder = ['G1', 'G2', 'G3', 'G4', 'G5', 'GU'];
 
-              JobInspectionResponseModelItem? jobInspection =
-                  await _hiveStorageManager.getInspectionById(event.jobInspectionId);
+    JobInspectionResponseModelItem? jobInspection = await _hiveStorageManager.getInspectionById(event.jobInspectionId);
 
-              List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
+    String? currentGradeName = jobInspection != null ? jobInspection.gradleItem?.name : "0";
+    print("old currentGradeName: $currentGradeName");
 
-              emit(state.copyWith(
-                status: ViewStatus.success,
-                damageResponse: damageResponse,
-                gradeId: jobInspection!.gradleItem != null
-                    ? jobInspection.gradleItem!.name != "0"
-                        ? jobInspection.gradleItem!.name
-                        : "-"
-                    : "-",
-                inspections: inspecList,
-              ));
-              BotToast.showText(text: 'Damage deleted successfully');
-            },
-          );
-        } else {
-          _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
-          _hiveStorageManager.deleteGetDamage(event.jobInspectionId, event.damageId);
-          final List<DamageResponseModel> damageResponse = state.damageResponse;
-          await Future.delayed(const Duration(seconds: 1));
-          damageResponse.removeWhere((element) {
-            return element.id == event.stateDamageId;
-          });
+    if (newGradeName != null && currentGradeName != null) {
+      int currentGradeIndex = gradeOrder.indexOf(currentGradeName);
+      int newGradeIndex = gradeOrder.indexOf(newGradeName);
 
-          await findGrade(event.jobInspectionId, event.combinationId);
-
-          JobInspectionResponseModelItem? jobInspection =
-              await _hiveStorageManager.getInspectionById(event.jobInspectionId);
-
-          List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
-
-          emit(state.copyWith(
-            status: ViewStatus.success,
-            damageResponse: damageResponse,
-            inspections: inspecList,
-            gradeId: jobInspection!.gradleItem != null
-                ? jobInspection.gradleItem!.name != "0"
-                    ? jobInspection.gradleItem!.name
-                    : "-"
-                : "-",
-          ));
-
-          // BotToast.showText(text: 'Damage deleted successfully');
-        }
+      if (newGradeIndex >= currentGradeIndex) {
+        currentGradeName = newGradeName;
+        await _hiveStorageManager.updateInspectionsListModelGrade(
+          JobInspectionResponseModelItem(
+            id: event.jobInspectionId,
+            gradleItem: GradeId(
+              name: newGradeName,
+              order: newGradeOrder,
+              id: newGradeId,
+            ),
+          ),
+        );
       }
-    } else {
-      _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
-      _hiveStorageManager.deleteGetDamage(event.jobInspectionId, event.damageId);
-
-      final List<DamageResponseModel> damageResponse = state.damageResponse;
-      await Future.delayed(const Duration(seconds: 1));
-      damageResponse.removeWhere((element) {
-        return element.id == event.stateDamageId;
-      });
-
-      await findGrade(event.jobInspectionId, event.combinationId);
-
-      JobInspectionResponseModelItem? jobInspection =
-          await _hiveStorageManager.getInspectionById(event.jobInspectionId);
-
-      List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
-
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        damageResponse: damageResponse,
-        inspections: inspecList,
-        gradeId: jobInspection!.gradleItem != null
-            ? jobInspection.gradleItem!.name != "0"
-                ? jobInspection.gradleItem!.name
-                : "-"
-            : "-",
-      ));
-
-      BotToast.showText(text: 'Damage deleted successfully');
     }
+
+    List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
+
+    print("new currentGradeName: $currentGradeName");
+
+    emit(state.copyWith(
+      status: ViewStatus.success,
+      damageResponse: damageResponse,
+      inspections: inspecList,
+      // gradeId: jobInspection!.gradleItem != null
+      //     ? jobInspection.gradleItem!.name != "0"
+      //         ? jobInspection.gradleItem!.name
+      //         : "-"
+      //     : "-",
+      gradeId: currentGradeName ?? "-",
+    ));
+
+    BotToast.showText(text: 'Damage deleted successfully');
+
+    // if (newDamages.isNotEmpty) {
+    //   for (var newDamage in newDamages) {
+    //     if (newDamage.id == event.damageId) {
+    //       var result = await _ucGetJobInspectionsDamages.deleteRecordedDamage(
+    //         damageId: newDamage.id,
+    //       );
+    //       await result.fold(
+    //         (failure) {
+    //           emit(state.copyWith(
+    //             status: ViewStatus.failure,
+    //           ));
+    //         },
+    //         (data) async {
+    //           await _hiveStorageManager.deleteGetDamageNew(event.jobInspectionId, newDamage.id);
+
+    //           await _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
+    //           await _hiveStorageManager.deleteGetDamage(event.jobInspectionId, newDamage.id);
+
+    //           final List<DamageResponseModel> damageResponse = state.damageResponse;
+    //           damageResponse.removeWhere((element) {
+    //             return element.id == event.stateDamageId;
+    //           });
+
+    //           await findGrade(event.jobInspectionId, event.combinationId);
+
+    //           JobInspectionResponseModelItem? jobInspection =
+    //               await _hiveStorageManager.getInspectionById(event.jobInspectionId);
+
+    //           List<String> gradeOrder = ['G1', 'G2', 'G3', 'G4', 'G5', 'GU'];
+
+    //           String? currentGradeName = jobInspection != null ? jobInspection.gradleItem?.name : "0";
+
+    //           print("1- currentGradeName : $currentGradeName");
+
+    //           if (newGradeName != null && currentGradeName != null) {
+    //             int currentGradeIndex = gradeOrder.indexOf(currentGradeName);
+    //             int newGradeIndex = gradeOrder.indexOf(newGradeName);
+
+    //             if (newGradeIndex >= currentGradeIndex) {
+    //               currentGradeName = newGradeName;
+    //               await _hiveStorageManager.updateInspectionsListModelGrade(
+    //                 JobInspectionResponseModelItem(
+    //                   id: event.jobInspectionId,
+    //                   gradleItem: GradeId(
+    //                     name: newGradeName,
+    //                     order: newGradeOrder,
+    //                     id: newGradeId,
+    //                   ),
+    //                 ),
+    //               );
+    //             }
+    //           }
+
+    //           List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
+
+    //           print("1- currentGradeName: $currentGradeName");
+
+    //           emit(state.copyWith(
+    //             status: ViewStatus.success,
+    //             damageResponse: damageResponse,
+    //             // gradeId: jobInspection!.gradleItem != null
+    //             //     ? jobInspection.gradleItem!.name != "0"
+    //             //         ? jobInspection.gradleItem!.name
+    //             //         : "-"
+    //             //     : "-"
+    //             gradeId: currentGradeName ?? "-",
+    //             inspections: inspecList,
+    //           ));
+    //           BotToast.showText(text: 'Damage deleted successfully');
+    //         },
+    //       );
+    //     } else {
+    //       _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
+    //       _hiveStorageManager.deleteGetDamage(event.jobInspectionId, event.damageId);
+    //       final List<DamageResponseModel> damageResponse = state.damageResponse;
+    //       await Future.delayed(const Duration(seconds: 1));
+    //       damageResponse.removeWhere((element) {
+    //         return element.id == event.stateDamageId;
+    //       });
+
+    //       await findGrade(event.jobInspectionId, event.combinationId);
+
+    //       JobInspectionResponseModelItem? jobInspection =
+    //           await _hiveStorageManager.getInspectionById(event.jobInspectionId);
+
+    //       List<String> gradeOrder = ['G1', 'G2', 'G3', 'G4', 'G5', 'GU'];
+
+    //       String? currentGradeName = jobInspection != null ? jobInspection.gradleItem?.name : "0";
+    //       print("2- currentGradeName: $currentGradeName");
+
+    //       if (newGradeName != null && currentGradeName != null) {
+    //         int currentGradeIndex = gradeOrder.indexOf(currentGradeName);
+    //         int newGradeIndex = gradeOrder.indexOf(newGradeName);
+
+    //         if (newGradeIndex >= currentGradeIndex) {
+    //           currentGradeName = newGradeName;
+    //           await _hiveStorageManager.updateInspectionsListModelGrade(
+    //             JobInspectionResponseModelItem(
+    //               id: event.jobInspectionId,
+    //               gradleItem: GradeId(
+    //                 name: newGradeName,
+    //                 order: newGradeOrder,
+    //                 id: newGradeId,
+    //               ),
+    //             ),
+    //           );
+    //         }
+    //       }
+
+    //       List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
+
+    //       print("2- currentGradeName: $currentGradeName");
+
+    //       emit(state.copyWith(
+    //         status: ViewStatus.success,
+    //         damageResponse: damageResponse,
+    //         inspections: inspecList,
+    //         // gradeId: jobInspection!.gradleItem != null
+    //         //     ? jobInspection.gradleItem!.name != "0"
+    //         //         ? jobInspection.gradleItem!.name
+    //         //         : "-"
+    //         //     : "-",
+    //         gradeId: currentGradeName ?? "-",
+    //       ));
+
+    //       // BotToast.showText(text: 'Damage deleted successfully');
+    //     }
+    //   }
+    // } else {
+    //   _hiveStorageManager.deleteDamagePostModel(event.jobInspectionId);
+    //   _hiveStorageManager.deleteGetDamage(event.jobInspectionId, event.damageId);
+
+    //   final List<DamageResponseModel> damageResponse = state.damageResponse;
+    //   await Future.delayed(const Duration(seconds: 1));
+    //   damageResponse.removeWhere((element) {
+    //     return element.id == event.stateDamageId;
+    //   });
+
+    //   await findGrade(event.jobInspectionId, event.combinationId);
+
+    //   JobInspectionResponseModelItem? jobInspection =
+    //       await _hiveStorageManager.getInspectionById(event.jobInspectionId);
+
+    //   List<String> gradeOrder = ['G1', 'G2', 'G3', 'G4', 'G5', 'GU'];
+
+    //   String? currentGradeName = jobInspection != null ? jobInspection.gradleItem?.name : "0";
+    //   print("3- currentGradeName: $currentGradeName");
+
+    //   if (newGradeName != null && currentGradeName != null) {
+    //     int currentGradeIndex = gradeOrder.indexOf(currentGradeName);
+    //     int newGradeIndex = gradeOrder.indexOf(newGradeName);
+
+    //     if (newGradeIndex >= currentGradeIndex) {
+    //       currentGradeName = newGradeName;
+    //       await _hiveStorageManager.updateInspectionsListModelGrade(
+    //         JobInspectionResponseModelItem(
+    //           id: event.jobInspectionId,
+    //           gradleItem: GradeId(
+    //             name: newGradeName,
+    //             order: newGradeOrder,
+    //             id: newGradeId,
+    //           ),
+    //         ),
+    //       );
+    //     }
+    //   }
+
+    //   List<JobInspectionResponseModelItem?> inspecList = await _hiveStorageManager.getInspectionsListModel();
+
+    //   print("3- currentGradeName: $currentGradeName");
+
+    //   emit(state.copyWith(
+    //     status: ViewStatus.success,
+    //     damageResponse: damageResponse,
+    //     inspections: inspecList,
+    //     // gradeId: jobInspection!.gradleItem != null
+    //     //     ? jobInspection.gradleItem!.name != "0"
+    //     //         ? jobInspection.gradleItem!.name
+    //     //         : "-"
+    //     //     : "-",
+    //     gradeId: currentGradeName ?? "-",
+    //   ));
+
+    //   BotToast.showText(text: 'Damage deleted successfully');
+    // }
   }
 
   void _onUpdateDamageResponse(UpdateDamageResponse event, Emitter<InspectionsState> emit) {
@@ -569,6 +746,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
   Future<void> _postJobInspectionsDamagesRemote(
       PostJobInspectionsDamagesRemote event, Emitter<InspectionsState> emit) async {
+    print("post damage remote is working");
     final result = await _ucGetJobInspectionsDamages.postDamage(
       data: event.data,
     );
@@ -580,6 +758,8 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
         ));
       },
       (data) {
+        print("event data damageId : ${event.data.damageId}");
+        print("data id : ${data.id}");
         _hiveStorageManager.setGetDamageNew(data);
         _hiveStorageManager.updateDamageId(event.data.damageId!, data.id);
         _hiveStorageManager.setDamageBoolValue(true);
@@ -626,7 +806,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
     int? existingScore = await _hiveStorageManager.getScore(inspectionId: currentInspectionId);
     int updatedScore = (existingScore ?? 0) + damageCombinationScore;
-    await _hiveStorageManager.addScore(score: updatedScore, inspectionId: currentInspectionId);
+    await _hiveStorageManager.addScore(score: damageCombinationScore, inspectionId: currentInspectionId);
 
     String? newGradeName;
     int? newGradeOrder;
@@ -675,6 +855,8 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
     final repairName = state.getDamageRepairsResponse.firstWhere((element) => element.id == event.data.repairId);
 
+    print("damageCombinationId : $damageCombinationId");
+
     final DamageResponseModel data = DamageResponseModel(
       id: event.data.damageId ?? 0,
       combinationId: damageCombinationId,
@@ -689,6 +871,8 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       // gradeId: gradeId != null ? gradeId.toString() : state.gradeId,
       price: double.parse(_price ?? "0.0"),
     );
+
+    print("data combinationId : ${data.combinationId}");
 
     _hiveStorageManager.setGetDamage(data);
 
@@ -712,7 +896,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       int currentGradeIndex = gradeOrder.indexOf(currentGradeName);
       int newGradeIndex = gradeOrder.indexOf(newGradeName);
 
-      if (newGradeIndex > currentGradeIndex) {
+      if (newGradeIndex >= currentGradeIndex) {
         currentGradeName = newGradeName;
         await _hiveStorageManager.updateInspectionsListModelGrade(
           JobInspectionResponseModelItem(
@@ -735,6 +919,13 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
         damageResponse: [data, ...state.damageResponse],
         isError: false,
         inspections: inspecList,
+        // gradeId: gradeId != null
+        //     ? "G$gradeId"
+        //     : jobInspection != null
+        //         ? jobInspection.gradleItem != null
+        //             ? jobInspection.gradleItem!.name
+        //             : "-"
+        //         : "-",
         gradeId: gradeId != null ? "G$gradeId" : currentGradeName ?? "-",
       ),
     );
@@ -767,6 +958,14 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
       return null;
     }
 
+    print("damages : ${damages.length}");
+
+    int inspectionsDamageCountByCombinationV2 = damages.where((damage) {
+      print("damage id : ${damage.id}");
+      print("damage combination id ${damage.combinationId} : combinationId $combinationId");
+      return damage.jobInspectionId == jobInspectionId;
+    }).length;
+
     /// If the damage is found then we will get the [JobInspectionResponseModelItem] with the given [jobInspectionId]
     final jobInspection = inspections.firstWhere((inspection) => inspection?.id == jobInspectionId);
 
@@ -784,7 +983,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
         /// We will get the [Damage] with the given [jobInspectionId] and [requiredDamageCombinationId]
         int inspectionsDamageCountByCombination = damages.where((damage) {
-          return damage.jobInspectionId == jobInspectionId && damage.repairId.id == requiredDamageCombinationId;
+          return damage.jobInspectionId == jobInspectionId && damage.combinationId == requiredDamageCombinationId;
         }).length;
 
         /// If the [inspectionsDamageCountByCombination] is greater than or equal to the [requiredDamageCombinationCount]

@@ -33,28 +33,19 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
     super.initState();
     context.read<InspectionsBloc>().add(SetEditDetails(
         fuelLevel: widget.inspection.fuelLevel ?? 0,
-        odo: widget.inspection.odoReading != null
-            ? double.parse(widget.inspection.odoReading.toString())
-            : 0));
+        odo: widget.inspection.odoReading != null ? double.parse(widget.inspection.odoReading.toString()) : 0));
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
-        final bool isSigned = ProductStateItems.hiveDatabaseManager
-                    .getUserModel()!
-                    .inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(widget.inspection.id);
+        final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+            ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(widget.inspection.id);
         return Scaffold(
           appBar: AppBar(
             backgroundColor: context.theme.colorScheme.surface,
-            title:
-                Text('Inspection Detail', style: context.textTheme.titleSmall),
+            title: Text('Inspection Detail', style: context.textTheme.titleSmall),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,8 +63,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Edit Details",
-                      containerColor:
-                          context.theme.colorScheme.onSurfaceVariant,
+                      containerColor: context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/edit_details_page", extra: {
                           "jobInspectionId": widget.inspection.id,
@@ -97,8 +87,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Condition Images",
-                      containerColor:
-                          context.theme.colorScheme.onSurfaceVariant,
+                      containerColor: context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/condition_image_page", extra: {
                           "jobInspectionId": widget.inspection.id,
@@ -114,8 +103,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Item Checklist",
-                      containerColor:
-                          context.theme.colorScheme.onSurfaceVariant,
+                      containerColor: context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/item_checklist_page", extra: {
                           "inspectionId": widget.inspection.id,
@@ -126,13 +114,11 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
                       width: context.dynamicWidth(0.44),
                       textColor: context.theme.colorScheme.primary,
                       text: "Damages",
-                      containerColor:
-                          context.theme.colorScheme.onSurfaceVariant,
+                      containerColor: context.theme.colorScheme.onSurfaceVariant,
                       ontap: () {
                         context.push("/recorded_damages_page", extra: {
                           "jobInspectionId": widget.inspection.id,
-                          "standardIds":
-                              widget.inspection.damageStandards ?? [],
+                          "standardIds": widget.inspection.damageStandards ?? [],
                         });
                       }),
                 ],
@@ -177,7 +163,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
     //             "-"
     //         : "-");
 
-    final gradeText = state.gradeId != ""
+    final gradeText = state.gradeId != "" && state.gradeId != "0"
         ? state.gradeId
         : inspection.gradleItem != null
             ? inspection.gradleItem!.name != "0"
@@ -186,13 +172,8 @@ class JobInspectionDetailWidget extends StatelessWidget {
             : "-";
 
     late String formattedDate = formatDate(inspection.date!);
-    final bool isSigned =
-        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(inspection.id);
+    final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+        ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(inspection.id);
     return Padding(
       padding: context.paddingAllDefault,
       child: Column(
@@ -261,8 +242,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        inspection.odoReading == null ||
-                                inspection.odoReading == 0
+                        inspection.odoReading == null || inspection.odoReading == 0
                             ? state.odo == 0
                                 ? '-'
                                 : "${state.odo.toInt()} Miles"
@@ -282,8 +262,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        inspection.fuelLevel == null ||
-                                inspection.fuelLevel == 0
+                        inspection.fuelLevel == null || inspection.fuelLevel == 0
                             ? state.fuelLevel == 0
                                 ? '-'
                                 : "${state.fuelLevel.toString()}%"
@@ -302,10 +281,7 @@ class JobInspectionDetailWidget extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                          inspection.abortType != null
-                              ? inspection.abortType!.name ?? '-'
-                              : '-',
+                      Text(inspection.abortType != null ? inspection.abortType!.name ?? '-' : '-',
                           style: context.textTheme.bodySmall),
                     ],
                   ),
@@ -313,13 +289,9 @@ class JobInspectionDetailWidget extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      inspection.reportSigned == 1 || isSigned
-                          ? 'Signed'
-                          : 'Unsigned',
+                      inspection.reportSigned == 1 || isSigned ? 'Signed' : 'Unsigned',
                       style: context.textTheme.bodySmall?.copyWith(
-                        color: inspection.reportSigned == 1 || isSigned
-                            ? Colors.purple
-                            : Colors.red,
+                        color: inspection.reportSigned == 1 || isSigned ? Colors.purple : Colors.red,
                       ),
                     ),
                   ),

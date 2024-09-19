@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ferrisfwt/feature/home/data/models/damages/damage_response_model.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/job_expense/job_expense_bloc.dart';
 import 'package:ferrisfwt/feature/home/presentation/bloc/stop_job/stop_job_bloc.dart';
@@ -88,8 +89,7 @@ class _MyAppState extends State<_MyApp> {
   }
 
   Future<void> checkTrackingCoordinates() async {
-    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
-        false) return;
+    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted == false) return;
     if (ProductStateItems.hiveDatabaseManager.getUserModel()?.token == null ||
         ProductStateItems.hiveDatabaseManager.getUserModel()?.token == "") {
       return;
@@ -97,13 +97,10 @@ class _MyAppState extends State<_MyApp> {
     try {
       final HiveStorageManager _hiveStorageManager = HiveStorageManager();
       var connectivityResult = await hasNetwork();
-      final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      final currentJobId =
-          ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
+      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final currentJobId = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
       if (connectivityResult) {
-        List<Map<String, double>> _locations =
-            await _hiveStorageManager.getLocationsFromTable();
+        List<Map<String, double>> _locations = await _hiveStorageManager.getLocationsFromTable();
         if (_locations.isNotEmpty && currentJobId != null) {
           // API Request
           context.read<HomeBloc>().add(UpdateTrackingCoordinateBulk(
@@ -174,8 +171,7 @@ class _MyAppState extends State<_MyApp> {
   }
 
   Future<void> checkInternetConnection() async {
-    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
-        false) return;
+    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted == false) return;
     if (ProductStateItems.hiveDatabaseManager.getUserModel()?.token == null ||
         ProductStateItems.hiveDatabaseManager.getUserModel()?.token == "") {
       return;
@@ -210,16 +206,10 @@ class _MyAppState extends State<_MyApp> {
         _userHiveOperation.deleteJobExpensePatchAsync();
       }
 
-      if (resultStop != [] &&
-          resultStop.isNotEmpty &&
-          resultStop != {} &&
-          _userHiveDatabase.getUserModel() != null) {
+      if (resultStop != [] && resultStop.isNotEmpty && resultStop != {} && _userHiveDatabase.getUserModel() != null) {
         for (var item in resultStop) {
           context.read<StopJobBloc>().add(PostJobStops(
-              isAsync: true,
-              jobId: int.parse(
-                  _userHiveDatabase.getUserModel()!.currentJobId ?? ""),
-              data: item!));
+              isAsync: true, jobId: int.parse(_userHiveDatabase.getUserModel()!.currentJobId ?? ""), data: item!));
           await Future.delayed(const Duration(seconds: 2));
         }
         _userHiveOperation.deleteJobStopAsync();
@@ -230,29 +220,20 @@ class _MyAppState extends State<_MyApp> {
           resultJobUpdate != [] &&
           _userHiveDatabase.getUserModel() != null) {
         for (var item in resultJobUpdate) {
-          context.read<HomeBloc>().add(UpdateJob(
-              _userHiveDatabase.getUserModel()!.currentJobId ?? "",
-              item!,
-              true));
+          context.read<HomeBloc>().add(UpdateJob(_userHiveDatabase.getUserModel()!.currentJobId ?? "", item!, true));
           await Future.delayed(const Duration(seconds: 2));
         }
 
         _userHiveOperation.deleteJobUpdates();
       }
-      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager
-              .getUserModel()
-              ?.inspectionsJobId ??
-          [];
+      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager.getUserModel()?.inspectionsJobId ?? [];
 
       for (var id in jobInspectionsId) {
         try {
-          final resultInspection =
-              await _userHiveOperation.getChecklistPostModel(id);
+          final resultInspection = await _userHiveOperation.getChecklistPostModel(id);
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(PostJobInspectionsCheckList(item!, true, false, null));
+              context.read<InspectionsBloc>().add(PostJobInspectionsCheckList(item!, true, false, null));
               await Future.delayed(const Duration(seconds: 2));
             });
             await _userHiveOperation.deleteChecklistPostModel(id);
@@ -271,8 +252,7 @@ class _MyAppState extends State<_MyApp> {
             await _userHiveOperation.deleteConditionImagePostModel(id);
           }
 */
-          final resultInspectionEditDetail =
-              await _userHiveOperation.getInspectionDetails(id);
+          final resultInspectionEditDetail = await _userHiveOperation.getInspectionDetails(id);
 
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
@@ -294,24 +274,10 @@ class _MyAppState extends State<_MyApp> {
 
           processInspectionsConditionImageDelete(context, id);
 
-          final deletedDamagesIds = _userHiveOperation.getDeletedDamageIds();
-          bool isDelete = _userHiveOperation.isDelete;
+          processInspectionsDamageDelete(context, id);
 
-          if (isDelete && deletedDamagesIds.isNotEmpty) {
-            await Future.forEach(deletedDamagesIds, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(DeleteRecordedDamageRemote(item));
-              await Future.delayed(const Duration(seconds: 2));
-            });
-            _userHiveOperation.clearDeletedDamageIds();
-            _userHiveOperation.setDamageBoolValue(false);
-          }
-
-          final resultInspectionCustomerSign =
-              await _userHiveOperation.getSignCustomerPostModel(id);
-          final resultInspectionSign =
-              await _userHiveOperation.getSignInspectorPostModel(id);
+          final resultInspectionCustomerSign = await _userHiveOperation.getSignCustomerPostModel(id);
+          final resultInspectionSign = await _userHiveOperation.getSignInspectorPostModel(id);
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
@@ -341,31 +307,25 @@ class _MyAppState extends State<_MyApp> {
     }
   }
 
-  Future<void> processInspectionsDamagePost(
-      BuildContext context, int id) async {
-    final resultInspectionEdit =
-        await _userHiveOperation.getDamagePostModel(id);
+  Future<void> processInspectionsDamagePost(BuildContext context, int id) async {
+    final resultInspectionEdit = await _userHiveOperation.getDamagePostModel(id);
     if (resultInspectionEdit.isNotEmpty) {
       await Future.forEach(resultInspectionEdit, (item) async {
-        context
-            .read<InspectionsBloc>()
-            .add(PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
+        context.read<InspectionsBloc>().add(PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
         await Future.delayed(const Duration(seconds: 2));
         await _userHiveOperation.deleteSpecificDamage(item.damageId ?? 0);
       });
     }
   }
 
-  Future<void> processInspectionsConditionImagePost(
-      BuildContext context, int id) async {
+  Future<void> processInspectionsConditionImagePost(BuildContext context, int id) async {
     List<ConditionImageResponseModel?> resultInspectionConditionImages =
         await _userHiveOperation.getConditionImagePostModel(id);
 
     if (resultInspectionConditionImages.isNotEmpty) {
       await Future.forEach(resultInspectionConditionImages, (item) async {
         context.read<InspectionsBloc>().add(
-              PostConditionImagesRemote(
-                  conditionImage: item!, jobInspectionId: id),
+              PostConditionImagesRemote(conditionImage: item!, jobInspectionId: id),
             );
         await Future.delayed(const Duration(seconds: 2));
         await _userHiveOperation.deleteConditionImagePostModel(item.id ?? 0);
@@ -373,8 +333,7 @@ class _MyAppState extends State<_MyApp> {
     }
   }
 
-  Future<void> processInspectionsConditionImageDelete(
-      BuildContext context, int id) async {
+  Future<void> processInspectionsConditionImageDelete(BuildContext context, int id) async {
     List<ConditionImageResponseModel?> deletedConditionIds =
         await _userHiveOperation.getDeletedConditionImagesFromCache(id);
 
@@ -389,6 +348,20 @@ class _MyAppState extends State<_MyApp> {
     }
   }
 
+  Future<void> processInspectionsDamageDelete(BuildContext context, int id) async {
+    List<DamageResponseModel?> deletedDamageIds = await _userHiveOperation.getDeletedDamageFromCache(id);
+
+    if (deletedDamageIds.isNotEmpty) {
+      await Future.forEach(deletedDamageIds, (item) async {
+        context.read<InspectionsBloc>().add(
+              DeleteRecordedDamageRemote(item?.id ?? 0),
+            );
+        await Future.delayed(const Duration(seconds: 2));
+        await _userHiveOperation.deleteDamageIdFromCache(item?.id ?? 0);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -396,8 +369,7 @@ class _MyAppState extends State<_MyApp> {
       title: 'Ferris',
       locale: context.locale,
       theme: context.watch<ThemeNotifier>().currentTheme,
-      themeMode:
-          _determineThemeMode(context.watch<ThemeNotifier>().currentThemeEnum),
+      themeMode: _determineThemeMode(context.watch<ThemeNotifier>().currentThemeEnum),
       darkTheme: CustomDarkTheme().themeData,
       supportedLocales: context.supportedLocales,
       localizationsDelegates: context.localizationDelegates,

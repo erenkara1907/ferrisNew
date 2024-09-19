@@ -74,9 +74,7 @@ class DamageResponseModel implements IResponseModel {
     final gradeName = grade?["name"];
     return DamageResponseModel(
       id: map['id'],
-      jobInspectionId: map['jobInspectionId'] is int?
-          ? map['jobInspectionId']
-          : map['jobInspectionId']?['id'],
+      jobInspectionId: map['jobInspectionId'] is int? ? map['jobInspectionId'] : map['jobInspectionId']?['id'],
       categoryId: DamagesCategory.fromMap(damageCombination['categoryId']),
       partId: DamagesPart.fromMap(damageCombination['partId']),
       issueId: DamagesIssue.fromMap(damageCombination['issueId']),
@@ -85,9 +83,7 @@ class DamageResponseModel implements IResponseModel {
       damageImage: map['damageImage'],
       contextImage: map['contextImage'],
       gradeId: gradeName is String ? gradeName : gradeName?.toString(),
-      price: map['price'] is double?
-          ? map['price']
-          : double.parse(map['price'].toString()),
+      price: map['price'] is double? ? map['price'] : double.parse(map['price'].toString()),
     );
   }
 
@@ -107,19 +103,20 @@ class DamageResponseModel implements IResponseModel {
     String? contextImage,
     double? price,
     String? gradeId,
+    int? combinationId,
   }) {
     return DamageResponseModel(
-      id: id ?? this.id,
-      jobInspectionId: jobInspectionId ?? this.jobInspectionId,
-      categoryId: categoryId ?? this.categoryId,
-      partId: partId ?? this.partId,
-      issueId: issueId ?? this.issueId,
-      failureId: failureId ?? this.failureId,
-      repairId: repairId ?? this.repairId,
-      damageImage: damageImage ?? this.damageImage,
-      contextImage: contextImage ?? this.contextImage,
-      price: price ?? this.price,
-      gradeId: gradeId ?? this.gradeId,
-    );
+        id: id ?? this.id,
+        jobInspectionId: jobInspectionId ?? this.jobInspectionId,
+        categoryId: categoryId ?? this.categoryId,
+        partId: partId ?? this.partId,
+        issueId: issueId ?? this.issueId,
+        failureId: failureId ?? this.failureId,
+        repairId: repairId ?? this.repairId,
+        damageImage: damageImage ?? this.damageImage,
+        contextImage: contextImage ?? this.contextImage,
+        price: price ?? this.price,
+        gradeId: gradeId ?? this.gradeId,
+        combinationId: combinationId ?? this.combinationId);
   }
 }
