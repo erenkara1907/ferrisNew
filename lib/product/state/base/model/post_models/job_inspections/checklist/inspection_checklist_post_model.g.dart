@@ -6,8 +6,7 @@ part of 'inspection_checklist_post_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class InspectionChecklistPostModelAdapter
-    extends TypeAdapter<InspectionChecklistPostModel> {
+class InspectionChecklistPostModelAdapter extends TypeAdapter<InspectionChecklistPostModel> {
   @override
   final int typeId = 191;
 
@@ -28,13 +27,14 @@ class InspectionChecklistPostModelAdapter
       hvChargingCable: fields[7] as int,
       spareKey: fields[8] as int,
       masterKey: fields[9] as int,
+      id: fields[10] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, InspectionChecklistPostModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.jobInspectionId)
       ..writeByte(1)
@@ -54,7 +54,9 @@ class InspectionChecklistPostModelAdapter
       ..writeByte(8)
       ..write(obj.spareKey)
       ..writeByte(9)
-      ..write(obj.masterKey);
+      ..write(obj.masterKey)
+      ..writeByte(10)
+      ..write(obj.id);
   }
 
   @override
@@ -63,7 +65,5 @@ class InspectionChecklistPostModelAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is InspectionChecklistPostModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is InspectionChecklistPostModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

@@ -247,6 +247,7 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
 
   Future<void> _postJobInspectionsCheckList(PostJobInspectionsCheckList event, Emitter<InspectionsState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
+    _hiveStorageManager.setItemCheckList(event.data);
     final result = await hasNetwork();
     if (result) {
       if (event.isUpdate) {
@@ -1141,9 +1142,15 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
             // ));
             return;
           }
-          // emit(state.copyWith(
-          //   status: ViewStatus.success,
-          // ));
+          if (event.signData != null) {
+            add(
+              PostInspectionSign(
+                jobInspectionId: event.jobInspectionId,
+                data: event.signData!,
+                isAsync: event.isAsync,
+              ),
+            );
+          }
         },
       );
     } else {

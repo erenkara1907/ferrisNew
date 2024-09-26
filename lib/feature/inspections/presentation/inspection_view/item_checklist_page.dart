@@ -24,8 +24,7 @@ class ItemCheckListPage extends StatefulWidget {
 
 class _ItemCheckListPageState extends State<ItemCheckListPage> {
   late final List<ChecklistResponseModelItem> savedChecklist2;
-  List<List<bool>> _selectedChecklist =
-      List.generate(9, (index) => [false, false, false]);
+  List<List<bool>> _selectedChecklist = List.generate(9, (index) => [false, false, false]);
   bool checkListisSaved = false;
   late final HiveStorageManager _hiveStorageManager;
   InspectionChecklistPostModel? updateModel;
@@ -33,16 +32,13 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
   @override
   void initState() {
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
-    context
-        .read<InspectionsBloc>()
-        .add(GetJobInspectionsCheckList(inspectionId: widget.inspectionId));
+    context.read<InspectionsBloc>().add(GetJobInspectionsCheckList(inspectionId: widget.inspectionId));
     _loadChecklist();
     super.initState();
   }
 
   void _loadChecklist() async {
-    final savedChecklist =
-        _hiveStorageManager.getItemCheckList(widget.inspectionId);
+    final savedChecklist = _hiveStorageManager.getItemCheckList(widget.inspectionId);
     if (savedChecklist != null) {
       setState(() {
         _selectedChecklist = [
@@ -140,8 +136,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
       listener: (context, state) {
         if (state.status == ViewStatus.success && checkListisSaved) {
           checkListisSaved = false;
-          _selectedChecklist =
-              List.generate(9, (index) => [false, false, false]);
+          _selectedChecklist = List.generate(9, (index) => [false, false, false]);
           showTopSnackBarFr(context, message: 'Checklist saved successfully');
           context.pop();
         }
@@ -164,14 +159,8 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
             ),
           );
         }
-        final bool isSigned = ProductStateItems.hiveDatabaseManager
-                    .getUserModel()!
-                    .inspectionsSign !=
-                null &&
-            ProductStateItems.hiveDatabaseManager
-                .getUserModel()!
-                .inspectionsSign!
-                .contains(widget.inspectionId);
+        final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
+            ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(widget.inspectionId);
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -210,8 +199,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                               padding: context.paddingHorizontalLow,
                               child: Text(
                                 ItemChecklistModel.emptyForm[index].title,
-                                style: context.textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w500),
+                                style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                               ),
                             ),
                             Row(
@@ -221,18 +209,12 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                   child: CheckboxListTile(
                                     activeColor: Colors.green,
                                     checkColor: Colors.white,
-                                    checkboxShape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    title: Text("Yes",
-                                        style: context.textTheme.bodyMedium),
+                                    checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                    title: Text("Yes", style: context.textTheme.bodyMedium),
                                     value: _selectedChecklist[index][0],
                                     onChanged: (value) {
                                       setState(() {
-                                        _selectedChecklist[index] = [
-                                          value!,
-                                          false,
-                                          false
-                                        ];
+                                        _selectedChecklist[index] = [value!, false, false];
                                       });
                                     },
                                   ),
@@ -241,18 +223,12 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                   child: CheckboxListTile(
                                     activeColor: Colors.red,
                                     checkColor: Colors.white,
-                                    checkboxShape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    title: Text("No",
-                                        style: context.textTheme.bodyMedium),
+                                    checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                    title: Text("No", style: context.textTheme.bodyMedium),
                                     value: _selectedChecklist[index][1],
                                     onChanged: (value) {
                                       setState(() {
-                                        _selectedChecklist[index] = [
-                                          false,
-                                          value!,
-                                          false
-                                        ];
+                                        _selectedChecklist[index] = [false, value!, false];
                                       });
                                     },
                                   ),
@@ -261,18 +237,12 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                   child: CheckboxListTile(
                                     activeColor: Colors.black,
                                     checkColor: Colors.white,
-                                    checkboxShape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    title: Text("N/A",
-                                        style: context.textTheme.bodyMedium),
+                                    checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                    title: Text("N/A", style: context.textTheme.bodyMedium),
                                     value: _selectedChecklist[index][2],
                                     onChanged: (value) {
                                       setState(() {
-                                        _selectedChecklist[index] = [
-                                          false,
-                                          false,
-                                          value!
-                                        ];
+                                        _selectedChecklist[index] = [false, false, value!];
                                       });
                                     },
                                   ),
@@ -301,20 +271,18 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                           ),
                         ],
                         color: context.theme.colorScheme.onSurfaceVariant,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(10)),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                       ),
                       child: Padding(
-                        padding: context.paddingHorizontalDefault +
-                            context.paddingBottomHigh +
-                            context.paddingTopLow,
+                        padding: context.paddingHorizontalDefault + context.paddingBottomHigh + context.paddingTopLow,
                         child: CustomAppButton(
                           text: 'Save',
                           ontap: () async {
+                            List<ChecklistResponseModelItem>? checkLists =
+                                await _hiveStorageManager.getInspectionChecklists();
                             final bool result = isChecklistCompleted();
                             if (!result) {
-                              BotToast.showText(
-                                  text: "Please answer all questions");
+                              BotToast.showText(text: "Please answer all questions");
                               return;
                             }
                             setState(() {
@@ -350,12 +318,11 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                           : _selectedChecklist[4][1]
                                               ? 2
                                               : 3,
-                                      thirteenAmpEvChargingCable:
-                                          _selectedChecklist[5][0]
-                                              ? 1
-                                              : _selectedChecklist[5][1]
-                                                  ? 2
-                                                  : 3,
+                                      thirteenAmpEvChargingCable: _selectedChecklist[5][0]
+                                          ? 1
+                                          : _selectedChecklist[5][1]
+                                              ? 2
+                                              : 3,
                                       hvChargingCable: _selectedChecklist[6][0]
                                           ? 1
                                           : _selectedChecklist[6][1]
@@ -373,17 +340,12 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                               : 3,
                                     ),
                                     false,
-                                    _hiveStorageManager.getItemCheckList(
-                                            widget.inspectionId) !=
-                                        null,
-                                    state.checklists.isNotEmpty
-                                        ? state.checklists[0].id
-                                        : 0,
+                                    _hiveStorageManager.getItemCheckList(widget.inspectionId) != null,
+                                    state.checklists.isNotEmpty ? state.checklists[0].id : 0,
                                   ),
                                 );
                             Navigator.pop(context);
-                            showTopSnackBarFr(context,
-                                message: 'Checklist saved successfully');
+                            showTopSnackBarFr(context, message: 'Checklist saved successfully');
                           },
                         ),
                       ),

@@ -151,12 +151,14 @@ class PostJobInspectionsDamagesControl extends InspectionsEvent {
 class PostJobInspectionsCustomerSign extends InspectionsEvent {
   final int jobInspectionId;
   final InspectionCustomerSignPostModel data;
+  final InspectionInspectorSignPostModel? signData;
   final bool isAsync;
 
   const PostJobInspectionsCustomerSign({
     required this.jobInspectionId,
     required this.data,
     required this.isAsync,
+    this.signData,
   });
 }
 

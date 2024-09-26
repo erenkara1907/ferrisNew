@@ -112,6 +112,10 @@ class _MyAppState extends State<_MyApp> {
           return;
         }
 
+        for (var location in _locations) {
+          print(location); // Her bir konumu yazdır
+        }
+
         print("currentJob Id : $currentJobId");
 
         if (currentJobId != null && context.mounted) {

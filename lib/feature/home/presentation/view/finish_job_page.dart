@@ -71,8 +71,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
   Future<void> checkInternetConnection() async {
     final userHiveOperation = ProductStateItems.hiveStorageManager;
     final userHiveDatabase = ProductStateItems.hiveDatabaseManager;
-    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
-        false) return;
+    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted == false) return;
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await userHiveOperation.getJobExpenseAsync();
@@ -92,10 +91,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
 
         userHiveOperation.deleteJobExpenseAsync();
       }
-      if (resultPatch.isNotEmpty &&
-          resultPatch != {} &&
-          resultPatch != [] &&
-          userHiveDatabase.getUserModel() != null) {
+      if (resultPatch.isNotEmpty && resultPatch != {} && resultPatch != [] && userHiveDatabase.getUserModel() != null) {
         for (var item in resultPatch) {
           context.read<JobExpenseBloc>().add(PatchExpense(item!, true, 0));
           await Future.delayed(const Duration(seconds: 5));
@@ -103,16 +99,10 @@ class _FinishJobPageState extends State<FinishJobPage> {
         userHiveOperation.deleteJobExpensePatchAsync();
       }
 
-      if (resultStop != [] &&
-          resultStop.isNotEmpty &&
-          resultStop != {} &&
-          userHiveDatabase.getUserModel() != null) {
+      if (resultStop != [] && resultStop.isNotEmpty && resultStop != {} && userHiveDatabase.getUserModel() != null) {
         for (var item in resultStop) {
           context.read<StopJobBloc>().add(PostJobStops(
-              isAsync: true,
-              jobId: int.parse(
-                  userHiveDatabase.getUserModel()!.currentJobId ?? ""),
-              data: item!));
+              isAsync: true, jobId: int.parse(userHiveDatabase.getUserModel()!.currentJobId ?? ""), data: item!));
           await Future.delayed(const Duration(seconds: 2));
         }
         userHiveOperation.deleteJobStopAsync();
@@ -123,29 +113,20 @@ class _FinishJobPageState extends State<FinishJobPage> {
           resultJobUpdate != [] &&
           userHiveDatabase.getUserModel() != null) {
         for (var item in resultJobUpdate) {
-          context.read<HomeBloc>().add(UpdateJob(
-              userHiveDatabase.getUserModel()!.currentJobId ?? "",
-              item!,
-              true));
+          context.read<HomeBloc>().add(UpdateJob(userHiveDatabase.getUserModel()!.currentJobId ?? "", item!, true));
           await Future.delayed(const Duration(seconds: 2));
         }
 
         userHiveOperation.deleteJobUpdates();
       }
-      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager
-              .getUserModel()
-              ?.inspectionsJobId ??
-          [];
+      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager.getUserModel()?.inspectionsJobId ?? [];
 
       for (var id in jobInspectionsId) {
         try {
-          final resultInspection =
-              await userHiveOperation.getChecklistPostModel(id);
+          final resultInspection = await userHiveOperation.getChecklistPostModel(id);
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(PostJobInspectionsCheckList(item!, true, false, null));
+              context.read<InspectionsBloc>().add(PostJobInspectionsCheckList(item!, true, false, null));
               await Future.delayed(const Duration(seconds: 2));
             });
             await userHiveOperation.deleteChecklistPostModel(id);
@@ -164,8 +145,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
             await _userHiveOperation.deleteConditionImagePostModel(id);
           }
 */
-          final resultInspectionEditDetail =
-              await userHiveOperation.getInspectionDetails(id);
+          final resultInspectionEditDetail = await userHiveOperation.getInspectionDetails(id);
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
@@ -193,24 +173,23 @@ class _FinishJobPageState extends State<FinishJobPage> {
 
           */
 
-          final resultInspectionCustomerSign =
-              await userHiveOperation.getSignCustomerPostModel(id);
-          final resultInspectionSign =
-              await userHiveOperation.getSignInspectorPostModel(id);
+          final resultInspectionCustomerSign = await userHiveOperation.getSignCustomerPostModel(id);
+          final resultInspectionSign = await userHiveOperation.getSignInspectorPostModel(id);
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
                   jobInspectionId: id,
                   data: resultInspectionCustomerSign,
                   isAsync: true,
+                  signData: resultInspectionSign!,
                 ));
-            await Future.delayed(const Duration(seconds: 1));
+            // await Future.delayed(const Duration(seconds: 1));
 
-            context.read<InspectionsBloc>().add(PostInspectionSign(
-                  jobInspectionId: id,
-                  data: resultInspectionSign!,
-                  isAsync: true,
-                ));
+            // context.read<InspectionsBloc>().add(PostInspectionSign(
+            //       jobInspectionId: id,
+            //       data: resultInspectionSign!,
+            //       isAsync: true,
+            //     ));
             await Future.delayed(const Duration(seconds: 2));
 
             await userHiveOperation.clearAllSignCustomerPostModels();
@@ -245,9 +224,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
       );
       for (var item in result) {
         context.read<HomeBloc>().add(UpdateJob(
-              ProductStateItems.hiveDatabaseManager
-                  .getUserModel()!
-                  .currentJobId!,
+              ProductStateItems.hiveDatabaseManager.getUserModel()!.currentJobId!,
               item!,
               true,
             ));
@@ -256,8 +233,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
 
       ProductStateItems.hiveStorageManager.deleteJobExpenseAsync();
     }
-    final resultPatch =
-        await ProductStateItems.hiveStorageManager.getJobExpensePatchAsync();
+    final resultPatch = await ProductStateItems.hiveStorageManager.getJobExpensePatchAsync();
 
     if (resultPatch.isNotEmpty &&
         resultPatch != {} &&
@@ -325,8 +301,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   icon: Image.asset('assets/images/fr_success_finish.png',
-                      height: context.dynamicHeight(0.09),
-                      width: context.dynamicWidth(0.09)),
+                      height: context.dynamicHeight(0.09), width: context.dynamicWidth(0.09)),
                   title: const Text('Finish job success'),
                   actions: [
                     CustomAppButton(
@@ -338,17 +313,14 @@ class _FinishJobPageState extends State<FinishJobPage> {
                   ],
                 );
               });
-        } else if (state.status == ViewStatus.success &&
-            !state.isFinished &&
-            state.noNetworkFinished) {
+        } else if (state.status == ViewStatus.success && !state.isFinished && state.noNetworkFinished) {
           showDialog(
               barrierDismissible: false,
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
                   icon: Image.asset('assets/images/fr_success_finish.png',
-                      height: context.dynamicHeight(0.09),
-                      width: context.dynamicWidth(0.09)),
+                      height: context.dynamicHeight(0.09), width: context.dynamicWidth(0.09)),
                   title: Text(
                     'Finish job success, waiting for internet connection to sync job...',
                     style: context.textTheme.bodyMedium,
@@ -361,42 +333,25 @@ class _FinishJobPageState extends State<FinishJobPage> {
                           final result = await hasNetwork();
 
                           if (result) {
-                            final jobToFinish = await ProductStateItems
-                                .hiveStorageManager
-                                .getJobToFinish();
+                            final jobToFinish = await ProductStateItems.hiveStorageManager.getJobToFinish();
                             if (jobToFinish == null) {
                               BotToast.showText(
-                                  text: 'No job to finish',
-                                  contentColor:
-                                      context.theme.colorScheme.error);
+                                  text: 'No job to finish', contentColor: context.theme.colorScheme.error);
                               BotToast.closeAllLoading();
                               return;
                             }
                             context.read<HomeBloc>().add(EndJob(
-                                isViewFuel: job
-                                            ?.movementTypeId!
-                                            .availableFuelEvLevelInputs
-                                            .isEmpty ==
-                                        false ||
-                                    job?.movementTypeId!.feedbackInputs
-                                            ?.showAnyInput ==
-                                        true,
-                                isFeedBackView: job?.movementTypeId!
-                                        .feedbackInputs?.showAnyInput ==
-                                    true,
+                                isViewFuel: job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                                    job?.movementTypeId!.feedbackInputs?.showAnyInput == true,
+                                isFeedBackView: job?.movementTypeId!.feedbackInputs?.showAnyInput == true,
                                 feedbackInputAvailability:
-                                    job?.movementTypeId!.feedbackInputs ??
-                                        job?.movementTypeId!.feedbackInputs,
-                                id: ProductStateItems.hiveDatabaseManager
-                                    .getUserModel()!
-                                    .currentJobId
-                                    .toString(),
+                                    job?.movementTypeId!.feedbackInputs ?? job?.movementTypeId!.feedbackInputs,
+                                id: ProductStateItems.hiveDatabaseManager.getUserModel()!.currentJobId.toString(),
                                 data: jobToFinish));
                             context.pop();
                           } else {
                             BotToast.showText(
-                                text: 'No internet connection',
-                                contentColor: context.theme.colorScheme.error);
+                                text: 'No internet connection', contentColor: context.theme.colorScheme.error);
                           }
                           BotToast.closeAllLoading();
                         })
@@ -429,45 +384,31 @@ class _FinishJobPageState extends State<FinishJobPage> {
                         children: [
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text("Job Finish",
-                                style: context.theme.textTheme.headlineMedium),
+                            child: Text("Job Finish", style: context.theme.textTheme.headlineMedium),
                           ),
                         ],
                       ),
                       const VerticalSpace.small(),
                       Column(
                         children: [
-                          if (job?.movementTypeId!.feedbackInputs
-                                      ?.showAnyInput ==
-                                  true ||
-                              state.showJob?.movementTypeId!.feedbackInputs
-                                      ?.showAnyInput ==
-                                  true)
+                          if (job?.movementTypeId!.feedbackInputs?.showAnyInput == true ||
+                              state.showJob?.movementTypeId!.feedbackInputs?.showAnyInput == true)
                             CustomAppButton(
                                 text: 'Feedback',
                                 ontap: () {
                                   context.push("/feedback_page", extra: {
-                                    "feedbackInputAvailability":
-                                        job?.movementTypeId?.feedbackInputs ??
-                                            state.showJob?.movementTypeId
-                                                ?.feedbackInputs
+                                    "feedbackInputAvailability": job?.movementTypeId?.feedbackInputs ??
+                                        state.showJob?.movementTypeId?.feedbackInputs
                                   });
                                 }),
                           const VerticalSpace.small(),
-                          if (job?.movementTypeId!.availableFuelEvLevelInputs
-                                      .isEmpty ==
-                                  false ||
-                              state.showJob?.movementTypeId!
-                                      .availableFuelEvLevelInputs.isEmpty ==
-                                  false)
+                          if (job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                              state.showJob?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false)
                             CustomAppButton(
                                 text: 'Fuel Level',
                                 ontap: () {
-                                  context.push('/fuel_level_page', extra: {
-                                    "jobId": job == null
-                                        ? state.showJob?.id
-                                        : job?.id
-                                  });
+                                  context.push('/fuel_level_page',
+                                      extra: {"jobId": job == null ? state.showJob?.id : job?.id});
                                 }),
                         ],
                       ),
@@ -490,9 +431,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
                         textSpanEnable: true,
                       ),
                       const VerticalSpace.small(),
-                      if (state.showJob?.movementTypeId!
-                              .isAvailableValetStandardInput ==
-                          true)
+                      if (state.showJob?.movementTypeId!.isAvailableValetStandardInput == true)
                         Column(
                           children: [
                             DropdownButtonWidget(
@@ -521,16 +460,12 @@ class _FinishJobPageState extends State<FinishJobPage> {
                           containerColor: context.theme.colorScheme.error,
                           ontap: () async {
                             if (_spendCharging == null) {
-                              BotToast.showText(
-                                  text: "Time spent charging is required");
+                              BotToast.showText(text: "Time spent charging is required");
                               return;
                             }
                             if (_selectedValletStandart == null &&
-                                state.showJob?.movementTypeId!
-                                        .isAvailableValetStandardInput ==
-                                    true) {
-                              BotToast.showText(
-                                  text: "Valet Standard is required");
+                                state.showJob?.movementTypeId!.isAvailableValetStandardInput == true) {
+                              BotToast.showText(text: "Valet Standard is required");
                               return;
                             }
 
@@ -547,36 +482,21 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                       await checkInternetConnection();
                                       await _onCheck();
                                       int? valetStandardId;
-                                      if (state.showJob?.movementTypeId!
-                                              .isAvailableValetStandardInput ==
-                                          true) {
+                                      if (state.showJob?.movementTypeId!.isAvailableValetStandardInput == true) {
                                         valetStandardId = state.jobsValet
-                                            .firstWhere((element) =>
-                                                element.name ==
-                                                _selectedValletStandart)
+                                            .firstWhere((element) => element.name == _selectedValletStandart)
                                             .id;
                                       }
 
                                       DateTime now = DateTime.now();
-                                      final date =
-                                          '${_twoDigits(now.hour)}:${_twoDigits(now.minute)}';
-                                      final currentTime = DateTime.now()
-                                              .millisecondsSinceEpoch ~/
-                                          1000;
+                                      final date = '${_twoDigits(now.hour)}:${_twoDigits(now.minute)}';
+                                      final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
                                       context.read<HomeBloc>().add(EndJob(
-                                            isViewFuel: widget.isFuelView ==
-                                                        null ||
-                                                    widget.isFuelView == false
-                                                ? false
-                                                : true,
-                                            isFeedBackView:
-                                                widget.feedbackInputAvailability ==
-                                                        null
-                                                    ? false
-                                                    : true,
-                                            feedbackInputAvailability: widget
-                                                .feedbackInputAvailability,
+                                            isViewFuel:
+                                                widget.isFuelView == null || widget.isFuelView == false ? false : true,
+                                            isFeedBackView: widget.feedbackInputAvailability == null ? false : true,
+                                            feedbackInputAvailability: widget.feedbackInputAvailability,
                                             id: state.showJob!.id.toString(),
                                             data: EndJobPostModel(
                                               // departedHubTime: date,
@@ -590,8 +510,7 @@ class _FinishJobPageState extends State<FinishJobPage> {
                                       context.pop();
                                       BotToast.closeAllLoading();
                                     },
-                                    iconPath:
-                                        'assets/images/fr_finish_job.png');
+                                    iconPath: 'assets/images/fr_finish_job.png');
                                 // return AlertDialog(
                                 //   icon: ClipRRect(
                                 //     borderRadius: BorderRadius.circular(12.0),

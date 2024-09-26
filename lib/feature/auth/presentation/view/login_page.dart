@@ -84,9 +84,7 @@ class _LoginPageState extends BaseMixin<LoginPage> with LoginMixin {
                     obscureText: _obscurePassword,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
                         color: context.theme.colorScheme.secondary,
                       ),
                       onPressed: () {
@@ -100,12 +98,16 @@ class _LoginPageState extends BaseMixin<LoginPage> with LoginMixin {
                   const SignInPageRememberAndPassword(),
                   const VerticalSpace.small(),
                   CustomAppButton(
-                      text: "Continue",
-                      ontap: () {
-                        context.read<AuthBloc>().add(LoginEvent(
-                            email: _namecontroller.text,
-                            password: _passwordController.text));
-                      })
+                    text: "Continue",
+                    ontap: state.status == ViewStatus.loading
+                        ? null
+                        : () {
+                            print("Login");
+                            context
+                                .read<AuthBloc>()
+                                .add(LoginEvent(email: _namecontroller.text, password: _passwordController.text));
+                          },
+                  )
                 ],
               ),
             ),
@@ -144,12 +146,10 @@ class SignInPageRememberAndPassword extends StatefulWidget {
   });
 
   @override
-  State<SignInPageRememberAndPassword> createState() =>
-      _SignInPageRememberAndPasswordState();
+  State<SignInPageRememberAndPassword> createState() => _SignInPageRememberAndPasswordState();
 }
 
-class _SignInPageRememberAndPasswordState
-    extends State<SignInPageRememberAndPassword> {
+class _SignInPageRememberAndPasswordState extends State<SignInPageRememberAndPassword> {
   bool isChecked = false;
 
   @override
@@ -165,9 +165,7 @@ class _SignInPageRememberAndPasswordState
               setState(() {
                 isChecked = value!;
               });
-              context
-                  .read<AuthBloc>()
-                  .add(SetIsSaveLocal(isSaveLocal: isChecked));
+              context.read<AuthBloc>().add(SetIsSaveLocal(isSaveLocal: isChecked));
             }),
         Text(
           "Remember me",

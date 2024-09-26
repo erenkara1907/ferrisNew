@@ -41,6 +41,7 @@ final class InspectionsState extends Equatable {
     this.damageIssueId = 1,
     this.isError = false,
     this.gradeId = "",
+    this.isPostedCustomerSign = false,
   });
 
   final ViewStatus? status;
@@ -82,6 +83,7 @@ final class InspectionsState extends Equatable {
   final int damageIssueId;
   final bool isError;
   final String gradeId;
+  final bool isPostedCustomerSign;
 
   @override
   List<Object?> get props => [
@@ -90,6 +92,7 @@ final class InspectionsState extends Equatable {
         failure,
         checklists,
         gradeId,
+        isPostedCustomerSign,
         inspections,
         inspectionAbortTypes,
         isSetInspection,
@@ -165,11 +168,13 @@ final class InspectionsState extends Equatable {
     int? damageIssueId,
     bool? isError,
     String? gradeId,
+    bool? isPostedCustomerSign,
   }) {
     return InspectionsState(
       status: status ?? this.status,
       gradeId: gradeId ?? this.gradeId,
       isError: isError ?? this.isError,
+      isPostedCustomerSign: isPostedCustomerSign ?? this.isPostedCustomerSign,
       damageCategoryId: damageCategoryId ?? this.damageCategoryId,
       damagePartId: damagePartId ?? this.damagePartId,
       damageIssueId: damageIssueId ?? this.damageIssueId,
@@ -183,28 +188,19 @@ final class InspectionsState extends Equatable {
       isSetInspection: isSetInspection ?? this.isSetInspection,
       selectedChecklist: selectedChecklist ?? this.selectedChecklist,
       imageCustamerName: imageCustamerName ?? this.imageCustamerName,
-      getDamageCategoriesResponse:
-          getDamageCategoriesResponse ?? this.getDamageCategoriesResponse,
-      getDamageAssetsResponse:
-          getDamageAssetsResponse ?? this.getDamageAssetsResponse,
-      getDamageFailuresResponse:
-          getDamageFailuresResponse ?? this.getDamageFailuresResponse,
-      getDamageIssuesResponse:
-          getDamageIssuesResponse ?? this.getDamageIssuesResponse,
-      getDamagePartsResponse:
-          getDamagePartsResponse ?? this.getDamagePartsResponse,
-      getDamageRepairsResponse:
-          getDamageRepairsResponse ?? this.getDamageRepairsResponse,
+      getDamageCategoriesResponse: getDamageCategoriesResponse ?? this.getDamageCategoriesResponse,
+      getDamageAssetsResponse: getDamageAssetsResponse ?? this.getDamageAssetsResponse,
+      getDamageFailuresResponse: getDamageFailuresResponse ?? this.getDamageFailuresResponse,
+      getDamageIssuesResponse: getDamageIssuesResponse ?? this.getDamageIssuesResponse,
+      getDamagePartsResponse: getDamagePartsResponse ?? this.getDamagePartsResponse,
+      getDamageRepairsResponse: getDamageRepairsResponse ?? this.getDamageRepairsResponse,
       damageResponse: damageResponse ?? this.damageResponse,
-      selectedDamageCategory:
-          selectedDamageCategory ?? this.selectedDamageCategory,
-      selectedDamageFailure:
-          selectedDamageFailure ?? this.selectedDamageFailure,
+      selectedDamageCategory: selectedDamageCategory ?? this.selectedDamageCategory,
+      selectedDamageFailure: selectedDamageFailure ?? this.selectedDamageFailure,
       selectedDamageIssue: selectedDamageIssue ?? this.selectedDamageIssue,
       selectedDamagePart: selectedDamagePart ?? this.selectedDamagePart,
       selectedDamageRepair: selectedDamageRepair ?? this.selectedDamageRepair,
-      conditionImageResponse:
-          conditionImageResponse ?? this.conditionImageResponse,
+      conditionImageResponse: conditionImageResponse ?? this.conditionImageResponse,
       lat: lat ?? this.lat,
       long: long ?? this.long,
       address: address ?? this.address,

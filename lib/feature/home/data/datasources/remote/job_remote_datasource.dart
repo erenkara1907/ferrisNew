@@ -101,14 +101,14 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
         throw Exception('Data is not a list');
       }
     } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      await SentryErrorHandler.instance.capture(e.response?.data["message"], stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
 
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
+      throw DioException(requestOptions: e.requestOptions, message: e.response?.data["message"]);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
@@ -171,7 +171,7 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
 
       return response.data.toString();
     } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      await SentryErrorHandler.instance.capture(e.response?.data["message"], stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
@@ -196,7 +196,7 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
           },
         );
       }
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
+      throw DioException(requestOptions: e.requestOptions, message: e.response?.data["message"]);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
@@ -321,13 +321,13 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
       final List<dynamic> productData = response.data["data"];
       return productData.map((e) => ValetStandardResponseModelItem.fromMap(e)).toList();
     } on DioException catch (e, s) {
-      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      await SentryErrorHandler.instance.capture(e.response?.data["message"], stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
         ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
-      throw DioException(requestOptions: e.requestOptions, message: e.message);
+      throw DioException(requestOptions: e.requestOptions, message: e.response?.data["message"]);
     } catch (e, stackTrace) {
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();

@@ -3,9 +3,11 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:camera/camera.dart';
+import 'package:exif/exif.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
 import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
@@ -31,7 +33,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
+import 'package:image/image.dart' as img;
 
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
 
@@ -52,12 +54,74 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
   bool _isLoading = false;
 
   Future<void> compressImage(File image) async {
+    await getImageDimensions(image);
     final documentPath = (await getApplicationDocumentsDirectory()).path;
     final newFile = await image.copy('$documentPath/${path.basename(image.path)}');
+
     File compressedImage = await _resizeImage(newFile);
+
     setState(() {
       _imageFiles.add(compressedImage);
     });
+  }
+
+  Future<void> getImageDimensions(File imageFile) async {
+    // Resmin baytlarını oku
+    final bytes = await imageFile.readAsBytes();
+
+    // Görüntüyü decode et
+    img.Image? decodedImage = img.decodeImage(bytes);
+
+    if (decodedImage != null) {
+      // Genişlik ve yükseklik değerlerini al
+      final width = decodedImage.width;
+      final height = decodedImage.height;
+
+      print("Width: $width, Height: $height");
+    } else {
+      print("Görüntü decode edilemedi.");
+    }
+  }
+
+  Future<File> _rotateImage(File image) async {
+    // Load the image file
+    final bytes = await image.readAsBytes();
+    final originalImage = img.decodeImage(bytes)!;
+
+    final Map<String, IfdTag> data = await readExifFromBytes(bytes);
+    final orientation = data['Image Orientation']?.values.firstAsInt();
+
+    // Determine rotation based on EXIF orientation
+    img.Image rotatedImage = originalImage;
+    switch (orientation) {
+      case 1:
+        // Normal
+        break;
+      case 3:
+        // Rotate 180 degrees
+        rotatedImage = img.copyRotate(originalImage, angle: 180);
+        break;
+      case 6:
+        // Rotate 90 degrees clockwise
+        rotatedImage = img.copyRotate(originalImage, angle: 90);
+        break;
+      case 8:
+        // Rotate 90 degrees counterclockwise
+        rotatedImage = img.copyRotate(originalImage, angle: 270);
+        break;
+      default:
+        // If not defined, keep the original
+        break;
+    }
+
+    // Create a new file to save the rotated image
+    final documentPath = (await getApplicationDocumentsDirectory()).path;
+    final newFilePath = '$documentPath/rotated_${path.basename(image.path)}';
+
+    // Save the rotated image
+    final File newFile = File(newFilePath)..writeAsBytesSync(img.encodeJpg(rotatedImage));
+
+    return newFile;
   }
 
   // Future<void> _getImageFromCamera(InspectionsState state) async {
@@ -181,11 +245,11 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
       final currentUploadedImages = _imageFiles.length + state.conditionImageResponse.length - _deletedImages.length;
       final remainingImages = maxImages - currentUploadedImages;
 
-      // Kamera kullanımında cihazı yatay moda zorla
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
+      // // Kamera kullanımında cihazı yatay moda zorla
+      // await SystemChrome.setPreferredOrientations([
+      //   DeviceOrientation.landscapeLeft,
+      //   DeviceOrientation.landscapeRight,
+      // ]);
 
       final result = await Navigator.push(
         context,
@@ -194,7 +258,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
             limit: remainingImages,
             onCapture: (File image) async {
               if (_imageFiles.length < 75) {
-                await compressImage(image);
+                File rotatedImage = await _rotateImage(image);
+                await compressImage(rotatedImage);
               } else {
                 BotToast.showText(text: 'You can only select 75 images in total');
               }
@@ -203,6 +268,12 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
           ),
         ),
       );
+      // final ImagePicker picker = ImagePicker();
+      // final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      // setState(() {
+      //   _imageFiles.add(File(image!.path));
+      // });
 
       if (result != null && result is List<File>) {
         setState(() {
@@ -210,11 +281,11 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
         });
       }
 
-      // Kamera kullanımı sonrasında cihaz yönünü eski haline döndür
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+      // // Kamera kullanımı sonrasında cihaz yönünü eski haline döndür
+      // await SystemChrome.setPreferredOrientations([
+      //   DeviceOrientation.portraitUp,
+      //   DeviceOrientation.portraitDown,
+      // ]);
 
       permissionStatus = await Permission.camera.status;
       if (!permissionStatus.isGranted) {
@@ -400,8 +471,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                             child: Image.file(
                                               _imageFiles[index],
                                               fit: BoxFit.cover,
-                                              height: context.dynamicHeight(0.15),
-                                              width: context.dynamicWidth(0.35),
+                                              // height: context.dynamicHeight(0.15),
+                                              // width: context.dynamicWidth(0.35),
                                             ),
                                           ),
                                           Positioned(
@@ -460,8 +531,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                             child: Image.file(
                                               File(path),
                                               fit: BoxFit.cover,
-                                              height: context.dynamicHeight(0.15),
-                                              width: context.dynamicWidth(0.35),
+                                              // height: context.dynamicHeight(0.15),
+                                              // width: context.dynamicWidth(0.35),
                                             ),
                                           ),
                                           isSigned
@@ -523,6 +594,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                             }
 
                             final int uniqueId = generateUniqueId();
+
+                            print("image files : ${_imageFiles.length}");
 
                             context.read<InspectionsBloc>().add(PostConditionImages(
                                   isAsync: false,
@@ -628,8 +701,12 @@ class CameraPageCondition extends StatefulWidget {
   final int limit;
   final List<File> capturedImages;
 
-  const CameraPageCondition({Key? key, required this.onCapture, required this.limit, required this.capturedImages})
-      : super(key: key);
+  const CameraPageCondition({
+    Key? key,
+    required this.onCapture,
+    required this.limit,
+    required this.capturedImages,
+  }) : super(key: key);
 
   @override
   _CameraPageConditionState createState() => _CameraPageConditionState();
@@ -666,6 +743,33 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     super.dispose();
   }
 
+  // Future<void> _captureImage() async {
+  //   try {
+  //     await _initializeControllerFuture;
+  //     final XFile image = await _cameraController.takePicture();
+  //     final File file = File(image.path);
+  //     widget.onCapture(file);
+  //     setState(() {
+  //       _capturedImages.add(file);
+  //     });
+  //   } catch (e) {
+  //     BotToast.showText(text: 'Error capturing image: $e');
+  //   }
+  // }
+
+  Future<File> rotateToLandscape(File imageFile) async {
+    // Resmi okuma
+    final bytes = await imageFile.readAsBytes();
+    final originalImage = img.decodeImage(bytes);
+
+    if (originalImage == null) return imageFile; // Hata durumu
+
+    final rotatedImage = img.copyRotate(originalImage, angle: 270); // 90 derece döndür
+    final outputFile = File(imageFile.path);
+    await outputFile.writeAsBytes(img.encodeJpg(rotatedImage));
+    return outputFile; // Döndürülmüş dosyayı geri döndür
+  }
+
   bool _isTakingPicture = false;
 
   Future<void> _captureImage() async {
@@ -679,11 +783,23 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     try {
       await _initializeControllerFuture;
       final XFile image = await _cameraController.takePicture();
-      final File file = File(image.path);
-      widget.onCapture(file);
+      final landscapeFile = await rotateToLandscape(File(image.path));
+      // final File file = File(image.path);
+      widget.onCapture(landscapeFile);
+
       setState(() {
-        _capturedImages.add(file);
+        _capturedImages.add(landscapeFile);
       });
+
+      // if (_capturedImages.length == 2) {
+      //   Navigator.pop(context, _capturedImages);
+      //   Future.delayed(
+      //     const Duration(seconds: 1),
+      //     () async {
+      //       await widget.submitDamageToAPI();
+      //     },
+      //   );
+      // }
     } catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
 
@@ -699,10 +815,10 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Camera'),
+        title: const Text("Camera"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
+          onPressed: () async {
             Navigator.pop(context, _capturedImages);
           },
         ),
@@ -721,76 +837,71 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                Positioned.fill(
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      height: _cameraController.value.previewSize!.height,
-                      width: _cameraController.value.previewSize!.width,
-                      child: CameraPreview(_cameraController),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: EdgeInsets.only(right: _capturedImages.isNotEmpty ? 120.0 : 16.0),
-                    child: FloatingActionButton(
-                      onPressed: _captureImage,
-                      child: const Icon(Icons.camera_alt),
-                    ),
-                  ),
+                SizedBox(
+                  height: context.height,
+                  child: CameraPreview(_cameraController),
                 ),
                 Positioned(
+                  bottom: 20,
+                  left: 0,
                   right: 0,
-                  bottom: 0,
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      InkWell(
+                        onTap: _captureImage,
+                        child: const CircleAvatar(
+                          radius: 30,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                      const VerticalSpace.xSmall(),
                       if (_capturedImages.isNotEmpty)
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
+                            color: context.theme.colorScheme.primaryContainer.withOpacity(0.2),
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(10),
                             ),
                           ),
-                          width: 100,
-                          height: MediaQuery.of(context).size.height * 0.8,
+                          width: context.width,
+                          height: 140,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.dynamicWidth(0.05),
+                              vertical: context.dynamicHeight(0.02),
+                            ),
                             child: ListView.builder(
-                              scrollDirection: Axis.vertical,
+                              scrollDirection: Axis.horizontal,
                               itemCount: _capturedImages.length,
                               itemBuilder: (context, index) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.020)),
                                   child: Stack(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.file(
                                           _capturedImages[index],
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
                                         ),
                                       ),
                                       Positioned(
-                                        top: -8,
-                                        right: -8,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _capturedImages.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.cancel_outlined,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
+                                          top: -12,
+                                          right: -10,
+                                          child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _capturedImages.removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                Icons.cancel_outlined,
+                                                color: Colors.red,
+                                              )))
                                     ],
                                   ),
                                 );

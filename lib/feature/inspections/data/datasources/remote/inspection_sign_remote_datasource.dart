@@ -80,9 +80,11 @@ class JobInspectionsSignRemoteDataSourceImpl with HandleRequestMixin implements 
     required InspectionInspectorSignPostModel data,
   }) async {
     try {
+      // Todo Datayı normal gönder
       final response = await _networkClient.post(
         "${ServicePath.jobInspectionsInspectorSign.value}/$inspectionId",
         data: FormData.fromMap(data.toMap(), ListFormat.multiCompatible),
+        // data: data.toMap(),
         options: Options(headers: headers),
       );
       if (response.data == null || response.data == null) {

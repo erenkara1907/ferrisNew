@@ -89,11 +89,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (_hiveDatabaseManager.getUserModel() != null) {
           if (_hiveDatabaseManager.getUserModel()!.currentJobId != null &&
               _hiveDatabaseManager.getUserModel()!.currentJobId != "") {
-            ProductStateItems
-                .appRouter.router.routerDelegate.navigatorKey.currentContext
-                ?.pop();
-            BotToast.showText(
-                text: 'Please complete the job before logging out');
+            ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.pop();
+            BotToast.showText(text: 'Please complete the job before logging out');
             return;
           }
         }
@@ -106,8 +103,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onSetDeviceId(
-      SetDeviceIdEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onSetDeviceId(SetDeviceIdEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final message = await FirebaseMessaging.instance.getToken();
@@ -115,8 +111,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _ucGetAuth.setDeviceId(deviceId: message ?? '');
   }
 
-  Future<void> _onChangePassword(
-      ChangePasswordEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onChangePassword(ChangePasswordEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
     final result = await _ucGetAuth.changePassword(
@@ -139,10 +134,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onVerifyOtp(
-      VerifyOtpEvent event, Emitter<AuthState> emit) async {
-    emit(state.copyWith(
-        authStatus: ViewStatus.loading, isVerificationCompleted: false));
+  Future<void> _onVerifyOtp(VerifyOtpEvent event, Emitter<AuthState> emit) async {
+    print("girdi bloc verify");
+    emit(state.copyWith(authStatus: ViewStatus.loading, isVerificationCompleted: false));
 
     final result = await _ucGetAuth.verifyOtp(
       userId: state.loginResponseModel!.userId ?? 0,
@@ -164,8 +158,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             token: data.accessToken,
           ));
         } else {
-          _hiveDatabaseManager.updateToken(
-              mail: state.email ?? "", token: data.accessToken);
+          _hiveDatabaseManager.updateToken(mail: state.email ?? "", token: data.accessToken);
         }
         emit(state.copyWith(
           authStatus: ViewStatus.success,
@@ -197,8 +190,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthState());
   }
 
-  void _resetVerificationEvent(
-      ResetVerificationEvent event, Emitter<AuthState> emit) {
+  void _resetVerificationEvent(ResetVerificationEvent event, Emitter<AuthState> emit) {
     emit(state.copyWith(
         isVerificationCompleted: false,
         isCodeSent: false,

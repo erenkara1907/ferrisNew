@@ -24,6 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
@@ -214,10 +215,6 @@ class _DamagesPageState extends State<DamagesPage> {
 
   Future<void> _getImageFromCamera(InspectionsState state) async {
     // Yalnızca yatay modda ekranı göstermek için
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
 
     PermissionStatus permissionStatus = await Permission.camera.status;
     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
@@ -253,10 +250,7 @@ class _DamagesPageState extends State<DamagesPage> {
 
       if (result != true) {
         // Ekranı önceki durumuna döndür
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
+
         return;
       }
     }
@@ -300,10 +294,6 @@ class _DamagesPageState extends State<DamagesPage> {
     }
 
     // Ekranı önceki durumuna döndür
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
   }
 
   Future<void> captureImages(InspectionsState state) async {
@@ -1280,6 +1270,19 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
   //   }
   // }
 
+  Future<File> rotateToLandscape(File imageFile) async {
+    // Resmi okuma
+    final bytes = await imageFile.readAsBytes();
+    final originalImage = img.decodeImage(bytes);
+
+    if (originalImage == null) return imageFile; // Hata durumu
+
+    final rotatedImage = img.copyRotate(originalImage, angle: 270); // 90 derece döndür
+    final outputFile = File(imageFile.path);
+    await outputFile.writeAsBytes(img.encodeJpg(rotatedImage));
+    return outputFile; // Döndürülmüş dosyayı geri döndür
+  }
+
   bool _isTakingPicture = false;
 
   Future<void> _captureImage() async {
@@ -1301,12 +1304,13 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
       );
       await _initializeControllerFuture;
       final XFile image = await _cameraController.takePicture();
-      final File file = File(image.path);
-      widget.onCapture(file);
+      final landscapeFile = await rotateToLandscape(File(image.path));
+      // final File file = File(image.path);
+      widget.onCapture(landscapeFile);
 
       if (_capturedImages.length < 2) {
         setState(() {
-          _capturedImages.add(file);
+          _capturedImages.add(landscapeFile);
         });
       }
 
@@ -1339,11 +1343,6 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () async {
             Navigator.pop(context, _capturedImages);
-
-            await SystemChrome.setPreferredOrientations([
-              DeviceOrientation.portraitUp,
-              DeviceOrientation.portraitDown,
-            ]);
           },
         ),
       ),
@@ -1353,76 +1352,71 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                Positioned.fill(
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      height: _cameraController.value.previewSize!.height,
-                      width: _cameraController.value.previewSize!.width,
-                      child: CameraPreview(_cameraController),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: EdgeInsets.only(right: _capturedImages.isNotEmpty ? 120.0 : 16.0),
-                    child: FloatingActionButton(
-                      onPressed: _captureImage,
-                      child: const Icon(Icons.camera_alt),
-                    ),
-                  ),
+                SizedBox(
+                  height: context.height,
+                  child: CameraPreview(_cameraController),
                 ),
                 Positioned(
+                  bottom: 20,
+                  left: 0,
                   right: 0,
-                  bottom: 0,
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      InkWell(
+                        onTap: _captureImage,
+                        child: const CircleAvatar(
+                          radius: 30,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                      const VerticalSpace.xSmall(),
                       if (_capturedImages.isNotEmpty)
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
+                            color: context.theme.colorScheme.primaryContainer.withOpacity(0.2),
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(10),
                             ),
                           ),
-                          width: 100,
-                          height: MediaQuery.of(context).size.height * 0.8,
+                          width: context.width,
+                          height: 140,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.dynamicWidth(0.05),
+                              vertical: context.dynamicHeight(0.02),
+                            ),
                             child: ListView.builder(
-                              scrollDirection: Axis.vertical,
+                              scrollDirection: Axis.horizontal,
                               itemCount: _capturedImages.length,
                               itemBuilder: (context, index) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.020)),
                                   child: Stack(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.file(
                                           _capturedImages[index],
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
                                         ),
                                       ),
                                       Positioned(
-                                        top: -8,
-                                        right: -8,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _capturedImages.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.cancel_outlined,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
+                                          top: -12,
+                                          right: -10,
+                                          child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _capturedImages.removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                Icons.cancel_outlined,
+                                                color: Colors.red,
+                                              )))
                                     ],
                                   ),
                                 );
@@ -1440,94 +1434,6 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
           }
         },
       ),
-      // body: FutureBuilder<void>(
-      //   future: _initializeControllerFuture,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.done) {
-      //       return Stack(
-      //         children: [
-      //           SizedBox(
-      //             height: context.height,
-      //             child: CameraPreview(_cameraController),
-      //           ),
-      //           Positioned(
-      //             bottom: 20,
-      //             left: 0,
-      //             right: 0,
-      //             child: Column(
-      //               mainAxisAlignment: MainAxisAlignment.center,
-      //               crossAxisAlignment: CrossAxisAlignment.center,
-      //               children: [
-      //                 InkWell(
-      //                   onTap: _captureImage,
-      //                   child: const CircleAvatar(
-      //                     radius: 30,
-      //                     child: Icon(
-      //                       Icons.camera_alt,
-      //                       size: 30,
-      //                     ),
-      //                   ),
-      //                 ),
-      //                 const VerticalSpace.xSmall(),
-      //                 if (_capturedImages.isNotEmpty)
-      //                   Container(
-      //                     decoration: BoxDecoration(
-      //                       color: context.theme.colorScheme.primaryContainer.withOpacity(0.2),
-      //                       borderRadius: const BorderRadius.vertical(
-      //                         top: Radius.circular(10),
-      //                       ),
-      //                     ),
-      //                     width: context.width,
-      //                     height: 140,
-      //                     child: Padding(
-      //                       padding: EdgeInsets.symmetric(
-      //                         horizontal: context.dynamicWidth(0.05),
-      //                         vertical: context.dynamicHeight(0.02),
-      //                       ),
-      //                       child: ListView.builder(
-      //                         scrollDirection: Axis.horizontal,
-      //                         itemCount: _capturedImages.length,
-      //                         itemBuilder: (context, index) {
-      //                           return Padding(
-      //                             padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.020)),
-      //                             child: Stack(
-      //                               children: [
-      //                                 ClipRRect(
-      //                                   borderRadius: BorderRadius.circular(10),
-      //                                   child: Image.file(
-      //                                     _capturedImages[index],
-      //                                   ),
-      //                                 ),
-      //                                 Positioned(
-      //                                     top: -12,
-      //                                     right: -10,
-      //                                     child: IconButton(
-      //                                         onPressed: () {
-      //                                           setState(() {
-      //                                             _capturedImages.removeAt(index);
-      //                                           });
-      //                                         },
-      //                                         icon: const Icon(
-      //                                           Icons.cancel_outlined,
-      //                                           color: Colors.red,
-      //                                         )))
-      //                               ],
-      //                             ),
-      //                           );
-      //                         },
-      //                       ),
-      //                     ),
-      //                   ),
-      //               ],
-      //             ),
-      //           ),
-      //         ],
-      //       );
-      //     } else {
-      //       return const Center(child: CircularProgressIndicator());
-      //     }
-      //   },
-      // ),
     );
   }
 }

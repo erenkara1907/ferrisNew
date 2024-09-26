@@ -35,10 +35,8 @@ class SignInspection2Page extends StatefulWidget {
   State<SignInspection2Page> createState() => _SignInspection2PageState();
 }
 
-class _SignInspection2PageState extends State<SignInspection2Page>
-    with WidgetsBindingObserver {
-  final TextEditingController _inspectorNameController =
-      TextEditingController();
+class _SignInspection2PageState extends State<SignInspection2Page> with WidgetsBindingObserver {
+  final TextEditingController _inspectorNameController = TextEditingController();
   Position? position;
 
   Uint8List? exportedImage;
@@ -72,8 +70,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
     }
   }
 
-  Future<void> checkPermission(
-      Permission permission, BuildContext context) async {
+  Future<void> checkPermission(Permission permission, BuildContext context) async {
     final PermissionStatus status = await permission.request();
     if (status.isGranted) {
       BotToast.showText(text: 'Permission is Granted');
@@ -104,8 +101,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
 
   Future<void> getCurrentLocation() async {
     try {
-      bool isLocationServiceEnabled =
-          await Geolocator.isLocationServiceEnabled();
+      bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!isLocationServiceEnabled) {
         BotToast.showText(text: 'Please enable location services');
         return;
@@ -123,14 +119,12 @@ class _SignInspection2PageState extends State<SignInspection2Page>
       if (permission == LocationPermission.deniedForever) {
         checkPermission(Permission.location, context);
         BotToast.showText(
-          text:
-              'Location permissions are permanently denied, we cannot request permissions.',
+          text: 'Location permissions are permanently denied, we cannot request permissions.',
         );
         return;
       }
 
-      final result = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      final result = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
       setState(() {
         position = result;
@@ -197,8 +191,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color:
-                            context.theme.colorScheme.surfaceContainerHighest,
+                        color: context.theme.colorScheme.surfaceContainerHighest,
                       ),
                       child: Padding(
                         padding: context.paddingAllLow,
@@ -240,18 +233,14 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: 'Address: ',
-                                    style:
-                                        context.textTheme.bodyLarge?.copyWith(
+                                    style: context.textTheme.bodyLarge?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: state.address == ""
-                                        ? 'Find Adress'
-                                        : state.address,
-                                    style: context.textTheme.bodyLarge
-                                        ?.copyWith(color: Colors.white),
+                                    text: state.address == "" ? 'Find Adress' : state.address,
+                                    style: context.textTheme.bodyLarge?.copyWith(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -262,17 +251,14 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: 'latitude: ',
-                                    style:
-                                        context.textTheme.bodyLarge?.copyWith(
+                                    style: context.textTheme.bodyLarge?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   TextSpan(
-                                    text:
-                                        '${state.lat == "" ? position?.latitude : state.lat} ',
-                                    style: context.textTheme.bodyLarge
-                                        ?.copyWith(color: Colors.white),
+                                    text: '${state.lat == "" ? position?.latitude : state.lat} ',
+                                    style: context.textTheme.bodyLarge?.copyWith(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -283,17 +269,14 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: 'longitude: ',
-                                    style:
-                                        context.textTheme.bodyLarge?.copyWith(
+                                    style: context.textTheme.bodyLarge?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   TextSpan(
-                                    text:
-                                        '${state.long == "" ? position?.longitude : state.long} ',
-                                    style: context.textTheme.bodyLarge
-                                        ?.copyWith(color: Colors.white),
+                                    text: '${state.long == "" ? position?.longitude : state.long} ',
+                                    style: context.textTheme.bodyLarge?.copyWith(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -305,8 +288,7 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                 children: [
                                   Text(
                                     'Location is fetched from GPS',
-                                    style:
-                                        context.textTheme.bodyMedium?.copyWith(
+                                    style: context.textTheme.bodyMedium?.copyWith(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -322,10 +304,8 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                           context.dynamicHeight(0.045),
                                         ),
                                         shape: RoundedRectangleBorder(
-                                          side: const BorderSide(
-                                              color: Colors.black),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          side: const BorderSide(color: Colors.black),
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
                                       ),
                                       onPressed: () async {
@@ -361,16 +341,14 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                       height: 195,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                            color: context.theme.colorScheme.primaryContainer),
+                        border: Border.all(color: context.theme.colorScheme.primaryContainer),
                       ),
                       child: Signature(
                         key: const Key('signature'),
                         controller: _controller,
                         height: 180,
                         width: context.width - 30,
-                        backgroundColor:
-                            const Color.fromARGB(255, 238, 238, 238),
+                        backgroundColor: const Color.fromARGB(255, 238, 238, 238),
                       ),
                     ),
                   ),
@@ -392,13 +370,11 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                           text: 'Save',
                           ontap: () async {
                             if (position == null) {
-                              BotToast.showText(
-                                  text: 'Please enable location permission');
+                              BotToast.showText(text: 'Please enable location permission');
                               return;
                             }
                             if (_inspectorNameController.text.isEmpty) {
-                              BotToast.showText(
-                                  text: 'Please enter the inspector name');
+                              BotToast.showText(text: 'Please enter the inspector name');
                               return;
                             }
                             final signature = await _controller.toPngBytes();
@@ -407,22 +383,17 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                             });
 
                             if (exportedImage == null) {
-                              BotToast.showText(
-                                  text: 'Please sign the signature');
+                              BotToast.showText(text: 'Please sign the signature');
                               return;
                             }
 
-                            final Uint8List? image =
-                                await _controller.toPngBytes();
+                            final Uint8List? image = await _controller.toPngBytes();
 
-                            final dir =
-                                await getApplicationDocumentsDirectory();
+                            final dir = await getApplicationDocumentsDirectory();
 
-                            final file = File(
-                                '${dir.path}/${Random().nextInt(10000)}.png');
+                            final file = File('${dir.path}/${Random().nextInt(10000)}.png');
                             if (image == null) {
-                              BotToast.showText(
-                                  text: 'Please sign the signature');
+                              BotToast.showText(text: 'Please sign the signature');
                               return;
                             }
 
@@ -433,38 +404,38 @@ class _SignInspection2PageState extends State<SignInspection2Page>
                                   PostJobInspectionsCustomerSign(
                                     jobInspectionId: widget.inspectionId,
                                     data: InspectionCustomerSignPostModel(
-                                      customerSignerName:
-                                          state.imageCustamerName ?? '',
-                                      customerSignatureImg:
-                                          state.imageCustamerFile ?? File(''),
-                                      customerSignLatitude:
-                                          position!.latitude.toString(),
-                                      customerSignLongitude:
-                                          position!.longitude.toString(),
-                                      date: DateFormat('yyyy-MM-dd HH:mm:ss')
-                                          .format(now),
+                                      customerSignerName: state.imageCustamerName ?? '',
+                                      customerSignatureImg: state.imageCustamerFile ?? File(''),
+                                      customerSignLatitude: position!.latitude.toString(),
+                                      customerSignLongitude: position!.longitude.toString(),
+                                      date: DateFormat('yyyy-MM-dd HH:mm:ss').format(now),
                                     ),
                                     isAsync: false,
-                                  ),
-                                );
-                            await Future.delayed(const Duration(seconds: 1));
-                            context.read<InspectionsBloc>().add(
-                                  PostInspectionSign(
-                                    jobInspectionId: widget.inspectionId,
-                                    data: InspectionInspectorSignPostModel(
-                                      inspectorSignLatitude:
-                                          position!.latitude.toString(),
-                                      inspectorSignLongitude:
-                                          position!.longitude.toString(),
-                                      inspectorSignerName:
-                                          _inspectorNameController.text,
+                                    signData: InspectionInspectorSignPostModel(
+                                      inspectorSignLatitude: position!.latitude.toString(),
+                                      inspectorSignLongitude: position!.longitude.toString(),
+                                      inspectorSignerName: _inspectorNameController.text,
                                       inspectorSignatureImg: file,
-                                      date: DateFormat('yyyy-MM-dd HH:mm:ss')
-                                          .format(now),
+                                      date: DateFormat('yyyy-MM-dd HH:mm:ss').format(now),
                                     ),
-                                    isAsync: false,
                                   ),
                                 );
+                            // print("state.isPostedCustomerSign: ${state.isPostedCustomerSign}");
+                            // if (state.isPostedCustomerSign) {
+                            //   context.read<InspectionsBloc>().add(
+                            //         PostInspectionSign(
+                            //           jobInspectionId: widget.inspectionId,
+                            //           data: InspectionInspectorSignPostModel(
+                            //             inspectorSignLatitude: position!.latitude.toString(),
+                            //             inspectorSignLongitude: position!.longitude.toString(),
+                            //             inspectorSignerName: _inspectorNameController.text,
+                            //             inspectorSignatureImg: file,
+                            //             date: DateFormat('yyyy-MM-dd HH:mm:ss').format(now),
+                            //           ),
+                            //           isAsync: false,
+                            //         ),
+                            //       );
+                            // }
                           },
                         ),
                       ],
@@ -504,8 +475,7 @@ class _SignMapViewState extends State<SignMapView> {
   _init() {
     _defaultLatLang = const LatLng(11, 104);
     _draggedLatlang = _defaultLatLang;
-    _draggedAddress =
-        'Your address was not found (check your internet and try again)';
+    _draggedAddress = 'Your address was not found (check your internet and try again)';
     _cameraPosition = CameraPosition(target: _defaultLatLang, zoom: 17.5);
   }
 
@@ -622,11 +592,9 @@ class _SignMapViewState extends State<SignMapView> {
   }
 
   Future<void> getAddress(LatLng position) async {
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark address = placemarks[0];
-    String addressStr =
-        "${address.street}, ${address.locality}, ${address.administrativeArea}, ${address.country}";
+    String addressStr = "${address.street}, ${address.locality}, ${address.administrativeArea}, ${address.country}";
     setState(() {
       _draggedAddress = addressStr;
       context.read<InspectionsBloc>().add(SetAddress(_draggedAddress));
@@ -644,8 +612,7 @@ class _SignMapViewState extends State<SignMapView> {
 
   Future _gotoUserCurrentPosition() async {
     Position currentPosition = await _determineUserCurrentPosition();
-    LatLng userPosition =
-        LatLng(currentPosition.latitude, currentPosition.longitude);
+    LatLng userPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
     _gotoSpecificPosition(userPosition);
     if (mounted) {
       getAddress(userPosition);

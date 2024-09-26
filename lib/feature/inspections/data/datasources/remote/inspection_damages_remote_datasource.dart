@@ -87,7 +87,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       }
 
       final response = await _networkClient.post(
-        "https://dev.fwtsolutions.co.uk/api/v1/damages",
+        "https://staging.fwtsolutions.co.uk/api/v1/damages",
         options: Options(headers: headers),
         data: formData,
       );
@@ -116,7 +116,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
   }) async {
     try {
       final response = await _networkClient.get(
-        "https://dev.fwtsolutions.co.uk/api/v1/damages",
+        "https://staging.fwtsolutions.co.uk/api/v1/damages",
         options: Options(headers: headers),
         queryParameters: {
           'jobInspectionId': jobInspectionId.toString(),
@@ -158,7 +158,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
     print("will delete damage with id: $damageId");
     try {
       final response = await http.delete(
-        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/damages/$damageId"),
+        Uri.parse("https://staging.fwtsolutions.co.uk/api/v1/damages/$damageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',

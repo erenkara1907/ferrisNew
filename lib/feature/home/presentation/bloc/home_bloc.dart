@@ -477,7 +477,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         longitude: event.longitude,
       );
     } else {}
-  }
+  } 
 
   Future<void> _onUpdateTrackingCoordinateBulk(
       UpdateTrackingCoordinateBulk event, Emitter<HomeState> emit) async {

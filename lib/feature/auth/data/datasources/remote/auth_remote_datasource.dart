@@ -40,12 +40,8 @@ abstract interface class AuthRemoteDataSource {
   });
 }
 
-class AuthRemoteDataSourceImpl
-    with HandleRequestMixin
-    implements AuthRemoteDataSource {
-  AuthRemoteDataSourceImpl(
-      {required NetworkClient networkClient,
-      required HiveDatabaseManager hiveDatabaseManager})
+class AuthRemoteDataSourceImpl with HandleRequestMixin implements AuthRemoteDataSource {
+  AuthRemoteDataSourceImpl({required NetworkClient networkClient, required HiveDatabaseManager hiveDatabaseManager})
       : _networkClient = networkClient,
         _hiveDatabaseManager = hiveDatabaseManager;
 
@@ -78,6 +74,8 @@ class AuthRemoteDataSourceImpl
         throw NullResponseException();
       }
 
+      print("response.data['data'] ${response.data['data']}");
+
       final data = response.data['data'] as Map<String, dynamic>;
 
       return LoginResponseModel.fromJson(data);
@@ -97,20 +95,51 @@ class AuthRemoteDataSourceImpl
     required String token,
     required String code,
   }) async {
-    final data = {
-      'userId': userId,
-      'token': token,
-      'code': code,
-    };
-    return handleRequest<OtpResponseModel>(
-      _networkClient.post(ServicePath.verifyOtp.value,
-          data: data,
-          options: Options(headers: {
-            'Content-Type': 'application/json',
-          })),
-      OtpResponseModel.fromJson,
-      manipulateData: (p0) => p0['data'] as Map<String, dynamic>,
-    );
+    print("girdi service verify");
+    // final data = {
+    //   'userId': userId,
+    //   'token': token,
+    //   'code': code,
+    // };
+    // return handleRequest<OtpResponseModel>(
+    //   _networkClient.post(ServicePath.verifyOtp.value,
+    //       data: data,
+    //       options: Options(headers: {
+    //         'Content-Type': 'application/json',
+    //       })),
+    //   OtpResponseModel.fromJson,
+    //   manipulateData: (p0) => p0['data'] as Map<String, dynamic>,
+    // );
+
+    try {
+      final response = await _networkClient.post(
+        ServicePath.verifyOtp.value,
+        data: {
+          'userId': userId,
+          'token': token,
+          'code': code,
+        },
+        options: Options(
+          headers: {'Accept': 'application/json'},
+        ),
+      );
+      print("response.data[ VERIFY ${response.data['data']}");
+
+      if (response.data == null || response.data == null) {
+        throw NullResponseException();
+      }
+
+      final data = response.data['data'] as Map<String, dynamic>;
+
+      return OtpResponseModel.fromJson(data);
+    } on DioException catch (e, s) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: s);
+      BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      throw DioException(requestOptions: e.requestOptions, message: e.message);
+    } catch (e, stackTrace) {
+      await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
+      throw UnknownException();
+    }
   }
 
   @override
@@ -128,8 +157,7 @@ class AuthRemoteDataSourceImpl
           data: data,
           options: Options(headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
+            'Authorization': 'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );
@@ -141,8 +169,7 @@ class AuthRemoteDataSourceImpl
       _networkClient.post(ServicePath.getUser.value,
           options: Options(headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
+            'Authorization': 'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       UserResponseModel.fromJson,
       manipulateData: (p0) => p0['data'] as Map<String, dynamic>,
@@ -161,8 +188,7 @@ class AuthRemoteDataSourceImpl
           data: data,
           options: Options(headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
+            'Authorization': 'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );
@@ -180,8 +206,7 @@ class AuthRemoteDataSourceImpl
           data: data,
           options: Options(headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
+            'Authorization': 'Bearer ${_hiveDatabaseManager.getUserModel()?.token}',
           })),
       (json) => json['message'],
     );

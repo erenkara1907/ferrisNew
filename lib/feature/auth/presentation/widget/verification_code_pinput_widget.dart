@@ -54,17 +54,14 @@ class _VerificationCodeWidgetState extends State<VerificationCodeWidget> {
             child: Pinput(
               controller: pinController,
               focusNode: focusNode,
-              androidSmsAutofillMethod:
-                  AndroidSmsAutofillMethod.smsUserConsentApi,
+              androidSmsAutofillMethod: AndroidSmsAutofillMethod.smsUserConsentApi,
               listenForMultipleSmsOnAndroid: true,
               defaultPinTheme: defaultPinTheme,
               length: 6,
-              separatorBuilder: (index) =>
-                  SizedBox(width: context.dynamicWidth(0.05)),
+              separatorBuilder: (index) => SizedBox(width: context.dynamicWidth(0.05)),
               onTapOutside: (event) {
                 final currentFocus = FocusScope.of(context);
-                if (!currentFocus.hasPrimaryFocus &&
-                    currentFocus.focusedChild != null) {
+                if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
                   FocusManager.instance.primaryFocus?.unfocus();
                 }
               },
@@ -107,6 +104,7 @@ class _VerificationCodeWidgetState extends State<VerificationCodeWidget> {
               text: "Verify",
               enabled: context.watch<AuthBloc>().state.otpCode.length == 6,
               ontap: () {
+                print("girdi verify");
                 context.read<AuthBloc>().add(const VerifyOtpEvent());
               }),
         ],

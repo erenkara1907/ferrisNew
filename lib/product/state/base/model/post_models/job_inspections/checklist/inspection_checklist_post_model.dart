@@ -35,6 +35,8 @@ class InspectionChecklistPostModel extends INetworkSentDataModel {
   final int spareKey;
   @HiveField(9)
   final int masterKey;
+  @HiveField(10)
+  final int? id;
 
   InspectionChecklistPostModel({
     required this.jobInspectionId,
@@ -47,6 +49,7 @@ class InspectionChecklistPostModel extends INetworkSentDataModel {
     required this.hvChargingCable,
     required this.spareKey,
     required this.masterKey,
+    this.id,
   });
 
   factory InspectionChecklistPostModel.fromMap(Map<String, dynamic> map) {
@@ -61,6 +64,7 @@ class InspectionChecklistPostModel extends INetworkSentDataModel {
       hvChargingCable: map[apiNameHvChargingCable],
       spareKey: map[apiNameSpareKey],
       masterKey: map[apiNameMaster],
+      id: map['id'],
     );
   }
 

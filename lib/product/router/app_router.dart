@@ -18,6 +18,7 @@ import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/condi
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/damage_detail_page.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/damage_recorder&add_page.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/damages_page.dart';
+import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/deneme_view.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/inspection_page.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/item_checklist_page.dart';
@@ -54,11 +55,9 @@ import 'package:location/location.dart';
 import 'package:page_transition/page_transition.dart';
 
 final class AppRouter {
-  static final GlobalKey<NavigatorState> rootNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'root');
+  static final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-  static final GlobalKey<NavigatorState> shellNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'shell');
+  static final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
   static FirebaseAnalyticsObserver get analyticsObserver =>
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
@@ -72,11 +71,8 @@ final class AppRouter {
         navigatorKey: shellNavigatorKey,
         pageBuilder: (context, state, child) {
           return CustomTransitionPage(
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return PageTransition<Widget>(
-                      child: child, type: PageTransitionType.fade)
-                  .child;
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return PageTransition<Widget>(child: child, type: PageTransitionType.fade).child;
             },
             child: BottomNavPage(
               child: child,
@@ -89,8 +85,7 @@ final class AppRouter {
             path: '/home_page',
             pageBuilder: (context, state) {
               return CustomTransitionPage(
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   return PageTransition<Widget>(
                     child: child,
                     type: PageTransitionType.fade,
@@ -105,8 +100,7 @@ final class AppRouter {
             path: '/profile_page',
             pageBuilder: (context, state) {
               return CustomTransitionPage(
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   return PageTransition<Widget>(
                     child: child,
                     type: PageTransitionType.fade,
@@ -121,8 +115,7 @@ final class AppRouter {
             path: '/chat_page',
             pageBuilder: (context, state) {
               return CustomTransitionPage(
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   return PageTransition<Widget>(
                     child: child,
                     type: PageTransitionType.fade,
@@ -137,8 +130,7 @@ final class AppRouter {
             path: '/history_page',
             pageBuilder: (context, state) {
               return CustomTransitionPage(
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   return PageTransition<Widget>(
                     child: child,
                     type: PageTransitionType.fade,
@@ -158,8 +150,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: '/login_page',
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const LoginPage(),
@@ -167,8 +158,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: '/map_view_page2',
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const MapViewPage2(),
@@ -188,8 +178,7 @@ final class AppRouter {
           }),
       GoRoute(
         path: '/verification_page',
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const VerificationPage(),
@@ -197,24 +186,21 @@ final class AppRouter {
       ),
       GoRoute(
           path: "/verification_code_page",
-          pageBuilder: (context, state) =>
-              buildRightPageWithDefaultTransition<void>(
+          pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
                 child: const VerificationCodePage(),
               )),
       GoRoute(
           path: "/forgot_password",
-          pageBuilder: (context, state) =>
-              buildDownPageWithDefaultTransition<void>(
+          pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
                 child: const ForgotPassword(),
               )),
       GoRoute(
           path: "/sign_in_page",
-          pageBuilder: (context, state) =>
-              buildRightPageWithDefaultTransition<void>(
+          pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
                 child: const SignInPage(),
@@ -235,17 +221,15 @@ final class AppRouter {
           }),
       GoRoute(
         path: "/personal_data_page",
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
-          child: PersonalDataPage(),
+          child: const PersonalDataPage(),
         ),
       ),
       GoRoute(
         path: "/app_settings_page",
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const AppSettingsPage(),
@@ -253,8 +237,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: "/change_personal_email",
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const PersonalChangeEmail(),
@@ -262,8 +245,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: "/change_personal_phone_number",
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const ChangePersonalPhoneNumber(),
@@ -271,8 +253,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: "/change_username",
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const ChangeUsername(),
@@ -280,8 +261,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: "/auto_dark_mode_page",
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const AutoDarkModePage(),
@@ -289,8 +269,7 @@ final class AppRouter {
       ),
       GoRoute(
         path: "/permission_page",
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const PermissionsPage(),
@@ -298,16 +277,14 @@ final class AppRouter {
       ),
       GoRoute(
           path: "/apperance_page",
-          pageBuilder: (context, state) =>
-              buildRightPageWithDefaultTransition<void>(
+          pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
                 child: const ApperancePage(),
               )),
       GoRoute(
           path: "/change_password_page",
-          pageBuilder: (context, state) =>
-              buildRightPageWithDefaultTransition<void>(
+          pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
                 context: context,
                 state: state,
                 child: const ChangePasswordPage(),
@@ -380,8 +357,7 @@ final class AppRouter {
           }),
       GoRoute(
         path: "/add_stop_page",
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const AddStop(),
@@ -410,16 +386,13 @@ final class AppRouter {
               context: context,
               state: state,
               child: FeedbackPage(
-                feedbackInputAvailability:
-                    extraState['feedbackInputAvailability']
-                        as FeedbackInputAvailability,
+                feedbackInputAvailability: extraState['feedbackInputAvailability'] as FeedbackInputAvailability,
               ),
             );
           }),
       GoRoute(
         path: "/map_view_page",
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const MapViewPage(),
@@ -436,13 +409,11 @@ final class AppRouter {
               child: DamageDetailPage(
                   standarIds: extraState['standardIds'],
                   jobInspectionId: extraState['inspection'],
-                  damageResponse:
-                      extraState['damageResponse'] as DamageResponseModel),
+                  damageResponse: extraState['damageResponse'] as DamageResponseModel),
             );
           }),
       GoRoute(
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const HomeJobSearchPage(),
@@ -450,8 +421,7 @@ final class AppRouter {
         path: '/search_page',
       ),
       GoRoute(
-        pageBuilder: (context, state) =>
-            buildRightPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildRightPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const HistoryJobSearchPage(),
@@ -480,8 +450,7 @@ final class AppRouter {
             state: state,
             child: InspectionDetailPage(
               damageResponse: extraState['damageResponse'],
-              inspection:
-                  extraState['inspection'] as JobInspectionResponseModelItem,
+              inspection: extraState['inspection'] as JobInspectionResponseModelItem,
             ),
           );
         },
@@ -498,8 +467,7 @@ final class AppRouter {
                 odo: extraState['odo'],
                 fuelLevel: extraState['fuelLevel'],
                 jobInspectionId: extraState['jobInspectionId'] as int,
-                inspection:
-                    extraState['inspection'] as JobInspectionResponseModelItem),
+                inspection: extraState['inspection'] as JobInspectionResponseModelItem),
           );
         },
         path: '/edit_details_page',
@@ -523,6 +491,7 @@ final class AppRouter {
             child: ConditionImagePage(
               jobInspectionId: extraState['jobInspectionId'] as int,
             ),
+            // child: const DenemeView(),
           );
         },
         path: '/condition_image_page',
@@ -561,16 +530,14 @@ final class AppRouter {
             context: context,
             state: state,
             child: SignInspectionPage(
-              inspection:
-                  extraState['inspection'] as JobInspectionResponseModelItem,
+              inspection: extraState['inspection'] as JobInspectionResponseModelItem,
             ),
           );
         },
         path: '/sign_inspection_page',
       ),
       GoRoute(
-        pageBuilder: (context, state) =>
-            buildDownPageWithDefaultTransition<void>(
+        pageBuilder: (context, state) => buildDownPageWithDefaultTransition<void>(
           context: context,
           state: state,
           child: const SignPage(),
@@ -587,8 +554,7 @@ final class AppRouter {
             child: FinishJobPage(
               isFuelView: extraState['isFuelView'] as bool?,
               isFeedBackView: extraState['isFeedBackView'] as bool?,
-              feedbackInputAvailability: extraState['feedbackInputAvailability']
-                  as FeedbackInputAvailability?,
+              feedbackInputAvailability: extraState['feedbackInputAvailability'] as FeedbackInputAvailability?,
             ),
           );
         },
@@ -606,13 +572,12 @@ CustomTransitionPage buildRightPageWithDefaultTransition<T>({
   return CustomTransitionPage<T>(
     key: state.pageKey,
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child),
   );
 }
 
@@ -624,12 +589,11 @@ CustomTransitionPage buildDownPageWithDefaultTransition<T>({
   return CustomTransitionPage<T>(
     key: state.pageKey,
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, 1.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.0, 1.0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child),
   );
 }
