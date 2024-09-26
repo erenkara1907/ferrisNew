@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:camera/camera.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:exif/exif.dart';
 import 'package:ferrisfwt/feature/inspections/data/models/condition_image/condition_image_response_model.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/bloc/inspections_bloc.dart';
@@ -28,6 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -434,9 +436,46 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                 ),
                                 const VerticalSpace.small(),
                                 InkWell(
-                                  child: Image.asset(
-                                    width: context.width,
-                                    "assets/images/fr_upload_image75.png",
+                                  // child: Image.asset(
+                                  //   width: context.width,
+                                  //   "assets/images/fr_upload_image75.png",
+                                  // ),
+                                  child: DottedBorder(
+                                    radius: const Radius.circular(12),
+                                    borderType: BorderType.RRect,
+                                    color: context.theme.colorScheme.primaryContainer,
+                                    strokeWidth: 1,
+                                    dashPattern: const [6, 3],
+                                    child: Container(
+                                        padding: EdgeInsets.zero,
+                                        width: double.infinity,
+                                        // height: 162.0,
+                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 25.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset("assets/images/icons/ic_upload_image.svg"),
+                                              const SizedBox(height: 12.0),
+                                              Text(
+                                                "Upload Image",
+                                                style: context.textTheme.titleMedium?.copyWith(
+                                                  color: context.theme.colorScheme.primary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4.0),
+                                              Text(
+                                                "You can upload max 75 files",
+                                                style: context.textTheme.bodySmall?.copyWith(
+                                                  color: context.theme.colorScheme.primaryFixed,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )),
                                   ),
                                   onTap: () {
                                     _showImagePickerDialog(context, state);
@@ -728,6 +767,8 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     );
 
     await _cameraController.initialize();
+
+    _cameraController.lockCaptureOrientation(DeviceOrientation.portraitUp);
   }
 
   @override
