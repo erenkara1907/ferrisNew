@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
@@ -12,6 +13,7 @@ import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.d
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/damage/inspection_damage_post_model.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/add_file_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
@@ -28,6 +30,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
 import '../../data/models/condition_image/condition_image_response_model.dart';
@@ -737,54 +740,9 @@ class _DamagesPageState extends State<DamagesPage> {
                     textSpanEnable: true,
                   ),
                   const VerticalSpace.small(),
-                  // Column(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     Text(
-                  //       "Context Image",
-                  //       style: context.textTheme.bodyLarge?.copyWith(
-                  //           color: context.theme.colorScheme.primary,
-                  //           fontWeight: FontWeight.w600),
-                  //     ),
-                  //     const VerticalSpace.small(),
-                  //     InkWell(
-                  //       child: Image.asset(
-                  //         width: context.width,
-                  //         "assets/images/fr_upload_image1.png",
-                  //       ),
-                  //       onTap: () async {
-                  //         // _showImagePickerDialog(context, true);
-                  //         // _getImage(ImageSource.gallery, state, isDamage: 0)
-                  //         //     .then((value) {
-                  //         //   if (value != null) {
-                  //         //     setState(() {
-                  //         //       _selectedContextImage = value;
-                  //         //     });
-                  //         //   }
-                  //         // });
-
-                  //         await captureImages(state);
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
                   InkWell(
-                    child: Image.asset(
-                      width: context.width,
-                      "assets/images/fr_upload_image1.png",
-                    ),
+                    child: const AddFileButton(fileCount: 1),
                     onTap: () async {
-                      // _showImagePickerDialog(context, true);
-                      // _getImage(ImageSource.gallery, state, isDamage: 0)
-                      //     .then((value) {
-                      //   if (value != null) {
-                      //     setState(() {
-                      //       _selectedContextImage = value;
-                      //     });
-                      //   }
-                      // });
-
-                      // await captureImages(state);
                       await _getImageFromCamera(state);
                     },
                   ),
@@ -796,7 +754,6 @@ class _DamagesPageState extends State<DamagesPage> {
                         padding: EdgeInsets.zero,
                         separatorBuilder: (BuildContext context, int index) => const HorizontalSpace.xSmall(),
                         scrollDirection: Axis.horizontal,
-                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: _imageFiles.length - 1,
                         itemBuilder: (BuildContext context, int index) {
                           return Column(
@@ -817,7 +774,6 @@ class _DamagesPageState extends State<DamagesPage> {
                                       _imageFiles[index],
                                       fit: BoxFit.cover,
                                       height: context.dynamicHeight(0.20),
-                                      width: context.dynamicWidth(0.40),
                                     ),
                                   ),
                                   Positioned(
@@ -839,187 +795,6 @@ class _DamagesPageState extends State<DamagesPage> {
                         },
                       ),
                     ),
-                  // Row(
-                  //   crossAxisAlignment: CrossAxisAlignment.center,
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     if (_selectedContextImage != null)
-                  //       Expanded(
-                  //         child: Column(
-                  //           mainAxisAlignment: MainAxisAlignment.start,
-                  //           crossAxisAlignment: CrossAxisAlignment.start,
-                  //           children: [
-                  //             Text(
-                  //               "Context Image",
-                  //               style: context.textTheme.bodyLarge?.copyWith(
-                  //                   color: context.theme.colorScheme.primary,
-                  //                   fontWeight: FontWeight.w600),
-                  //             ),
-                  //             const VerticalSpace.xSmall(),
-                  //             Stack(
-                  //               children: [
-                  //                 Container(
-                  //                   height: context.dynamicHeight(0.25),
-                  //                   width: context.dynamicWidth(0.45),
-                  //                   decoration: BoxDecoration(
-                  //                     color: context
-                  //                         .theme.colorScheme.primaryContainer,
-                  //                     borderRadius: BorderRadius.circular(10),
-                  //                     image: DecorationImage(
-                  //                       image: FileImage(_imageFiles[0]),
-                  //                       fit: BoxFit.cover,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //                 Positioned(
-                  //                   top: 0,
-                  //                   right: 0,
-                  //                   child: IconButton(
-                  //                     icon: Icon(
-                  //                       Icons.cancel_outlined,
-                  //                       color: context.theme.colorScheme.error,
-                  //                     ),
-                  //                     onPressed: () {
-                  //                       setState(() {
-                  //                         _selectedContextImage = null;
-                  //                         _imageFiles.clear();
-                  //                       });
-                  //                     },
-                  //                   ),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     const HorizontalSpace.xSmall(),
-                  //     if (_selectedImage != null)
-                  //       Expanded(
-                  //         child: Column(
-                  //           mainAxisAlignment: MainAxisAlignment.start,
-                  //           crossAxisAlignment: CrossAxisAlignment.start,
-                  //           children: [
-                  //             Text(
-                  //               "Damage Image",
-                  //               style: context.textTheme.bodyLarge?.copyWith(
-                  //                   color: context.theme.colorScheme.primary,
-                  //                   fontWeight: FontWeight.w600),
-                  //             ),
-                  //             const VerticalSpace.xSmall(),
-                  //             Stack(
-                  //               children: [
-                  //                 Container(
-                  //                   height: context.dynamicHeight(0.25),
-                  //                   width: context.dynamicWidth(0.45),
-                  //                   decoration: BoxDecoration(
-                  //                     color: context
-                  //                         .theme.colorScheme.primaryContainer,
-                  //                     borderRadius: BorderRadius.circular(10),
-                  //                     image: DecorationImage(
-                  //                       image: FileImage(_imageFiles[1]),
-                  //                       fit: BoxFit.cover,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //                 Positioned(
-                  //                   top: 0,
-                  //                   right: 0,
-                  //                   child: IconButton(
-                  //                     icon: Icon(
-                  //                       Icons.cancel_outlined,
-                  //                       color: context.theme.colorScheme.error,
-                  //                     ),
-                  //                     onPressed: () {
-                  //                       setState(() {
-                  //                         _selectedImage = null;
-                  //                         _imageFiles.clear();
-                  //                       });
-                  //                     },
-                  //                   ),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       )
-                  //   ],
-                  // ),
-
-                  // const VerticalSpace.xSmall(),
-                  // Divider(
-                  //   color: context.theme.colorScheme.primary,
-                  //   thickness: 0.5,
-                  // ),
-                  // const VerticalSpace.xSmall(),
-                  // Column(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     Text(
-                  //       "Damage Image ",
-                  //       style: context.textTheme.bodyLarge?.copyWith(
-                  //           color: context.theme.colorScheme.primary,
-                  //           fontWeight: FontWeight.w600),
-                  //     ),
-                  //     const VerticalSpace.small(),
-                  //     InkWell(
-                  //       child: Image.asset(
-                  //         width: context.width,
-                  //         "assets/images/fr_upload_image1.png",
-                  //       ),
-                  //       onTap: () {
-                  //         // _showImagePickerDialog(context, false);
-                  //         _getImage(ImageSource.gallery, state, isDamage: 1)
-                  //             .then((value) {
-                  //           if (value != null) {
-                  //             setState(() {
-                  //               _selectedImage = value;
-                  //             });
-                  //           }
-                  //         });
-
-                  //         // Future.delayed(
-                  //         //   const Duration(seconds: 2),
-                  //         //   () {
-                  //         //     _submitDamageToAPI(state);
-                  //         //   },
-                  //         // );
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
-                  // const VerticalSpace.xSmall(),
-                  // if (_selectedImage != null)
-                  //   Stack(
-                  //     children: [
-                  //       Container(
-                  //         height: context.dynamicHeight(0.15),
-                  //         width: context.dynamicWidth(0.35),
-                  //         decoration: BoxDecoration(
-                  //           color: context.theme.colorScheme.primaryContainer,
-                  //           borderRadius: BorderRadius.circular(10),
-                  //           image: DecorationImage(
-                  //             image: FileImage(_selectedImage!),
-                  //             fit: BoxFit.cover,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Positioned(
-                  //         top: 0,
-                  //         right: 0,
-                  //         child: IconButton(
-                  //           icon: Icon(
-                  //             Icons.cancel_outlined,
-                  //             color: context.theme.colorScheme.error,
-                  //           ),
-                  //           onPressed: () {
-                  //             setState(() {
-                  //               _selectedImage = null;
-                  //             });
-                  //           },
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
                   const VerticalSpace.large(),
                   if (state.isError)
                     CustomAppButton(
@@ -1087,12 +862,6 @@ class _DamagesPageState extends State<DamagesPage> {
                               ),
                             );
 
-                        // state.getDamageCategoriesResponse.clear();
-                        // state.getDamagePartsResponse.clear();
-                        // state.getDamageIssuesResponse.clear();
-                        // state.getDamageFailuresResponse.clear();
-                        // state.getDamageRepairsResponse.clear();
-
                         showTopSnackBarFr(
                           context,
                           message: "Damage added successfully",
@@ -1108,98 +877,6 @@ class _DamagesPageState extends State<DamagesPage> {
       },
     );
   }
-
-  // Future<void> _showImagePickerDialog(
-  //     @override
-  // BuildContext context, bool isContextImage) async {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         contentPadding: EdgeInsets.zero,
-  //         content: Container(
-  //           decoration: BoxDecoration(
-  //             borderRadius: BorderRadius.circular(10),
-  //             color: context.theme.colorScheme.surface,
-  //           ),
-  //           width: context.dynamicWidth(0.98),
-  //           height: context.dynamicHeight(0.38),
-  //           child: Padding(
-  //             padding: context.paddingAllDefault,
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //               children: [
-  //                 Text(
-  //                   'Select an image picker method',
-  //                   style: context.textTheme.headlineMedium?.copyWith(
-  //                       color: context.theme.colorScheme.primary, fontSize: 20),
-  //                 ),
-  //                 Column(
-  //                   children: [
-  //                     CustomGreyAppButton(
-  //                       textColor: context.theme.colorScheme.primary,
-  //                       text: "Open Camera",
-  //                       containerColor: context.theme.colorScheme.surface,
-  //                       ontap: () async {
-  //                         _getImage(ImageSource.camera).then((value) {
-  //                           if (value != null) {
-  //                             if (isContextImage) {
-  //                               setState(() {
-  //                                 _selectedContextImage = value;
-  //                               });
-  //                             } else {
-  //                               setState(() {
-  //                                 _selectedImage = value;
-  //                               });
-  //                             }
-  //                           }
-  //                         });
-  //                         Navigator.of(context).pop();
-  //                       },
-  //                     ),
-  //                     const VerticalSpace.xxSmall(),
-  //                     CustomGreyAppButton(
-  //                       textColor: context.theme.colorScheme.primary,
-  //                       text: " Pick From Gallery",
-  //                       containerColor: context.theme.colorScheme.surface,
-  //                       ontap: () {
-  //                         _getImage(ImageSource.gallery).then((value) {
-  //                           if (value != null) {
-  //                             if (isContextImage) {
-  //                               setState(() {
-  //                                 _selectedContextImage = value;
-  //                               });
-  //                             } else {
-  //                               setState(() {
-  //                                 _selectedImage = value;
-  //                               });
-  //                             }
-  //                           }
-  //                         });
-  //                         Navigator.of(context).pop();
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 TextButton(
-  //                   onPressed: () {
-  //                     context.pop();
-  //                   },
-  //                   child: Text(
-  //                     'Cancel',
-  //                     style: context.textTheme.bodyLarge?.copyWith(
-  //                       color: Colors.red,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class CameraPageDamage extends StatefulWidget {
@@ -1224,6 +901,8 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
   late List<File> _capturedImages;
+  late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
+  String rotation = "portrait";
 
   bool isDamage = false;
 
@@ -1241,6 +920,8 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
     );
 
     await _cameraController.initialize();
+
+    _cameraController.lockCaptureOrientation(DeviceOrientation.portraitUp);
   }
 
   @override
@@ -1248,39 +929,41 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
     super.initState();
     _initializeControllerFuture = initializeCamera();
     _capturedImages = List.from(widget.capturedImages);
+
+    _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
+      _evaluateDeviceOrientation(event);
+    });
+  }
+
+  void _evaluateDeviceOrientation(AccelerometerEvent event) {
+    final double x = event.x;
+
+    const double threshold = 0.5;
+
+    if (x > threshold) {
+      rotation = "right";
+    } else if (x < -threshold) {
+      rotation = "left";
+    } else {
+      rotation = "portrait";
+    }
   }
 
   @override
   void dispose() {
     _cameraController.dispose();
+    _accelerometerSubscription.cancel();
     super.dispose();
   }
 
-  // Future<void> _captureImage() async {
-  //   try {
-  //     await _initializeControllerFuture;
-  //     final XFile image = await _cameraController.takePicture();
-  //     final File file = File(image.path);
-  //     widget.onCapture(file);
-  //     setState(() {
-  //       _capturedImages.add(file);
-  //     });
-  //   } catch (e) {
-  //     BotToast.showText(text: 'Error capturing image: $e');
-  //   }
-  // }
-
   Future<File> rotateToLandscape(File imageFile) async {
-    // Resmi okuma
     final bytes = await imageFile.readAsBytes();
     final originalImage = img.decodeImage(bytes);
 
-    if (originalImage == null) return imageFile; // Hata durumu
-
-    final rotatedImage = img.copyRotate(originalImage, angle: 270); // 90 derece döndür
+    final rotatedImage = img.copyRotate(originalImage!, angle: rotation == "right" ? 270 : -270);
     final outputFile = File(imageFile.path);
     await outputFile.writeAsBytes(img.encodeJpg(rotatedImage));
-    return outputFile; // Döndürülmüş dosyayı geri döndür
+    return outputFile;
   }
 
   bool _isTakingPicture = false;
@@ -1365,7 +1048,13 @@ class _CameraPageDamageState extends State<CameraPageDamage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: _captureImage,
+                        onTap: () {
+                          if (rotation == "portrait") {
+                            BotToast.showText(text: 'Please rotate the device to landscape mode');
+                          } else {
+                            _captureImage();
+                          }
+                        },
                         child: const CircleAvatar(
                           radius: 30,
                           child: Icon(

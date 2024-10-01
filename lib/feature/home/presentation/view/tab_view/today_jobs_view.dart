@@ -1,5 +1,4 @@
 import 'package:ferrisfwt/product/mixin/network_mixin.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
@@ -24,19 +23,15 @@ class _TodayJobsViewState extends State<TodayJobsView> {
   @override
   void initState() {
     super.initState();
-    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId !=
-            null &&
-        ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId !=
-            "") {
+    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId != null &&
+        ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId != "") {
       _initializeJob();
     }
   }
 
   void _initializeJob() async {
-    final id =
-        ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
-    job = await ProductStateItems.hiveStorageManager
-        .getJobWorkingOnModel(int.parse(id.toString()));
+    final id = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId;
+    job = await ProductStateItems.hiveStorageManager.getJobWorkingOnModel(int.parse(id.toString()));
   }
 
   @override
@@ -46,24 +41,18 @@ class _TodayJobsViewState extends State<TodayJobsView> {
         child: CircularProgressIndicator(),
       );
     }
-    List<JobsResponseModelItem> filteredJobs =
-        widget.homeState.jobs.where((job) {
+    List<JobsResponseModelItem> filteredJobs = widget.homeState.jobs.where((job) {
       return job.jobStatus != JobStatusEnum.completed;
     }).toList();
 
-    List<JobsResponseModelItem> finishedJobs =
-        widget.homeState.jobs.where((job) {
+    List<JobsResponseModelItem> finishedJobs = widget.homeState.jobs.where((job) {
       return job.jobStatus == JobStatusEnum.completed;
     }).toList();
 
     List<JobsResponseModelItem> sortedJobs = List.from(filteredJobs);
     sortedJobs.sort((a, b) {
-      bool aStarted =
-          ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ==
-              a.id.toString();
-      bool bStarted =
-          ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ==
-              b.id.toString();
+      bool aStarted = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId == a.id.toString();
+      bool bStarted = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId == b.id.toString();
 
       bool aDepartNow = a.jobStatus == JobStatusEnum.departNow;
       bool bDepartNow = b.jobStatus == JobStatusEnum.departNow;
@@ -92,8 +81,7 @@ class _TodayJobsViewState extends State<TodayJobsView> {
             context.read<HomeBloc>().add(const GetJobs());
           }
         },
-        child: widget.homeState.jobs.isEmpty ||
-                widget.homeState.jobs.length == finishedJobs.length
+        child: widget.homeState.jobs.isEmpty || widget.homeState.jobs.length == finishedJobs.length
             ? Center(
                 child: ListView(
                   children: [
@@ -120,8 +108,7 @@ class _TodayJobsViewState extends State<TodayJobsView> {
                   return CustomCard(
                     onChanged: (value) async {
                       if (value == true) {
-                        context.read<HomeBloc>().add(
-                            ConfirmJob(widget.homeState.jobs[index].id, false));
+                        context.read<HomeBloc>().add(ConfirmJob(widget.homeState.jobs[index].id, false));
                       }
                     },
                     jobModel: widget.homeState.jobs[index],

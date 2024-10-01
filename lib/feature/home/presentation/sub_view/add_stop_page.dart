@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:ferrisfwt/feature/inspections/presentation/inspection_view/edit_details_page.dart';
 import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/add_file_button.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
 import 'package:ferrisfwt/product/widget/popup/question_popup.dart';
 import 'package:ferrisfwt/product/widget/spacer/dynamic_horizontal_spacer.dart';
@@ -54,8 +55,7 @@ class _AddStopState extends State<AddStop> {
 
   Future<void> compressImage(File image) async {
     final documentPath = (await getApplicationDocumentsDirectory()).path;
-    final newFile =
-        await image.copy('$documentPath/${path.basename(image.path)}');
+    final newFile = await image.copy('$documentPath/${path.basename(image.path)}');
     File compressedImage = await _resizeImage(newFile);
     setState(() {
       _evidences.add(compressedImage);
@@ -141,8 +141,8 @@ class _AddStopState extends State<AddStop> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Camera Permission'),
-              content: const Text(
-                  'This app needs camera access to take pictures. Please allow camera access in settings.'),
+              content:
+                  const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -154,8 +154,7 @@ class _AddStopState extends State<AddStop> {
                   onPressed: () async {
                     context.read<CubitPermissions>().requestCamera();
                     final permissionStatus = await Permission.camera.status;
-                    if (permissionStatus.isDenied ||
-                        permissionStatus.isPermanentlyDenied) {
+                    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
                       await openAppSettings();
                     }
                     context.pop();
@@ -192,8 +191,7 @@ class _AddStopState extends State<AddStop> {
                   await handleImageSelectionAndSubmit(context, state);
                   context.pop();
                 } else {
-                  BotToast.showText(
-                      text: 'You can only select 1 images in total');
+                  BotToast.showText(text: 'You can only select 1 images in total');
                 }
               },
             ),
@@ -209,8 +207,7 @@ class _AddStopState extends State<AddStop> {
         BotToast.showText(text: 'Camera access denied');
       }
     } else {
-      final pickedImage =
-          await picker.pickImage(imageQuality: 90, source: source);
+      final pickedImage = await picker.pickImage(imageQuality: 90, source: source);
 
       if (pickedImage != null) {
         if (_evidences.isNotEmpty) {
@@ -221,8 +218,7 @@ class _AddStopState extends State<AddStop> {
         File file = File(pickedImage.path);
 
         final documentPath = (await getApplicationDocumentsDirectory()).path;
-        final newFile =
-            await file.copy('$documentPath/${path.basename(file.path)}');
+        final newFile = await file.copy('$documentPath/${path.basename(file.path)}');
         File compressedImage = await _resizeImage(newFile);
 
         setState(() {
@@ -236,8 +232,7 @@ class _AddStopState extends State<AddStop> {
     }
   }
 
-  Future<void> handleImageSelectionAndSubmit(
-      BuildContext context, StopJobState state) async {
+  Future<void> handleImageSelectionAndSubmit(BuildContext context, StopJobState state) async {
     if (_evidences.isEmpty) {
       BotToast.showText(text: "Please upload image of locked vehicle");
       context.read<StopJobBloc>().add(const PostJobStopsControl());
@@ -266,9 +261,7 @@ class _AddStopState extends State<AddStop> {
           isAsync: false,
           jobId: context.read<HomeBloc>().state.showJob!.id,
           data: StopPostModel(
-            categoryId: state.getStopCategoriesResponse
-                .firstWhere((element) => element.name == _selectedLevelAtHub)
-                .id,
+            categoryId: state.getStopCategoriesResponse.firstWhere((element) => element.name == _selectedLevelAtHub).id,
             // reason: _reasonController.text,
             jobId: context.read<HomeBloc>().state.showJob!.id,
             latitude: position.latitude,
@@ -396,16 +389,12 @@ class _AddStopState extends State<AddStop> {
                       children: [
                         Text(
                           "Upload Evidence",
-                          style: context.textTheme.bodyLarge?.copyWith(
-                              color: context.theme.colorScheme.primary,
-                              fontWeight: FontWeight.w600),
+                          style: context.textTheme.bodyLarge
+                              ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                         ),
                         const VerticalSpace.small(),
                         InkWell(
-                          child: Image.asset(
-                            width: context.width,
-                            "assets/images/fr_upload_image1.png",
-                          ),
+                          child: const AddFileButton(fileCount: 1),
                           onTap: () {
                             _showImagePickerDialog(context, state);
                           },
@@ -416,8 +405,7 @@ class _AddStopState extends State<AddStop> {
                       SizedBox(
                         height: context.dynamicHeight(0.17),
                         child: ListView.separated(
-                          separatorBuilder: (context, index) =>
-                              const HorizontalSpace.xSmall(),
+                          separatorBuilder: (context, index) => const HorizontalSpace.xSmall(),
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
                           itemCount: _evidences.length,
@@ -435,13 +423,10 @@ class _AddStopState extends State<AddStop> {
                                           height: context.dynamicHeight(0.15),
                                           width: context.dynamicWidth(0.30),
                                           decoration: BoxDecoration(
-                                            color: context.theme.colorScheme
-                                                .primaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            color: context.theme.colorScheme.primaryContainer,
+                                            borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
-                                              image:
-                                                  FileImage(_evidences[index]),
+                                              image: FileImage(_evidences[index]),
                                               fit: BoxFit.cover,
                                             ),
                                           ),
@@ -453,8 +438,7 @@ class _AddStopState extends State<AddStop> {
                                         child: IconButton(
                                           icon: Icon(
                                             Icons.cancel_outlined,
-                                            color:
-                                                context.theme.colorScheme.error,
+                                            color: context.theme.colorScheme.error,
                                           ),
                                           onPressed: () {
                                             setState(() {
@@ -482,14 +466,11 @@ class _AddStopState extends State<AddStop> {
                           //   return;
                           // }
                           if (_evidences.isEmpty) {
-                            BotToast.showText(
-                                text: "Please upload image of locked vehicle");
+                            BotToast.showText(text: "Please upload image of locked vehicle");
                             return;
                           }
                           if (_selectedLevelAtHub == null) {
-                            BotToast.showText(
-                                text:
-                                    "Please enter the reason for stop category");
+                            BotToast.showText(text: "Please enter the reason for stop category");
                             return;
                           }
                           Position? position;
@@ -498,8 +479,7 @@ class _AddStopState extends State<AddStop> {
                               desiredAccuracy: LocationAccuracy.high,
                             );
                           } catch (e, s) {
-                            await SentryErrorHandler.instance
-                                .capture(e, stackTrace: s);
+                            await SentryErrorHandler.instance.capture(e, stackTrace: s);
                             position = null;
                             await _showLocationPermissionDialog(context);
                           }
@@ -507,23 +487,16 @@ class _AddStopState extends State<AddStop> {
                             BotToast.showLoading();
                             context.read<StopJobBloc>().add(PostJobStops(
                                 isAsync: false,
-                                jobId:
-                                    context.read<HomeBloc>().state.showJob!.id,
+                                jobId: context.read<HomeBloc>().state.showJob!.id,
                                 data: StopPostModel(
                                   categoryId: state.getStopCategoriesResponse
-                                      .firstWhere((element) =>
-                                          element.name == _selectedLevelAtHub)
+                                      .firstWhere((element) => element.name == _selectedLevelAtHub)
                                       .id,
                                   // reason: _reasonController.text,
-                                  jobId: context
-                                      .read<HomeBloc>()
-                                      .state
-                                      .showJob!
-                                      .id,
+                                  jobId: context.read<HomeBloc>().state.showJob!.id,
                                   latitude: position.latitude,
                                   longitude: position.longitude,
-                                  evidences:
-                                      _evidences.map((file) => file).toList(),
+                                  evidences: _evidences.map((file) => file).toList(),
                                 )));
                             BotToast.closeAllLoading();
                           } else {
@@ -542,8 +515,7 @@ class _AddStopState extends State<AddStop> {
     );
   }
 
-  Future<void> _showImagePickerDialog(
-      BuildContext context, StopJobState state) async {
+  Future<void> _showImagePickerDialog(BuildContext context, StopJobState state) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -563,21 +535,18 @@ class _AddStopState extends State<AddStop> {
                 children: [
                   Text(
                     'Select an image picker method',
-                    style: context.textTheme.headlineMedium?.copyWith(
-                        color: context.theme.colorScheme.primary, fontSize: 20),
+                    style: context.textTheme.headlineMedium
+                        ?.copyWith(color: context.theme.colorScheme.primary, fontSize: 20),
                   ),
                   Column(
                     children: [
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Open Camera",
-                          containerColor:
-                              context.theme.colorScheme.onSurfaceVariant,
+                          containerColor: context.theme.colorScheme.onSurfaceVariant,
                           ontap: () {
                             if (_evidences.isNotEmpty) {
-                              BotToast.showText(
-                                  text:
-                                      'You can only select 1 images in total');
+                              BotToast.showText(text: 'You can only select 1 images in total');
                               context.pop();
                             } else {
                               Navigator.of(context).pop();
@@ -589,8 +558,7 @@ class _AddStopState extends State<AddStop> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Pick From Gallery",
-                          containerColor:
-                              context.theme.colorScheme.onSurfaceVariant,
+                          containerColor: context.theme.colorScheme.onSurfaceVariant,
                           ontap: () {
                             Navigator.of(context).pop();
 
@@ -604,8 +572,7 @@ class _AddStopState extends State<AddStop> {
                       },
                       child: Text(
                         'Cancel',
-                        style: context.textTheme.bodyLarge
-                            ?.copyWith(color: Colors.red),
+                        style: context.textTheme.bodyLarge?.copyWith(color: Colors.red),
                       ))
                 ],
               ),
@@ -699,8 +666,7 @@ class CustomJobTextfield extends StatelessWidget {
               children: [
                 Text(
                   text,
-                  style: TextStyle(
-                      fontSize: 14, color: context.theme.colorScheme.primary),
+                  style: TextStyle(fontSize: 14, color: context.theme.colorScheme.primary),
                 ),
                 const Text("*",
                     style: TextStyle(
@@ -768,12 +734,7 @@ class CameraPage extends StatefulWidget {
   final int limit;
   List<File> evidences = [];
 
-  CameraPage(
-      {Key? key,
-      required this.onCapture,
-      required this.limit,
-      required this.evidences})
-      : super(key: key);
+  CameraPage({Key? key, required this.onCapture, required this.limit, required this.evidences}) : super(key: key);
 
   @override
   _CameraPageState createState() => _CameraPageState();
@@ -857,8 +818,7 @@ class _CameraPageState extends State<CameraPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap:
-                            _capturedImages.isNotEmpty ? null : _captureImage,
+                        onTap: _capturedImages.isNotEmpty ? null : _captureImage,
                         child: const CircleAvatar(
                           radius: 30,
                           child: Icon(

@@ -7,6 +7,7 @@ import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.d
 import 'package:ferrisfwt/product/state/base/model/post_models/expenses/expense_patch_model.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/add_file_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
@@ -27,8 +28,7 @@ import 'package:permission_handler/permission_handler.dart';
 class ViewExpenseDetail extends StatefulWidget {
   final ExpensesResponseModelItem expense;
   final int index;
-  const ViewExpenseDetail(
-      {super.key, required this.expense, required this.index});
+  const ViewExpenseDetail({super.key, required this.expense, required this.index});
 
   @override
   State<ViewExpenseDetail> createState() => _ViewExpenseDetailState();
@@ -52,8 +52,8 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Camera Permission'),
-              content: const Text(
-                  'This app needs camera access to take pictures. Please allow camera access in settings.'),
+              content:
+                  const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -65,8 +65,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                   onPressed: () async {
                     context.read<CubitPermissions>().requestCamera();
                     final permissionStatus = await Permission.camera.status;
-                    if (permissionStatus.isDenied ||
-                        permissionStatus.isPermanentlyDenied) {
+                    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
                       await openAppSettings();
                     }
                     context.pop();
@@ -97,8 +96,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
       File file = File(pickedImage.path);
 
       final documentPath = (await getApplicationDocumentsDirectory()).path;
-      final newFile =
-          await file.copy('$documentPath/${path.basename(file.path)}');
+      final newFile = await file.copy('$documentPath/${path.basename(file.path)}');
       File compressedImage = await _resizeImage(newFile);
 
       setState(() {
@@ -205,16 +203,13 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
             ));
           }
           final pathImage = ProductStateItems.hiveStorageManager
-                  .getPostExpenseSaveImage(
-                      price: widget.expense.price!,
-                      categoryId: widget.expense.categoryId!.id)
+                  .getPostExpenseSaveImage(price: widget.expense.price!, categoryId: widget.expense.categoryId!.id)
                   ?.receipt
                   ?.path ??
               "";
           if (pathImage != "") {
             int documentsIndex = pathImage.indexOf("Documents/");
-            String result =
-                pathImage.substring(documentsIndex + "Documents/".length);
+            String result = pathImage.substring(documentsIndex + "Documents/".length);
 
             final path = '$filePath/$result';
             return Scaffold(
@@ -267,8 +262,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                         inputFormatters: [
                           CommaToDotTextInputFormatter(),
                         ],
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         text: "Price",
                         hintText: "Enter the price",
                         controller: _priceController,
@@ -279,16 +273,12 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                         children: [
                           Text(
                             "Upload Receipt",
-                            style: context.textTheme.bodyLarge?.copyWith(
-                                color: context.theme.colorScheme.primary,
-                                fontWeight: FontWeight.w600),
+                            style: context.textTheme.bodyLarge
+                                ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                           ),
                           const VerticalSpace.small(),
                           InkWell(
-                            child: Image.asset(
-                              width: context.width,
-                              "assets/images/fr_upload_image1.png",
-                            ),
+                            child: const AddFileButton(fileCount: 1),
                             onTap: () {
                               _showImagePickerDialog(context);
                             },
@@ -305,18 +295,15 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                   width: context.dynamicWidth(0.90),
                                   child: CustomJobTextfield(
                                       controller: _reasonController,
-                                      text:
-                                          "If no receipt uploaded, provide reason why",
+                                      text: "If no receipt uploaded, provide reason why",
                                       hintText: "Enter text..."),
                                 )
-                              : widget.expense.receiptPath.isNotEmpty &&
-                                      _imageFile == null
+                              : widget.expense.receiptPath.isNotEmpty && _imageFile == null
                                   ? SizedBox(
                                       height: context.dynamicHeight(0.15),
                                       width: context.dynamicWidth(0.35),
                                       child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                           child: Image.file(
                                             File(path),
                                             fit: BoxFit.cover,
@@ -329,14 +316,11 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                           Align(
                                             alignment: Alignment.topRight,
                                             child: Container(
-                                              height:
-                                                  context.dynamicHeight(0.25),
+                                              height: context.dynamicHeight(0.25),
                                               width: context.dynamicWidth(0.30),
                                               decoration: BoxDecoration(
-                                                color: context.theme.colorScheme
-                                                    .primaryContainer,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
+                                                color: context.theme.colorScheme.primaryContainer,
+                                                borderRadius: BorderRadius.circular(10),
                                                 image: DecorationImage(
                                                   image: FileImage(_imageFile!),
                                                   fit: BoxFit.cover,
@@ -350,8 +334,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                             child: IconButton(
                                               icon: Icon(
                                                 Icons.cancel_outlined,
-                                                color: context
-                                                    .theme.colorScheme.error,
+                                                color: context.theme.colorScheme.error,
                                               ),
                                               onPressed: () {
                                                 setState(() {
@@ -371,13 +354,10 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                         text: "Update",
                         ontap: () async {
                           if (_selectedLevelAtHub == null) {
-                            BotToast.showText(
-                                text:
-                                    "Please select an expense category to proceed");
+                            BotToast.showText(text: "Please select an expense category to proceed");
                             return;
                           }
-                          if (_priceController.text.isEmpty ||
-                              double.tryParse(_priceController.text) == null) {
+                          if (_priceController.text.isEmpty || double.tryParse(_priceController.text) == null) {
                             BotToast.showText(text: "Please enter the price");
                             return;
                           }
@@ -385,22 +365,19 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                               _reasonController.text.isEmpty &&
                               widget.expense.receiptPath.isEmpty) {
                             BotToast.showText(
-                                text:
-                                    "Please upload a receipt or provide a reason why no receipt is uploaded");
+                                text: "Please upload a receipt or provide a reason why no receipt is uploaded");
                             return;
                           }
                           final selectedLevelAtHubOld = context
                               .read<JobExpenseBloc>()
                               .state
                               .expenseCategories
-                              .where((element) =>
-                                  element.id == widget.expense.categoryId?.id)
+                              .where((element) => element.id == widget.expense.categoryId?.id)
                               .map((category) => category.name)
                               .firstOrNull;
 
                           if (selectedLevelAtHubOld == _selectedLevelAtHub &&
-                              double.parse(_priceController.text) ==
-                                  widget.expense.price &&
+                              double.parse(_priceController.text) == widget.expense.price &&
                               imageSelected == false) {
                             BotToast.showText(text: "Please make a change");
                             return;
@@ -413,8 +390,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                     : widget.expense.reasonNoReceipt,
                                 receipt: _imageFile ?? File(path),
                                 categoryId: state.expenseCategories
-                                    .firstWhere((element) =>
-                                        element.name == _selectedLevelAtHub)
+                                    .firstWhere((element) => element.name == _selectedLevelAtHub)
                                     .id,
                                 price: double.parse(_priceController.text),
                               ),
@@ -481,8 +457,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       inputFormatters: [
                         CommaToDotTextInputFormatter(),
                       ],
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       text: "Price",
                       hintText: "Enter the price",
                       controller: _priceController,
@@ -493,16 +468,12 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       children: [
                         Text(
                           "Upload Receipt",
-                          style: context.textTheme.bodyLarge?.copyWith(
-                              color: context.theme.colorScheme.primary,
-                              fontWeight: FontWeight.w600),
+                          style: context.textTheme.bodyLarge
+                              ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                         ),
                         const VerticalSpace.small(),
                         InkWell(
-                          child: Image.asset(
-                            width: context.width,
-                            "assets/images/fr_upload_image1.png",
-                          ),
+                          child: const AddFileButton(fileCount: 1),
                           onTap: () {
                             _showImagePickerDialog(context);
                           },
@@ -519,12 +490,10 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                 width: context.dynamicWidth(0.90),
                                 child: CustomJobTextfield(
                                     controller: _reasonController,
-                                    text:
-                                        "If no receipt uploaded, provide reason why",
+                                    text: "If no receipt uploaded, provide reason why",
                                     hintText: "Enter text..."),
                               )
-                            : widget.expense.receiptPath.isNotEmpty &&
-                                    _imageFile == null
+                            : widget.expense.receiptPath.isNotEmpty && _imageFile == null
                                 ? const SizedBox()
                                 : Padding(
                                     padding: context.paddingHorizontalDefault,
@@ -536,10 +505,8 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                             height: context.dynamicHeight(0.25),
                                             width: context.dynamicWidth(0.30),
                                             decoration: BoxDecoration(
-                                              color: context.theme.colorScheme
-                                                  .primaryContainer,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              color: context.theme.colorScheme.primaryContainer,
+                                              borderRadius: BorderRadius.circular(10),
                                               image: DecorationImage(
                                                 image: FileImage(_imageFile!),
                                                 fit: BoxFit.cover,
@@ -553,8 +520,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                           child: IconButton(
                                             icon: Icon(
                                               Icons.cancel_outlined,
-                                              color: context
-                                                  .theme.colorScheme.error,
+                                              color: context.theme.colorScheme.error,
                                             ),
                                             onPressed: () {
                                               setState(() {
@@ -574,13 +540,10 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       text: "Update",
                       ontap: () async {
                         if (_selectedLevelAtHub == null) {
-                          BotToast.showText(
-                              text:
-                                  "Please select an expense category to proceed");
+                          BotToast.showText(text: "Please select an expense category to proceed");
                           return;
                         }
-                        if (_priceController.text.isEmpty ||
-                            double.tryParse(_priceController.text) == null) {
+                        if (_priceController.text.isEmpty || double.tryParse(_priceController.text) == null) {
                           BotToast.showText(text: "Please enter the price");
                           return;
                         }
@@ -588,24 +551,20 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                             _reasonController.text.isEmpty &&
                             widget.expense.receiptPath.isEmpty) {
                           BotToast.showText(
-                              text:
-                                  "Please upload a receipt or provide a reason why no receipt is uploaded");
+                              text: "Please upload a receipt or provide a reason why no receipt is uploaded");
                           return;
                         }
                         final selectedLevelAtHubOld = context
                             .read<JobExpenseBloc>()
                             .state
                             .expenseCategories
-                            .where((element) =>
-                                element.id == widget.expense.categoryId?.id)
+                            .where((element) => element.id == widget.expense.categoryId?.id)
                             .map((category) => category.name)
                             .firstOrNull;
 
                         if (selectedLevelAtHubOld == _selectedLevelAtHub &&
-                            double.parse(_priceController.text) ==
-                                widget.expense.price &&
-                            _reasonController.text ==
-                                widget.expense.reasonNoReceipt &&
+                            double.parse(_priceController.text) == widget.expense.price &&
+                            _reasonController.text == widget.expense.reasonNoReceipt &&
                             imageSelected == false) {
                           BotToast.showText(text: "Please make a change");
                           return;
@@ -618,8 +577,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                                   : widget.expense.reasonNoReceipt,
                               receipt: _imageFile,
                               categoryId: state.expenseCategories
-                                  .firstWhere((element) =>
-                                      element.name == _selectedLevelAtHub)
+                                  .firstWhere((element) => element.name == _selectedLevelAtHub)
                                   .id,
                               price: double.parse(_priceController.text),
                             ),
@@ -659,16 +617,15 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                 children: [
                   Text(
                     'Select an image picker method',
-                    style: context.textTheme.headlineMedium?.copyWith(
-                        color: context.theme.colorScheme.primary, fontSize: 20),
+                    style: context.textTheme.headlineMedium
+                        ?.copyWith(color: context.theme.colorScheme.primary, fontSize: 20),
                   ),
                   Column(
                     children: [
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Open Camera",
-                          containerColor:
-                              context.theme.colorScheme.onSurfaceVariant,
+                          containerColor: context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             Navigator.of(context).pop();
 
@@ -678,8 +635,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       CustomGreyAppButton(
                           textColor: context.theme.colorScheme.primary,
                           text: "Pick From Gallery",
-                          containerColor:
-                              context.theme.colorScheme.onSurfaceVariant,
+                          containerColor: context.theme.colorScheme.onSurfaceVariant,
                           ontap: () async {
                             Navigator.of(context).pop();
 
@@ -693,8 +649,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
                       },
                       child: Text(
                         'Cancel',
-                        style: context.textTheme.bodyLarge
-                            ?.copyWith(color: Colors.red),
+                        style: context.textTheme.bodyLarge?.copyWith(color: Colors.red),
                       ))
                 ],
               ),
@@ -754,8 +709,7 @@ class CustomJobTextfield extends StatelessWidget {
               children: [
                 Text(
                   text,
-                  style: TextStyle(
-                      fontSize: 14, color: context.theme.colorScheme.primary),
+                  style: TextStyle(fontSize: 14, color: context.theme.colorScheme.primary),
                 ),
                 const Text("*",
                     style: TextStyle(

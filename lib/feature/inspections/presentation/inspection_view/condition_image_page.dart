@@ -1,5 +1,6 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -18,6 +19,7 @@ import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/base/model/post_models/job_inspections/condition_image/inspection_condition_image_post_model.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
+import 'package:ferrisfwt/product/widget/button/add_file_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_app_button.dart';
 import 'package:ferrisfwt/product/widget/button/custom_grey_app_button.dart';
 import 'package:ferrisfwt/product/widget/loading/loading_progress.dart';
@@ -36,6 +38,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as img;
+import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
 
@@ -425,7 +428,7 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!isSigned)
-                            Column(
+                            Column( 
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -436,47 +439,7 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                 ),
                                 const VerticalSpace.small(),
                                 InkWell(
-                                  // child: Image.asset(
-                                  //   width: context.width,
-                                  //   "assets/images/fr_upload_image75.png",
-                                  // ),
-                                  child: DottedBorder(
-                                    radius: const Radius.circular(12),
-                                    borderType: BorderType.RRect,
-                                    color: context.theme.colorScheme.primaryContainer,
-                                    strokeWidth: 1,
-                                    dashPattern: const [6, 3],
-                                    child: Container(
-                                        padding: EdgeInsets.zero,
-                                        width: double.infinity,
-                                        // height: 162.0,
-                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 25.0),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              SvgPicture.asset("assets/images/icons/ic_upload_image.svg"),
-                                              const SizedBox(height: 12.0),
-                                              Text(
-                                                "Upload Image",
-                                                style: context.textTheme.titleMedium?.copyWith(
-                                                  color: context.theme.colorScheme.primary,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4.0),
-                                              Text(
-                                                "You can upload max 75 files",
-                                                style: context.textTheme.bodySmall?.copyWith(
-                                                  color: context.theme.colorScheme.primaryFixed,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                  ),
+                                  child: const AddFileButton(fileCount: 75),
                                   onTap: () {
                                     _showImagePickerDialog(context, state);
                                   },
@@ -755,6 +718,8 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
   late List<File> _capturedImages;
+  late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
+  String rotation = "portrait";
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -776,39 +741,42 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
     super.initState();
     _initializeControllerFuture = initializeCamera();
     _capturedImages = List.from(widget.capturedImages);
+
+    _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
+      _evaluateDeviceOrientation(event);
+    });
+  }
+
+  void _evaluateDeviceOrientation(AccelerometerEvent event) {
+    final double x = event.x;
+
+    const double threshold = 0.5;
+
+    if (x > threshold) {
+      rotation = "right";
+    } else if (x < -threshold) {
+      rotation = "left";
+    } else {
+      rotation = "portrait";
+    }
   }
 
   @override
   void dispose() {
     _cameraController.dispose();
+    _accelerometerSubscription.cancel();
+
     super.dispose();
   }
 
-  // Future<void> _captureImage() async {
-  //   try {
-  //     await _initializeControllerFuture;
-  //     final XFile image = await _cameraController.takePicture();
-  //     final File file = File(image.path);
-  //     widget.onCapture(file);
-  //     setState(() {
-  //       _capturedImages.add(file);
-  //     });
-  //   } catch (e) {
-  //     BotToast.showText(text: 'Error capturing image: $e');
-  //   }
-  // }
-
   Future<File> rotateToLandscape(File imageFile) async {
-    // Resmi okuma
     final bytes = await imageFile.readAsBytes();
     final originalImage = img.decodeImage(bytes);
 
-    if (originalImage == null) return imageFile; // Hata durumu
-
-    final rotatedImage = img.copyRotate(originalImage, angle: 270); // 90 derece döndür
+    final rotatedImage = img.copyRotate(originalImage!, angle: rotation == "right" ? 270 : -270);
     final outputFile = File(imageFile.path);
     await outputFile.writeAsBytes(img.encodeJpg(rotatedImage));
-    return outputFile; // Döndürülmüş dosyayı geri döndür
+    return outputFile;
   }
 
   bool _isTakingPicture = false;
@@ -831,16 +799,6 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
       setState(() {
         _capturedImages.add(landscapeFile);
       });
-
-      // if (_capturedImages.length == 2) {
-      //   Navigator.pop(context, _capturedImages);
-      //   Future.delayed(
-      //     const Duration(seconds: 1),
-      //     () async {
-      //       await widget.submitDamageToAPI();
-      //     },
-      //   );
-      // }
     } catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
 
@@ -880,6 +838,7 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
               children: [
                 SizedBox(
                   height: context.height,
+                  width: context.width,
                   child: CameraPreview(_cameraController),
                 ),
                 Positioned(
@@ -891,7 +850,13 @@ class _CameraPageConditionState extends State<CameraPageCondition> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: _captureImage,
+                        onTap: () {
+                          if (rotation == "portrait") {
+                            BotToast.showText(text: 'Please rotate the device to landscape mode');
+                          } else {
+                            _captureImage();
+                          }
+                        },
                         child: const CircleAvatar(
                           radius: 30,
                           child: Icon(

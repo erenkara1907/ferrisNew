@@ -19,12 +19,14 @@ class InspectionCustomInfoCard extends StatelessWidget {
   final JobInspectionResponseModelItem inspection;
   final DamageResponseModel? damageResponse;
   final InspectionsState inspectionState;
+  final int index;
 
   const InspectionCustomInfoCard({
     Key? key,
     required this.inspection,
     this.damageResponse,
     required this.inspectionState,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -39,8 +41,16 @@ class InspectionCustomInfoCard extends StatelessWidget {
     final gradeText = inspection.gradleItem != null
         ? inspection.gradleItem!.name != "0"
             ? inspection.gradleItem!.name
-            : "-"
-        : "-";
+            : inspection.damageStandards != null
+                ? inspection.damageStandards!.contains(2)
+                    ? "G1"
+                    : "-"
+                : "-"
+        : inspection.damageStandards != null
+            ? inspection.damageStandards!.contains(2)
+                ? "G1"
+                : "-"
+            : "-";
 
     final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
         ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign!.contains(inspection.id);
@@ -67,6 +77,7 @@ class InspectionCustomInfoCard extends StatelessWidget {
                 extra: {
                   'inspection': inspection,
                   'damageResponse': damageResponse,
+                  'index': index,
                 },
               );
 

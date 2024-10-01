@@ -8,7 +8,6 @@ import 'package:ferrisfwt/product/firebase/notification/firebaseMessaging/fireba
 import 'package:ferrisfwt/product/state/container/product_state_container.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,7 +37,7 @@ final class ApplicationInitialize {
     await _crashlyticsInitialize();
     await _setAnalytics();
     EasyLocalization.logger.enableLevels = [LevelMessages.error];
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     // await SystemChrome.setPreferredOrientations([
     //   DeviceOrientation.portraitUp,
     //   DeviceOrientation.portraitDown,
@@ -63,7 +62,7 @@ final class ApplicationInitialize {
   Future<void> _crashlyticsInitialize() async {
     //if (kDebugMode) return;
     FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      // FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
   }
 

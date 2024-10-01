@@ -151,6 +151,7 @@ class _InspectionPageState extends State<InspectionPage> {
                       return InspectionCustomInfoCard(
                         inspection: state.inspections[index]!,
                         inspectionState: state,
+                        index: index,
                       );
                       // if (state.damageResponse.isNotEmpty &&
                       //     state.inspections.isNotEmpty) {

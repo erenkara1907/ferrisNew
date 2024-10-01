@@ -449,6 +449,7 @@ final class AppRouter {
             context: context,
             state: state,
             child: InspectionDetailPage(
+              index: extraState['index'] as int,
               damageResponse: extraState['damageResponse'],
               inspection: extraState['inspection'] as JobInspectionResponseModelItem,
             ),

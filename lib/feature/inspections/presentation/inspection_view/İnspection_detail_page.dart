@@ -17,10 +17,12 @@ import '../../../home/data/models/damages/damage_response_model.dart';
 class InspectionDetailPage extends StatefulWidget {
   final JobInspectionResponseModelItem inspection;
   final DamageResponseModel? damageResponse;
+  final int index;
   const InspectionDetailPage({
     Key? key,
     required this.inspection,
     this.damageResponse,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -52,7 +54,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage> {
             children: [
               const VerticalSpace.medium(),
               JobInspectionDetailWidget(
-                inspection: widget.inspection,
+                inspection: state.inspections[widget.index] ?? widget.inspection,
                 state: state,
                 damageResponse: widget.damageResponse,
               ),
@@ -155,21 +157,21 @@ class JobInspectionDetailWidget extends StatelessWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    // final gradeText = (inspection.gradleItem != null && state.damageResponse.isNotEmpty
-
-    //     ? inspection.gradleItem!.name
-    //     : state.damageResponse.isNotEmpty
-    //         ? state.damageResponse[state.damageResponse.length - 1].gradeId ??
-    //             "-"
-    //         : "-");
-
     final gradeText = state.gradeId != "" && state.gradeId != "0"
         ? state.gradeId
         : inspection.gradleItem != null
             ? inspection.gradleItem!.name != "0"
                 ? inspection.gradleItem!.name
-                : "-"
-            : "-";
+                : inspection.damageStandards != null
+                    ? inspection.damageStandards!.contains(2)
+                        ? "G1"
+                        : "-"
+                    : "-"
+            : inspection.damageStandards != null
+                ? inspection.damageStandards!.contains(2)
+                    ? "G1"
+                    : "-"
+                : "-";
 
     late String formattedDate = formatDate(inspection.date!);
     final bool isSigned = ProductStateItems.hiveDatabaseManager.getUserModel()!.inspectionsSign != null &&
