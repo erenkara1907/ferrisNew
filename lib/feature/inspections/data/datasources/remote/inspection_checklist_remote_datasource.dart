@@ -48,7 +48,7 @@ class JobInspectionsCheckListRemoteDataSourceImpl
     try {
       final response = await _networkClient.get(
         "${ServicePath.jobInspectionsCheckList.value}?jobInspectionId=$inspectionId",
-        queryParameters: {
+        queryParameters: { 
           'inspectionId': inspectionId,
         },
         options: Options(headers: headers),

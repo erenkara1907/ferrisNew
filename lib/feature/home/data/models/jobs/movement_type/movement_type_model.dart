@@ -38,8 +38,7 @@ class MovementTypeModel {
     result = name.replaceRange(0, 1, name.substring(0, 1).toUpperCase());
     for (int i = 0; i < name.length - 1; i++) {
       if (name[i] == ' '[0]) {
-        result = result.replaceRange(
-            i + 1, i + 2, name.substring(i + 1, i + 2).toUpperCase());
+        result = result.replaceRange(i + 1, i + 2, name.substring(i + 1, i + 2).toUpperCase());
       }
     }
     return result;
@@ -49,25 +48,20 @@ class MovementTypeModel {
     final result = MovementTypeModel(
       id: map['id'] as int,
       name: map['name'] as String,
-      availableFuelEvLevelInputs: List<String>.from(
-          map['availableFuelEvLevelInputs'] as List<dynamic>? ?? []),
-      availableTimeInputs:
-          List<String>.from(map['availableTimeInputs'] as List<dynamic>? ?? []),
-      availableTrackingStatuses: (map['availableTrackingStatuses'] == null ||
-              (map['availableTrackingStatuses'] as List?)!.isEmpty)
-          ? []
-          : ((map['availableTrackingStatuses'] as List)[0] is Map
-              ? map['availableTrackingStatuses']
-                  .map<TrackingStatusModel>(
-                      (x) => TrackingStatusModel.fromMap(x))
-                  .toList()
-              : []),
+      availableFuelEvLevelInputs: List<String>.from(map['availableFuelEvLevelInputs'] as List<dynamic>? ?? []),
+      availableTimeInputs: List<String>.from(map['availableTimeInputs'] as List<dynamic>? ?? []),
+      availableTrackingStatuses:
+          (map['availableTrackingStatuses'] == null || (map['availableTrackingStatuses'] as List?)!.isEmpty)
+              ? []
+              : ((map['availableTrackingStatuses'] as List)[0] is Map
+                  ? map['availableTrackingStatuses']
+                      .map<TrackingStatusModel>((x) => TrackingStatusModel.fromMap(x))
+                      .toList()
+                  : []),
       feedbackInputs: map['feedbackInputs'] != null
-          ? FeedbackInputAvailability.fromMap(
-              map['feedbackInputs'] as Map<String, dynamic>)
+          ? FeedbackInputAvailability.fromMap(map['feedbackInputs'] as Map<String, dynamic>)
           : null,
-      isAvailableValetStandardInput:
-          map['isAvailableValetStandardInput'] as bool?,
+      isAvailableValetStandardInput: map['isAvailableValetStandardInput'] as bool?,
     );
     return result;
   }
@@ -78,8 +72,7 @@ class MovementTypeModel {
       'name': name,
       'availableFuelEvLevelInputs': availableFuelEvLevelInputs,
       'availableTimeInputs': availableTimeInputs,
-      'availableTrackingStatuses':
-          availableTrackingStatuses.map((e) => e.toMap()).toList(),
+      'availableTrackingStatuses': availableTrackingStatuses.map((e) => e.toMap()).toList(),
       'feedbackInputs': feedbackInputs?.toMap(),
       'isAvailableValetStandardInput': isAvailableValetStandardInput,
     };
@@ -87,14 +80,11 @@ class MovementTypeModel {
 
   bool get showValetStandardInput => isAvailableValetStandardInput ?? false;
 
-  bool get showDepartedHubTime =>
-      availableTimeInputs.contains('time_departed_hub');
+  bool get showDepartedHubTime => availableTimeInputs.contains('time_departed_hub');
 
-  bool get showArrivedCustomerTime =>
-      availableTimeInputs.contains('time_arrived_at_customer');
+  bool get showArrivedCustomerTime => availableTimeInputs.contains('time_arrived_at_customer');
 
-  bool get showDepartedCustomerTime =>
-      availableTimeInputs.contains('time_departed_customer');
+  bool get showDepartedCustomerTime => availableTimeInputs.contains('time_departed_customer');
 
   @override
   String toString() => '$runtimeType(${toMap().toString()})';

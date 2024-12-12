@@ -87,10 +87,10 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
 
       dynamic productData = response.data["data"];
 
-      // Verinin bir liste olduğundan emin olun
+      print('product data $productData');
+
       if (productData is List) {
         return productData.map((e) {
-          // Her bir elemanın doğru tipte olduğundan emin olun
           if (e is Map<String, dynamic>) {
             return JobsResponseModelItem.fromMap(e);
           } else {
@@ -253,7 +253,7 @@ final class JobRemoteDataSourceImpl with HandleRequestMixin implements JobRemote
   Future<String> updateJob({
     required int jobId,
     required UpdateJobStatusPostModel updateJobStatusPostModel,
-  }) async {
+  }) async { 
     try {
       final response = await _networkClient.post(
         "${ServicePath.job.value}/update/$jobId",

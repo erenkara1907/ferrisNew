@@ -91,7 +91,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   }) async {
     try {
       final response = await http.delete(
-        Uri.parse("https://staging.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
+        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',

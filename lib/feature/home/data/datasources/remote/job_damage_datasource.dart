@@ -54,6 +54,8 @@ final class JobDamageRemoteDataSourceImpl with HandleRequestMixin implements Job
 
       final List<dynamic> productData = response.data["data"];
 
+      // print('productData: $productData');
+
       return productData.map((e) => DamageAssetsModel.fromJson(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);

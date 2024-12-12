@@ -45,9 +45,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     //     .read<InspectionsBloc>()
     //     .add(GetInspectionsDamageCategories(widget.jobInspectionId));
     // context.read<InspectionsBloc>().add(const GetInspectionsDamageCategories());
-    context
-        .read<InspectionsBloc>()
-        .add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
+    context.read<InspectionsBloc>().add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
 
     _category = widget.damageResponse.categoryId.name;
     _part = widget.damageResponse.partId.name;
@@ -68,8 +66,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     final pathContextImage = widget.damageResponse.contextImage ?? "";
     if (ProductStateItems.hiveStorageManager
             .getRecordedDamageById(
-                id: widget.damageResponse.categoryId.id,
-                inspectionsId: widget.damageResponse.jobInspectionId)!
+                id: widget.damageResponse.categoryId.id, inspectionsId: widget.damageResponse.jobInspectionId)!
             .damageImage ==
         null) {
       int documentsIndex = pathImage.indexOf("Documents/");
@@ -81,8 +78,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     } else {
       final String path = ProductStateItems.hiveStorageManager
           .getRecordedDamageById(
-              id: widget.damageResponse.categoryId.id,
-              inspectionsId: widget.damageResponse.jobInspectionId)!
+              id: widget.damageResponse.categoryId.id, inspectionsId: widget.damageResponse.jobInspectionId)!
           .damageImage!
           .path;
       int documentsIndex = path.indexOf("Documents/");
@@ -93,20 +89,17 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
     }
     if (ProductStateItems.hiveStorageManager
             .getRecordedDamageById(
-                id: widget.damageResponse.categoryId.id,
-                inspectionsId: widget.damageResponse.jobInspectionId)!
+                id: widget.damageResponse.categoryId.id, inspectionsId: widget.damageResponse.jobInspectionId)!
             .contextImage ==
         null) {
       int documentsIndex = pathContextImage.indexOf("Documents/");
-      String result =
-          pathContextImage.substring(documentsIndex + "Documents/".length);
+      String result = pathContextImage.substring(documentsIndex + "Documents/".length);
       final path = '$directory/$result';
       _selectedContextImage = path;
     } else {
       final String path = ProductStateItems.hiveStorageManager
           .getRecordedDamageById(
-              id: widget.damageResponse.categoryId.id,
-              inspectionsId: widget.damageResponse.jobInspectionId)!
+              id: widget.damageResponse.categoryId.id, inspectionsId: widget.damageResponse.jobInspectionId)!
           .contextImage!
           .path;
       int documentsIndex = path.indexOf("Documents/");
@@ -122,8 +115,7 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<InspectionsBloc, InspectionsState>(
       builder: (context, state) {
-        if (state.status == ViewStatus.loading ||
-            state.getDamageCategoriesResponse.isEmpty) {
+        if (state.status == ViewStatus.loading || state.getDamageCategoriesResponse.isEmpty) {
           return const Scaffold(
             body: Center(
               child: LoadingProgress(),
@@ -321,9 +313,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     children: [
                       Text(
                         "Damage Image ",
-                        style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600),
+                        style: context.textTheme.bodyLarge
+                            ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                       ),
                       const VerticalSpace.small(),
                       // InkWell(
@@ -376,9 +367,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
                     children: [
                       Text(
                         "Context Image",
-                        style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600),
+                        style: context.textTheme.bodyLarge
+                            ?.copyWith(color: context.theme.colorScheme.primary, fontWeight: FontWeight.w600),
                       ),
                       const VerticalSpace.small(),
                       // InkWell(

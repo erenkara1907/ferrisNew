@@ -71,6 +71,13 @@ class StartJob extends HomeEvent {
       ];
 }
 
+class ClearStartState extends HomeEvent {
+  const ClearStartState();
+
+  @override
+  List<Object> get props => [];
+}
+
 class PriceJob extends HomeEvent {
   final int jobId;
 

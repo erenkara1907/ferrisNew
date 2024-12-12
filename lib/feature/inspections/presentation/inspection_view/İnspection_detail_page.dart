@@ -22,7 +22,7 @@ class InspectionDetailPage extends StatefulWidget {
     Key? key,
     required this.inspection,
     this.damageResponse,
-    required this.index,
+    required this.index, 
   }) : super(key: key);
 
   @override

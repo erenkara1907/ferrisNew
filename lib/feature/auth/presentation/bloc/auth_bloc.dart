@@ -17,7 +17,7 @@ import 'package:go_router/go_router.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class AuthBloc extends Bloc<AuthEvent, AuthState> { 
   AuthBloc({
     required HiveDatabaseManager hiveDatabaseManager,
     required UCGetAuth ucGetAuth,

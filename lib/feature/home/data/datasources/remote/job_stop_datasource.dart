@@ -25,11 +25,8 @@ abstract interface class JobStopRemoteDataSource {
   Future<List<StopCategoriesResponseModelItem>> getStopCategories();
 }
 
-final class JobStopRemoteDataSourceImpl
-    with HandleRequestMixin
-    implements JobStopRemoteDataSource {
-  JobStopRemoteDataSourceImpl({required NetworkClient networkClient})
-      : _networkClient = networkClient;
+final class JobStopRemoteDataSourceImpl with HandleRequestMixin implements JobStopRemoteDataSource {
+  JobStopRemoteDataSourceImpl({required NetworkClient networkClient}) : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
 
@@ -42,8 +39,7 @@ final class JobStopRemoteDataSourceImpl
         ServicePath.jobStops.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
         queryParameters: {
           'job_id': jobId,
@@ -53,8 +49,7 @@ final class JobStopRemoteDataSourceImpl
         throw Exception('No data found');
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       final List<dynamic> productData = response.data["data"];
       return productData.map((e) => StopsResponseModelItem.fromMap(e)).toList();
@@ -62,9 +57,7 @@ final class JobStopRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
@@ -84,34 +77,17 @@ final class JobStopRemoteDataSourceImpl
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
       formData.fields.add(MapEntry('latitude', data.latitude.toString()));
       formData.fields.add(MapEntry('longitude', data.longitude.toString()));
-      // formData.fields.add(MapEntry('reason', data.jobId.toString()));
       formData.fields.add(MapEntry('jobId', data.jobId.toString()));
       final documentPath = (await getApplicationDocumentsDirectory()).path;
-      // for (var evidence in data.evidences) {
-      //   int documentsIndex = evidence.path.indexOf("Documents/");
-      //   String result =
-      //       evidence.path.substring(documentsIndex + "Documents/".length);
 
-      //   final path = '$documentPath/$result';
-      //   formData.files.add(MapEntry(
-      //     'evidences[]',
-      //     MultipartFile.fromFileSync(path),
-      //   ));
-      // }
-
-      // Verilen kodda tek bir dosyayı 'evidence' key ile API'ye gönderme
       if (data.evidences.isNotEmpty) {
-        // Listenin ilk elemanını al
         var evidence = data.evidences.first;
 
-        // Dosyanın yolunu al
         int documentsIndex = evidence.path.indexOf("Documents/");
-        String result =
-            evidence.path.substring(documentsIndex + "Documents/".length);
+        String result = evidence.path.substring(documentsIndex + "Documents/".length);
 
         final path = '$documentPath/$result';
 
-        // Dosyayı 'evidence' key ile formData'ya ekle
         formData.files.add(MapEntry(
           'evidence',
           MultipartFile.fromFileSync(path),
@@ -123,17 +99,18 @@ final class JobStopRemoteDataSourceImpl
         options: Options(headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
         data: formData,
       );
+      print('response.data: ${response.data}');
+
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
+
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
 
       return StopsResponseModelItem.fromMap(response.data["data"]);
@@ -141,9 +118,7 @@ final class JobStopRemoteDataSourceImpl
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
@@ -160,28 +135,22 @@ final class JobStopRemoteDataSourceImpl
         ServicePath.jobsStopCategories.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       final List<dynamic> productData = response.data["data"];
-      return productData
-          .map((e) => StopCategoriesResponseModelItem.fromMap(e))
-          .toList();
+      return productData.map((e) => StopCategoriesResponseModelItem.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);

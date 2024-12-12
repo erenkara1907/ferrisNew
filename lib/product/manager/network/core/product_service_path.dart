@@ -58,11 +58,9 @@ final class NetworkSpeedChecker {
       if (response.statusCode == 200) {
         final elapsed = stopwatch.elapsedMilliseconds;
         final speedInKbps =
-            ((response.bodyBytes.length / 1024) / (elapsed / 1000)) *
-                8; // İndirme hızını Kbps cinsinden hesapla
+            ((response.bodyBytes.length / 1024) / (elapsed / 1000)) * 8; // İndirme hızını Kbps cinsinden hesapla
 
-        bool isWeakSignal =
-            speedInKbps < thresholdKbps; // Hız eşiğin altında mı kontrol et
+        bool isWeakSignal = speedInKbps < thresholdKbps; // Hız eşiğin altında mı kontrol et
         return isWeakSignal;
       } else {
         // İndirme başarısız olduysa zayıf sinyal olarak kabul et

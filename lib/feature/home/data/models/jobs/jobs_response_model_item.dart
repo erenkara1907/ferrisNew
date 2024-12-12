@@ -198,25 +198,16 @@ class JobsResponseModelItem implements IResponseModel {
   factory JobsResponseModelItem.fromMap(Map<String, dynamic> map) {
     final result = JobsResponseModelItem(
       id: map['id'] as int,
-      clientId: map['subClientId'] == null
+      clientId:
+          map['subClientId'] == null ? null : ClientResponseModel.fromMap(map['subClientId'] as Map<String, dynamic>),
+      driverId: map['driverId'] == null ? null : UserResponseModel.fromMap(map['driverId'] as Map<String, dynamic>),
+      vehicleId: map['vehicleId'] == null ? null : VehicleModel.fromMap(map['vehicleId'] as Map<String, dynamic>),
+      movementTypeId: map['movementTypeId'] == null || map['movementTypeId'] is! Map<String, dynamic>
           ? null
-          : ClientResponseModel.fromMap(
-              map['subClientId'] as Map<String, dynamic>),
-      driverId: map['driverId'] == null
+          : MovementTypeModel.fromMap(map['movementTypeId'] as Map<String, dynamic>),
+      trackingStatusId: map['trackingStatusId'] == null || map['trackingStatusId'] is int
           ? null
-          : UserResponseModel.fromMap(map['driverId'] as Map<String, dynamic>),
-      vehicleId: map['vehicleId'] == null
-          ? null
-          : VehicleModel.fromMap(map['vehicleId'] as Map<String, dynamic>),
-      movementTypeId: map['movementTypeId'] == null ||
-              map['movementTypeId'] is! Map<String, dynamic>
-          ? null
-          : MovementTypeModel.fromMap(
-              map['movementTypeId'] as Map<String, dynamic>),
-      trackingStatusId:
-          map['trackingStatusId'] == null || map['trackingStatusId'] is int
-              ? null
-              : TrackingStatusModel.fromMap(map['trackingStatusId']),
+          : TrackingStatusModel.fromMap(map['trackingStatusId']),
       regNumber: map['regNumber'] as String?,
       startAddressLabel: map['startAddressLabel'] as String?,
       endAddressLabel: map['endAddressLabel'] as String?,
@@ -234,12 +225,9 @@ class JobsResponseModelItem implements IResponseModel {
       isVisibleCheckpoint1Address: map['isVisibleCheckpoint1Address'] as bool?,
       isVisibleCheckpoint2Address: map['isVisibleCheckpoint2Address'] as bool?,
       isVisibleCheckpoint3Address: map['isVisibleCheckpoint3Address'] as bool?,
-      checkpoint1AddressPostalCode:
-          map['checkpoint1AddressPostalCode'] as String?,
-      checkpoint2AddressPostalCode:
-          map['checkpoint2AddressPostalCode'] as String?,
-      checkpoint3AddressPostalCode:
-          map['checkpoint3AddressPostalCode'] as String?,
+      checkpoint1AddressPostalCode: map['checkpoint1AddressPostalCode'] as String?,
+      checkpoint2AddressPostalCode: map['checkpoint2AddressPostalCode'] as String?,
+      checkpoint3AddressPostalCode: map['checkpoint3AddressPostalCode'] as String?,
       isVisibleEndAddress: map['isVisibleEndAddress'] as bool?,
       startAddressPostalCode: map['startAddressPostalCode'] as String?,
       endAddress: map['endAddress'] as String?,
@@ -252,21 +240,15 @@ class JobsResponseModelItem implements IResponseModel {
       customerFeedback: map['customerFeedback'] as String?,
       status: map['status'] as int?,
       notes: map['notes'] as String?,
-      startAddressCordinates: map['startAddressCordinates'] != null
-          ? LatLng.fromMap(map['startAddressCordinates'])
-          : null,
-      checkpoint1AddressCordinates: map['checkpoint1AddressCordinates'] != null
-          ? LatLng.fromMap(map['checkpoint1AddressCordinates'])
-          : null,
-      checkpoint2AddressCordinates: map['checkpoint2AddressCordinates'] != null
-          ? LatLng.fromMap(map['checkpoint2AddressCordinates'])
-          : null,
-      checkpoint3AddressCordinates: map['checkpoint3AddressCordinates'] != null
-          ? LatLng.fromMap(map['checkpoint3AddressCordinates'])
-          : null,
-      endAddressCordinates: map['endAddressCordinates'] != null
-          ? LatLng.fromMap(map['endAddressCordinates'])
-          : null,
+      startAddressCordinates:
+          map['startAddressCordinates'] != null ? LatLng.fromMap(map['startAddressCordinates']) : null,
+      checkpoint1AddressCordinates:
+          map['checkpoint1AddressCordinates'] != null ? LatLng.fromMap(map['checkpoint1AddressCordinates']) : null,
+      checkpoint2AddressCordinates:
+          map['checkpoint2AddressCordinates'] != null ? LatLng.fromMap(map['checkpoint2AddressCordinates']) : null,
+      checkpoint3AddressCordinates:
+          map['checkpoint3AddressCordinates'] != null ? LatLng.fromMap(map['checkpoint3AddressCordinates']) : null,
+      endAddressCordinates: map['endAddressCordinates'] != null ? LatLng.fromMap(map['endAddressCordinates']) : null,
       isDriverConfirm: map['isDriverConfirm'] as bool?,
       tiedInspections: map['tiedInspections'] == null
           ? null
@@ -277,24 +259,16 @@ class JobsResponseModelItem implements IResponseModel {
               .toList(),
       stopsCount: map['stopsCount'] as int?,
       inspectionsCount: map['inspectionsCount'] as int?,
-      predictedStartLocationTime:
-          map['predictedStartLocationDepartedTime'] as String?,
-      predictedEndLocationTime:
-          map['predictedEndLocationArrivedTime'] as String?,
+      predictedStartLocationTime: map['predictedStartLocationDepartedTime'] as String?,
+      predictedEndLocationTime: map['predictedEndLocationArrivedTime'] as String?,
       billableHoursStartTime: map['billableHoursStartTime'] as String?,
       billableHoursEndTime: map['billableHoursEndTime'] as String?,
-      predictedCheckpoint1ArrivedTime:
-          map['predictedCheckpoint1ArrivedTime'] as String?,
-      predictedCheckpoint1DepartedTime:
-          map['predictedCheckpoint1DepartedTime'] as String?,
-      predictedCheckpoint2ArrivedTime:
-          map['predictedCheckpoint2ArrivedTime'] as String?,
-      predictedCheckpoint2DepartedTime:
-          map['predictedCheckpoint2DepartedTime'] as String?,
-      predictedCheckpoint3ArrivedTime:
-          map['predictedCheckpoint3ArrivedTime'] as String?,
-      predictedCheckpoint3DepartedTime:
-          map['predictedCheckpoint3DepartedTime'] as String?,
+      predictedCheckpoint1ArrivedTime: map['predictedCheckpoint1ArrivedTime'] as String?,
+      predictedCheckpoint1DepartedTime: map['predictedCheckpoint1DepartedTime'] as String?,
+      predictedCheckpoint2ArrivedTime: map['predictedCheckpoint2ArrivedTime'] as String?,
+      predictedCheckpoint2DepartedTime: map['predictedCheckpoint2DepartedTime'] as String?,
+      predictedCheckpoint3ArrivedTime: map['predictedCheckpoint3ArrivedTime'] as String?,
+      predictedCheckpoint3DepartedTime: map['predictedCheckpoint3DepartedTime'] as String?,
       expensesTotalCost: map['expensesTotalCost'] is int
           ? (map['expensesTotalCost'] as int).toDouble()
           : map['expensesTotalCost'] as double?,

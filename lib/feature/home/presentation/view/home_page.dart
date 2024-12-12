@@ -19,9 +19,7 @@ import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../../auth/data/models/user_model.dart';
 import '../../data/models/job_start/job_start_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,8 +31,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -69,9 +66,7 @@ class _HomePageState extends State<HomePage>
                   const VerticalSpace.medium(),
                   HomeTextfieldSearchWidget(),
                   const VerticalSpace.xSmall(),
-                  Text("Jobs list",
-                      style: context.textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  Text("Jobs list", style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600)),
                   const VerticalSpace.xSmall(),
                   Container(
                     height: 41,
@@ -85,10 +80,8 @@ class _HomePageState extends State<HomePage>
                       labelStyle: context.textTheme.bodySmall?.copyWith(
                         color: context.theme.colorScheme.onSurface,
                       ),
-                      unselectedLabelStyle:
-                          context.textTheme.bodySmall?.copyWith(
-                        color: context.theme.colorScheme.onSurface
-                            .withOpacity(0.6),
+                      unselectedLabelStyle: context.textTheme.bodySmall?.copyWith(
+                        color: context.theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
                       indicator: BoxDecoration(
@@ -201,8 +194,7 @@ Color determineColor(
   BuildContext context,
   JobsResponseModelItem jobModel,
 ) {
-  final result =
-      ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted;
+  final result = ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted;
   if (jobModel.status == 2) {
     return context.theme.colorScheme.onSurfaceVariant;
   } else {
@@ -214,9 +206,7 @@ Color determineContainerColor(
   BuildContext context,
   JobsResponseModelItem jobModel,
 ) {
-  final result =
-      ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ==
-          jobModel.id.toString();
+  final result = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId == jobModel.id.toString();
   if (jobModel.status == 1 || result == true) {
     return const Color.fromARGB(255, 71, 214, 66);
   } else if (jobModel.status == 2) {
@@ -241,9 +231,7 @@ Color determineTextColor(
   BuildContext context,
   JobsResponseModelItem jobModel,
 ) {
-  final result =
-      ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ==
-          jobModel.id.toString();
+  final result = ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId == jobModel.id.toString();
   if (jobModel.status == 2) {
     return context.theme.colorScheme.onSecondary;
   } else if (jobModel.status == 0 && result != true) {
@@ -277,16 +265,12 @@ class CustomCard extends StatelessWidget {
               if (context.mounted) {
                 if (jobModel.status == 1) {
                   // ignore: no_leading_underscores_for_local_identifiers
-                  final HiveDatabaseManager _hiveDatabaseManager =
-                      HiveDatabaseManager();
-                  final HiveStorageManager hiveStorageManager =
-                      HiveStorageManager();
-                  _hiveDatabaseManager.saveJob(
-                      jobModel.id.toString(), jobModel.regNumber!);
+                  final HiveDatabaseManager _hiveDatabaseManager = HiveDatabaseManager();
+                  final HiveStorageManager hiveStorageManager = HiveStorageManager();
+                  _hiveDatabaseManager.saveJob(jobModel.id.toString(), jobModel.regNumber!);
                   hiveStorageManager.setJobWorkingOn(jobModel);
 
-                  List<JobStartModel?> jobPrices =
-                      await hiveStorageManager.getJobs();
+                  List<JobStartModel?> jobPrices = await hiveStorageManager.getJobs();
 
                   if (jobPrices.isEmpty) {
                     context.read<HomeBloc>().add(
@@ -331,7 +315,6 @@ class CustomCard extends StatelessWidget {
                             jobModel,
                           )),
               ),
-
               const VerticalSpace.xxSmall(),
               Text(
                 jobModel.vehicleId!.name.toString(),
@@ -370,8 +353,7 @@ class CustomCard extends StatelessWidget {
                 ],
               ),
               const VerticalSpace.small(),
-              if (jobModel.isVisibleStartAddress == true &&
-                  jobModel.startAddress != null)
+              if (jobModel.isVisibleStartAddress == true && jobModel.startAddress != null)
                 buildAddressRow(
                   context,
                   jobModel.startAddress!,
@@ -383,8 +365,7 @@ class CustomCard extends StatelessWidget {
                   date: jobModel.predictedStartLocationTime,
                   addressLabel: jobModel.startAddressLabel,
                 ),
-              if (jobModel.isVisibleCheckpoint1Address == true &&
-                  jobModel.checkpoint1Address != null)
+              if (jobModel.isVisibleCheckpoint1Address == true && jobModel.checkpoint1Address != null)
                 buildAddressRow(
                   context,
                   jobModel.checkpoint1Address!,
@@ -395,19 +376,16 @@ class CustomCard extends StatelessWidget {
                   date: jobModel.predictedCheckpoint1ArrivedTime,
                   addressLabel: jobModel.checkpoint1AddressLabel,
                 ),
-              if (jobModel.isVisibleCheckpoint2Address == true &&
-                  jobModel.checkpoint2Address != null)
+              if (jobModel.isVisibleCheckpoint2Address == true && jobModel.checkpoint2Address != null)
                 buildAddressRow(
                   context,
                   jobModel.checkpoint2Address!,
                   jobModel.checkpoint2AddressPostalCode!,
-                  isLast: !jobModel.isVisibleCheckpoint3Address! &&
-                      !jobModel.isVisibleEndAddress!,
+                  isLast: !jobModel.isVisibleCheckpoint3Address! && !jobModel.isVisibleEndAddress!,
                   date: jobModel.predictedCheckpoint2ArrivedTime,
                   addressLabel: jobModel.checkpoint2AddressLabel,
                 ),
-              if (jobModel.isVisibleCheckpoint3Address == true &&
-                  jobModel.checkpoint3Address != null)
+              if (jobModel.isVisibleCheckpoint3Address == true && jobModel.checkpoint3Address != null)
                 buildAddressRow(
                   context,
                   jobModel.checkpoint3Address!,
@@ -416,8 +394,7 @@ class CustomCard extends StatelessWidget {
                   date: jobModel.predictedCheckpoint3ArrivedTime,
                   addressLabel: jobModel.checkpoint3AddressLabel,
                 ),
-              if (jobModel.isVisibleEndAddress == true &&
-                  jobModel.endAddress != null)
+              if (jobModel.isVisibleEndAddress == true && jobModel.endAddress != null)
                 buildAddressRow(
                   context,
                   jobModel.endAddress!,
@@ -426,564 +403,7 @@ class CustomCard extends StatelessWidget {
                   date: jobModel.predictedEndLocationTime,
                   addressLabel: jobModel.endAddressLabel,
                 ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Row(
-              //       children: [
-              //         Column(
-              //           children: [
-              //             // TODO POINTS
-              //             Container(
-              //               height: context.dynamicHeight(0.013),
-              //               width: context.dynamicWidth(0.022),
-              //               decoration: BoxDecoration(
-              //                 color: isDetail
-              //                     ? context.theme.colorScheme.onSurface
-              //                     : determineTextColor(
-              //                         context,
-              //                         jobModel,
-              //                       ),
-              //                 borderRadius: BorderRadius.circular(4),
-              //                 border: Border.all(
-              //                   color: isDetail
-              //                       ? context.theme.colorScheme.onSurface
-              //                       : determineTextColor(
-              //                           context,
-              //                           jobModel,
-              //                         ),
-              //                 ),
-              //               ),
-              //             ),
-
-              //             //CheckPoint 1
-              //             if (jobModel.isVisibleCheckpoint1Address == true) ...[
-              //               Container(
-              //                 height: context.dynamicHeight(0.05),
-              //                 width: 2,
-              //                 color: isDetail
-              //                     ? context.theme.colorScheme.onSurface
-              //                     : determineTextColor(
-              //                         context,
-              //                         jobModel,
-              //                       ),
-              //               ),
-              //               Container(
-              //                 height: context.dynamicHeight(0.013),
-              //                 width: context.dynamicWidth(0.022),
-              //                 decoration: BoxDecoration(
-              //                   color: isDetail
-              //                       ? context.theme.colorScheme.onSurface
-              //                       : determineTextColor(
-              //                           context,
-              //                           jobModel,
-              //                         ),
-              //                   borderRadius: BorderRadius.circular(4),
-              //                   border: Border.all(
-              //                     color: isDetail
-              //                         ? context.theme.colorScheme.onSurface
-              //                         : determineTextColor(
-              //                             context,
-              //                             jobModel,
-              //                           ),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-              //             //CheckPoint 2
-              //             if (jobModel.isVisibleCheckpoint2Address == true) ...[
-              //               Container(
-              //                 height: context.dynamicHeight(0.05),
-              //                 width: 2,
-              //                 color: isDetail
-              //                     ? context.theme.colorScheme.onSurface
-              //                     : determineTextColor(
-              //                         context,
-              //                         jobModel,
-              //                       ),
-              //               ),
-              //               Container(
-              //                 height: context.dynamicHeight(0.013),
-              //                 width: context.dynamicWidth(0.022),
-              //                 decoration: BoxDecoration(
-              //                   color: isDetail
-              //                       ? context.theme.colorScheme.onSurface
-              //                       : determineTextColor(
-              //                           context,
-              //                           jobModel,
-              //                         ),
-              //                   borderRadius: BorderRadius.circular(4),
-              //                   border: Border.all(
-              //                     color: isDetail
-              //                         ? context.theme.colorScheme.onSurface
-              //                         : determineTextColor(
-              //                             context,
-              //                             jobModel,
-              //                           ),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-
-              //             //CheckPoint 3
-              //             if (jobModel.isVisibleCheckpoint3Address == true) ...[
-              //               Container(
-              //                 height: context.dynamicHeight(0.05),
-              //                 width: 2,
-              //                 color: isDetail
-              //                     ? context.theme.colorScheme.onSurface
-              //                     : determineTextColor(
-              //                         context,
-              //                         jobModel,
-              //                       ),
-              //               ),
-              //               Container(
-              //                 height: context.dynamicHeight(0.013),
-              //                 width: context.dynamicWidth(0.022),
-              //                 decoration: BoxDecoration(
-              //                   color: isDetail
-              //                       ? context.theme.colorScheme.onSurface
-              //                       : determineTextColor(
-              //                           context,
-              //                           jobModel,
-              //                         ),
-              //                   borderRadius: BorderRadius.circular(4),
-              //                   border: Border.all(
-              //                     color: isDetail
-              //                         ? context.theme.colorScheme.onSurface
-              //                         : determineTextColor(
-              //                             context,
-              //                             jobModel,
-              //                           ),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-              //             Container(
-              //               height: context.dynamicHeight(jobModel.isVisibleCheckpoint1Address == false &&
-              //                       jobModel.isVisibleCheckpoint2Address ==
-              //                           false &&
-              //                       jobModel.isVisibleCheckpoint3Address ==
-              //                           false
-              //                   ? 0.04
-              //                   : jobModel.isVisibleCheckpoint1Address == false &&
-              //                           jobModel.isVisibleCheckpoint2Address ==
-              //                               false &&
-              //                           jobModel.isVisibleCheckpoint3Address ==
-              //                               true
-              //                       ? 0.065
-              //                       : jobModel.isVisibleCheckpoint1Address == false &&
-              //                               jobModel.isVisibleCheckpoint2Address ==
-              //                                   true &&
-              //                               jobModel.isVisibleCheckpoint3Address ==
-              //                                   true
-              //                           ? 0.05
-              //                           : jobModel.isVisibleCheckpoint1Address == true &&
-              //                                   jobModel.isVisibleCheckpoint2Address ==
-              //                                       false &&
-              //                                   jobModel.isVisibleCheckpoint3Address ==
-              //                                       true
-              //                               ? 0.06
-              //                               : jobModel.isVisibleCheckpoint1Address == true &&
-              //                                       jobModel.isVisibleCheckpoint2Address ==
-              //                                           false &&
-              //                                       jobModel.isVisibleCheckpoint3Address ==
-              //                                           false
-              //                                   ? 0.06
-              //                                   : jobModel.isVisibleCheckpoint1Address == true &&
-              //                                           jobModel.isVisibleCheckpoint2Address ==
-              //                                               true &&
-              //                                           jobModel.isVisibleCheckpoint3Address ==
-              //                                               false
-              //                                       ? 0.16
-              //                                       : jobModel.isVisibleCheckpoint1Address == false &&
-              //                                               jobModel.isVisibleCheckpoint2Address == true &&
-              //                                               jobModel.isVisibleCheckpoint3Address == false
-              //                                           ? 0.06
-              //                                           : jobModel.isVisibleCheckpoint1Address == true && jobModel.isVisibleCheckpoint2Address == true && jobModel.isVisibleCheckpoint3Address == true
-              //                                               ? 0.07
-              //                                               : 0.1),
-              //               width: 2,
-              //               color: isDetail
-              //                   ? context.theme.colorScheme.onSurface
-              //                   : determineTextColor(
-              //                       context,
-              //                       jobModel,
-              //                     ),
-              //             ),
-              //             Container(
-              //               height: context.dynamicHeight(0.013),
-              //               width: context.dynamicWidth(0.022),
-              //               decoration: BoxDecoration(
-              //                 color: isDetail
-              //                     ? context.theme.colorScheme.onSurface
-              //                     : determineTextColor(
-              //                         context,
-              //                         jobModel,
-              //                       ),
-              //                 borderRadius: BorderRadius.circular(4),
-              //                 border: Border.all(
-              //                   color: isDetail
-              //                       ? context.theme.colorScheme.onSurface
-              //                       : determineTextColor(
-              //                           context,
-              //                           jobModel,
-              //                         ),
-              //                 ),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //         const HorizontalSpace.xSmall(),
-              //         SizedBox(
-              //           width: context.dynamicWidth(0.75),
-              //           child: Column(
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             children: [
-              //               Row(
-              //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   jobModel.isVisibleStartAddress != null &&
-              //                           jobModel.isVisibleStartAddress == true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.startAddress.toString(),
-              //                               maxLines: 2,
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                   jobModel.isVisibleStartAddress != null &&
-              //                           jobModel.isVisibleStartAddress == true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.startAddressPostalCode
-              //                                   .toString(),
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                 ],
-              //               ),
-              //               jobModel.isVisibleCheckpoint1Address == true
-              //                   ? const VerticalSpace.medium()
-              //                   : jobModel.isVisibleCheckpoint1Address == false
-              //                       ? const VerticalSpace.small()
-              //                       : const SizedBox(),
-              //               Row(
-              //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   jobModel.isVisibleCheckpoint1Address != null &&
-              //                           jobModel.isVisibleCheckpoint1Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint1Address
-              //                                   .toString(),
-              //                               maxLines: 2,
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                   jobModel.isVisibleCheckpoint1Address != null &&
-              //                           jobModel.isVisibleCheckpoint1Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint1AddressPostalCode !=
-              //                                       null
-              //                                   ? jobModel
-              //                                       .checkpoint1AddressPostalCode
-              //                                       .toString()
-              //                                   : '',
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                 ],
-              //               ),
-              //               jobModel.isVisibleCheckpoint2Address == true
-              //                   ? const VerticalSpace.small()
-              //                   : const SizedBox(),
-              //               Row(
-              //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   jobModel.isVisibleCheckpoint2Address != null &&
-              //                           jobModel.isVisibleCheckpoint2Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint2Address
-              //                                   .toString(),
-              //                               maxLines: 2,
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                   jobModel.isVisibleCheckpoint2Address != null &&
-              //                           jobModel.isVisibleCheckpoint2Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint2AddressPostalCode !=
-              //                                       null
-              //                                   ? jobModel
-              //                                       .checkpoint2AddressPostalCode
-              //                                       .toString()
-              //                                   : '',
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                 ],
-              //               ),
-              //               jobModel.isVisibleCheckpoint2Address == true
-              //                   ? const VerticalSpace.medium()
-              //                   : jobModel.isVisibleCheckpoint3Address ==
-              //                               true &&
-              //                           jobModel.isVisibleCheckpoint2Address ==
-              //                               false &&
-              //                           jobModel.isVisibleCheckpoint1Address ==
-              //                               false
-              //                       ? const VerticalSpace.small()
-              //                       : const SizedBox(),
-              //               Row(
-              //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   jobModel.isVisibleCheckpoint3Address != null &&
-              //                           jobModel.isVisibleCheckpoint3Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint3Address
-              //                                   .toString(),
-              //                               maxLines: 2,
-              // style: context.textTheme.bodySmall
-              //     ?.copyWith(
-              //         color: isDetail
-              //             ? context
-              //                 .theme
-              //                 .colorScheme
-              //                 .onSurface
-              //             : determineTextColor(
-              //                 context,
-              //                 jobModel,
-              //               ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                   jobModel.isVisibleCheckpoint3Address != null &&
-              //                           jobModel.isVisibleCheckpoint3Address ==
-              //                               true
-              //                       ? Flexible(
-              //                           child: Text(
-              //                               jobModel.checkpoint3AddressPostalCode !=
-              //                                       null
-              //                                   ? jobModel
-              //                                       .checkpoint3AddressPostalCode
-              //                                       .toString()
-              //                                   : '',
-              //                               style: context.textTheme.bodySmall
-              //                                   ?.copyWith(
-              //                                       color: isDetail
-              //                                           ? context
-              //                                               .theme
-              //                                               .colorScheme
-              //                                               .onSurface
-              //                                           : determineTextColor(
-              //                                               context,
-              //                                               jobModel,
-              //                                             ))),
-              //                         )
-              //                       : const SizedBox(),
-              //                 ],
-              //               ),
-              //               jobModel.isVisibleCheckpoint3Address == true
-              //                   ? const VerticalSpace.medium()
-              //                   : const SizedBox(),
-              //               Row(
-              //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   Flexible(
-              //                     child: Text(
-              //                       jobModel.endAddress.toString(),
-              //                       maxLines: 2,
-              //                       style:
-              //                           context.textTheme.bodySmall?.copyWith(
-              //                         color: isDetail
-              //                             ? context.theme.colorScheme.onSurface
-              //                             : determineTextColor(
-              //                                 context,
-              //                                 jobModel,
-              //                               ),
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   Flexible(
-              //                     child: Text(
-              //                         jobModel.endAddressPostalCode ?? "",
-              //                         style: context.textTheme.bodySmall
-              //                             ?.copyWith(
-              //                                 color: isDetail
-              //                                     ? context.theme.colorScheme
-              //                                         .onSurface
-              //                                     : determineTextColor(
-              //                                         context,
-              //                                         jobModel,
-              //                                       ))),
-              //                   ),
-              //                 ],
-              //               ),
-              //             ],
-              //           ),
-              //         )
-              //       ],
-              //     ),
-              //     // Column(
-              //     //   crossAxisAlignment: CrossAxisAlignment.end,
-              //     //   children: [
-              //     //     jobModel.isVisibleStartAddress != null &&
-              //     //             jobModel.isVisibleStartAddress == true
-              //     //         ? Text(jobModel.startAddressPostalCode.toString(),
-              //     //             style: context.textTheme.bodySmall?.copyWith(
-              //     //                 color: isDetail
-              //     //                     ? context.theme.colorScheme.onSurface
-              //     //                     : determineTextColor(
-              //     //                         context,
-              //     //                         jobModel,
-              //     //                       )))
-              //     //         : const SizedBox(),
-              //     //     jobModel.isVisibleCheckpoint1Address == false &&
-              //     //             jobModel.isVisibleCheckpoint2Address == false &&
-              //     //             jobModel.isVisibleCheckpoint3Address == false
-              //     //         ? const SizedBox()
-              //     //         : jobModel.isVisibleCheckpoint1Address == true
-              //     //             ? const VerticalSpace.medium()
-              //     //             : const SizedBox(),
-              //     //     jobModel.isVisibleCheckpoint1Address != null &&
-              //     //             jobModel.isVisibleCheckpoint1Address == true
-              //     //         ? Text(
-              //     //             jobModel.checkpoint1AddressPostalCode != null
-              //     //                 ? jobModel.checkpoint1AddressPostalCode
-              //     //                     .toString()
-              //     //                 : '',
-              //     //             style: context.textTheme.bodySmall?.copyWith(
-              //     //                 color: isDetail
-              //     //                     ? context.theme.colorScheme.onSurface
-              //     //                     : determineTextColor(
-              //     //                         context,
-              //     //                         jobModel,
-              //     //                       )))
-              //     //         : const SizedBox(),
-              //     //     jobModel.isVisibleCheckpoint2Address == true
-              //     //         ? const VerticalSpace.medium()
-              //     //         : const VerticalSpace.xSmall(),
-              //     //     jobModel.isVisibleCheckpoint2Address != null &&
-              //     //             jobModel.isVisibleCheckpoint2Address == true
-              //     //         ? Text(
-              //     //             jobModel.checkpoint2AddressPostalCode != null
-              //     //                 ? jobModel.checkpoint2AddressPostalCode
-              //     //                     .toString()
-              //     //                 : '',
-              //     //             style: context.textTheme.bodySmall?.copyWith(
-              //     //                 color: isDetail
-              //     //                     ? context.theme.colorScheme.onSurface
-              //     //                     : determineTextColor(
-              //     //                         context,
-              //     //                         jobModel,
-              //     //                       )))
-              //     //         : const SizedBox(),
-              //     //     jobModel.isVisibleCheckpoint3Address == true
-              //     //         ? const VerticalSpace.medium()
-              //     //         : const VerticalSpace.xSmall(),
-              //     //     jobModel.isVisibleCheckpoint3Address != null &&
-              //     //             jobModel.isVisibleCheckpoint3Address == true
-              //     //         ? Text(
-              //     //             jobModel.checkpoint3AddressPostalCode != null
-              //     //                 ? jobModel.checkpoint3AddressPostalCode
-              //     //                     .toString()
-              //     //                 : '',
-              //     //             style: context.textTheme.bodySmall?.copyWith(
-              //     //                 color: isDetail
-              //     //                     ? context.theme.colorScheme.onSurface
-              //     //                     : determineTextColor(
-              //     //                         context,
-              //     //                         jobModel,
-              //     //                       )))
-              //     //         : const SizedBox(),
-              //     //     jobModel.isVisibleCheckpoint1Address == false &&
-              //     //             jobModel.isVisibleCheckpoint2Address == false &&
-              //     //             jobModel.isVisibleCheckpoint3Address == false
-              //     //         ? const SizedBox()
-              //     //         : const VerticalSpace.medium(),
-              //     //     Text(jobModel.endAddressPostalCode ?? "",
-              //     //         style: context.textTheme.bodySmall?.copyWith(
-              //     //             color: isDetail
-              //     //                 ? context.theme.colorScheme.onSurface
-              //     //                 : determineTextColor(
-              //     //                     context,
-              //     //                     jobModel,
-              //     //                   ))),
-              //     //   ],
-              //     // )
-              //   ],
-              // ),
-              context.height > 900
-                  ? const VerticalSpace.medium()
-                  : const VerticalSpace.small(),
+              context.height > 900 ? const VerticalSpace.medium() : const VerticalSpace.small(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -991,19 +411,12 @@ class CustomCard extends StatelessWidget {
                   if (!isDetail)
                     BadgeStatusUpcomingWidget(
                       titleColor: jobModel.status == 0 &&
-                              ProductStateItems.hiveDatabaseManager
-                                      .getUserModel()
-                                      ?.currentJobId !=
-                                  jobModel.id
+                              ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId != jobModel.id
                           ? const Color(0xFFFFFBD2)
                           : Colors.white,
-                      backgroundColor: jobModel.status == 0
-                          ? const Color(0xFFC0A100)
-                          : Colors.black,
+                      backgroundColor: jobModel.status == 0 ? const Color(0xFFC0A100) : Colors.black,
                       status: jobModel.status == 1 ||
-                              ProductStateItems.hiveDatabaseManager
-                                      .getUserModel()
-                                      ?.currentJobId ==
+                              ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId ==
                                   jobModel.id.toString()
                           ? "Started"
                           : jobModel.status == 0
@@ -1016,10 +429,7 @@ class CustomCard extends StatelessWidget {
               if (isToday &&
                   jobModel.status != 2 &&
                   jobModel.isDriverConfirm == false &&
-                  ProductStateItems.hiveDatabaseManager
-                          .getUserModel()
-                          ?.currentJobId !=
-                      jobModel.id.toString())
+                  ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId != jobModel.id.toString())
                 SizedBox(
                   child: CustomAppButton(
                       text: "Confirm",
@@ -1028,36 +438,28 @@ class CustomCard extends StatelessWidget {
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              backgroundColor:
-                                  context.theme.colorScheme.onSurfaceVariant,
+                              backgroundColor: context.theme.colorScheme.onSurfaceVariant,
                               title: Text(
                                 'Confirm Job',
-                                style: context.textTheme.titleLarge?.copyWith(
-                                    color: context
-                                        .theme.colorScheme.primaryContainer),
+                                style: context.textTheme.titleLarge
+                                    ?.copyWith(color: context.theme.colorScheme.primaryContainer),
                               ),
                               content: SizedBox(
                                 height: context.dynamicHeight(0.35),
                                 child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         Text(
                                           'Reg Number: ',
-                                          style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                          style: context.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.bold, color: context.theme.colorScheme.primary),
                                         ),
                                         Text(
                                           '${jobModel.regNumber}',
                                           style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                              ?.copyWith(color: context.theme.colorScheme.primary),
                                         )
                                       ],
                                     ),
@@ -1069,18 +471,13 @@ class CustomCard extends StatelessWidget {
                                       children: [
                                         Text(
                                           'Date: ',
-                                          style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                          style: context.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.bold, color: context.theme.colorScheme.primary),
                                         ),
                                         Text(
                                           '${jobModel.date}',
                                           style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                              ?.copyWith(color: context.theme.colorScheme.primary),
                                         )
                                       ],
                                     ),
@@ -1092,18 +489,13 @@ class CustomCard extends StatelessWidget {
                                       children: [
                                         Text(
                                           'Movement Type: ',
-                                          style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                          style: context.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.bold, color: context.theme.colorScheme.primary),
                                         ),
                                         Text(
                                           jobModel.movementTypeId!.name,
                                           style: context.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                  color: context.theme
-                                                      .colorScheme.primary),
+                                              ?.copyWith(color: context.theme.colorScheme.primary),
                                         )
                                       ],
                                     ),
@@ -1112,17 +504,13 @@ class CustomCard extends StatelessWidget {
                                       thickness: 0.5,
                                     ),
                                     Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             'From: ',
-                                            style: context.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: context.theme
-                                                        .colorScheme.primary),
+                                            style: context.textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.bold, color: context.theme.colorScheme.primary),
                                           ),
                                         ),
                                         Expanded(
@@ -1130,9 +518,7 @@ class CustomCard extends StatelessWidget {
                                           child: Text(
                                             '${jobModel.startAddress}',
                                             style: context.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                    color: context.theme
-                                                        .colorScheme.primary),
+                                                ?.copyWith(color: context.theme.colorScheme.primary),
                                           ),
                                         )
                                       ],
@@ -1142,17 +528,13 @@ class CustomCard extends StatelessWidget {
                                       thickness: 0.5,
                                     ),
                                     Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             'To: ',
-                                            style: context.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: context.theme
-                                                        .colorScheme.primary),
+                                            style: context.textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.bold, color: context.theme.colorScheme.primary),
                                           ),
                                         ),
                                         Expanded(
@@ -1160,9 +542,7 @@ class CustomCard extends StatelessWidget {
                                           child: Text(
                                             '${jobModel.endAddress}',
                                             style: context.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                    color: context.theme
-                                                        .colorScheme.primary),
+                                                ?.copyWith(color: context.theme.colorScheme.primary),
                                           ),
                                         )
                                       ],
@@ -1182,31 +562,21 @@ class CustomCard extends StatelessWidget {
                                   child: Text(
                                     'Cancel',
                                     style: context.textTheme.bodyLarge
-                                        ?.copyWith(
-                                            color: context.theme.colorScheme
-                                                .primaryContainer),
+                                        ?.copyWith(color: context.theme.colorScheme.primaryContainer),
                                   ),
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: context
-                                          .theme.colorScheme.primaryContainer,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      minimumSize: Size(
-                                          context.dynamicWidth(0.07),
-                                          context.dynamicHeight(0.04))),
+                                      backgroundColor: context.theme.colorScheme.primaryContainer,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      minimumSize: Size(context.dynamicWidth(0.07), context.dynamicHeight(0.04))),
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    context
-                                        .read<HomeBloc>()
-                                        .add(ConfirmJob(jobModel.id, false));
+                                    context.read<HomeBloc>().add(ConfirmJob(jobModel.id, false));
                                   },
                                   child: Text(
                                     'Confirm',
-                                    style: context.textTheme.bodyLarge
-                                        ?.copyWith(color: Colors.white),
+                                    style: context.textTheme.bodyLarge?.copyWith(color: Colors.white),
                                   ),
                                 ),
                               ],
@@ -1236,8 +606,7 @@ class CustomCard extends StatelessWidget {
     return dateFormat.format(localDateTime);
   }
 
-  Widget buildAddressRow(
-      BuildContext context, String address, String postalCode,
+  Widget buildAddressRow(BuildContext context, String address, String postalCode,
       {required bool isLast, String? date, String? addressLabel}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1277,16 +646,12 @@ class CustomCard extends StatelessWidget {
                                 ),
                         ),
                       ),
-                      const SizedBox(
-                          height:
-                              2.0), // Tarih ve saat arasında küçük bir boşluk
+                      const SizedBox(height: 2.0), // Tarih ve saat arasında küçük bir boşluk
                       Text(
                         DateFormat('HH:mm').format(DateTime.parse(date)),
                         style: context.textTheme.bodySmall?.copyWith(
                           fontSize: 10.0,
-                          color: isDetail
-                              ? context.theme.colorScheme.onSurface
-                              : determineTextColor(context, jobModel),
+                          color: isDetail ? context.theme.colorScheme.onSurface : determineTextColor(context, jobModel),
                         ),
                       ),
                     ],

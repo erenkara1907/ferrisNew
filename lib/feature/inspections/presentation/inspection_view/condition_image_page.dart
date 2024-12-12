@@ -129,85 +129,6 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
     return newFile;
   }
 
-  // Future<void> _getImageFromCamera(InspectionsState state) async {
-  //   PermissionStatus permissionStatus = await Permission.camera.status;
-  //   if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-  //     final result = await showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: const Text('Camera Permission'),
-  //           content:
-  //               const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop(false);
-  //               },
-  //               child: const Text('Cancel'),
-  //             ),
-  //             TextButton(
-  //               onPressed: () async {
-  //                 context.read<CubitPermissions>().requestCamera();
-  //                 final permissionStatus = await Permission.camera.status;
-  //                 if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-  //                   await openAppSettings();
-  //                 }
-  //                 context.pop();
-  //               },
-  //               child: const Text('Open Settings'),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-
-  //     if (result != true) {
-  //       return;
-  //     }
-  //   }
-
-  //   try {
-  //     final currentUploadedImages = _imageFiles.length + state.conditionImageResponse.length - _deletedImages.length;
-  //     final remainingImages = maxImages - currentUploadedImages;
-
-  //     final result = await Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => CameraPageCondition(
-  //           limit: remainingImages,
-  //           onCapture: (File image) async {
-  //             if (_imageFiles.length < 75) {
-  //               await compressImage(image);
-  //             } else {
-  //               BotToast.showText(text: 'You can only select 75 images in total');
-  //             }
-  //           },
-  //           capturedImages: _imageFiles,
-  //         ),
-  //       ),
-  //     );
-
-  //     if (result != null && result is List<File>) {
-  //       setState(() {
-  //         _imageFiles = result;
-  //       });
-  //     }
-
-  //     permissionStatus = await Permission.camera.status;
-  //     if (!permissionStatus.isGranted) {
-  //       BotToast.showText(text: 'Camera access denied');
-  //       return;
-  //     }
-  //     if (remainingImages <= 0) {
-  //       BotToast.showText(text: 'You cannot add more than $maxImages images');
-  //       return;
-  //     }
-  //   } catch (e, s) {
-  //     SentryErrorHandler.instance.capture(e, stackTrace: s);
-  //   }
-  // }
-
   Future<void> _getImageFromCamera(InspectionsState state) async {
     PermissionStatus permissionStatus = await Permission.camera.status;
     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
@@ -428,7 +349,7 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!isSigned)
-                            Column( 
+                            Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

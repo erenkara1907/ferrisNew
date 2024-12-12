@@ -151,19 +151,11 @@ class JobInspectionResponseModelItem extends Equatable {
   factory JobInspectionResponseModelItem.fromMap(Map<String, dynamic> map) {
     return JobInspectionResponseModelItem(
       id: map['id'] as int?,
-      jobId: map['jobId'] == null
-          ? null
-          : JobsResponseModelItem.fromMap(map['jobId'] as Map<String, dynamic>),
-      gradleItem: map['gradeId'] == null
-          ? null
-          : GradeId.fromMap(map['gradeId'] as Map<String, dynamic>),
-      typeId: map['typeId'] == null
-          ? null
-          : JobInspectionType.fromMap(map['typeId'] as Map<String, dynamic>),
-      damages: map['damages'] != null
-          ? List<DamageModel>.from(
-              map['damages']?.map((x) => DamageModel.fromMap(x)))
-          : null,
+      jobId: map['jobId'] == null ? null : JobsResponseModelItem.fromMap(map['jobId'] as Map<String, dynamic>),
+      gradleItem: map['gradeId'] == null ? null : GradeId.fromMap(map['gradeId'] as Map<String, dynamic>),
+      typeId: map['typeId'] == null ? null : JobInspectionType.fromMap(map['typeId'] as Map<String, dynamic>),
+      damages:
+          map['damages'] != null ? List<DamageModel>.from(map['damages']?.map((x) => DamageModel.fromMap(x))) : null,
       reportSigned: map['reportSigned'],
       conditionImagesAdded: map['conditionImagesAdded'],
       reportNumber: map['reportNumber'],
@@ -171,8 +163,7 @@ class JobInspectionResponseModelItem extends Equatable {
       checklistComplete: map['checklistComplete'],
       abortType: map['abortType'] == null
           ? null
-          : JobInspectionAbortTypeItem.fromMap(
-              map['abortType'] as Map<String, dynamic>),
+          : JobInspectionAbortTypeItem.fromMap(map['abortType'] as Map<String, dynamic>),
       date: map['date'],
       time: map['time'],
       odoReading: (map['odoReading'] as num?)?.toDouble(),
@@ -296,17 +287,13 @@ class JobInspectionResponseModelItem extends Equatable {
       inspectorSignerName: inspectorSignerName ?? this.inspectorSignerName,
       inspectorSignature: inspectorSignature ?? this.inspectorSignature,
       inspectorSignedDate: inspectorSignedDate ?? this.inspectorSignedDate,
-      inspectorSignedLatitude:
-          inspectorSignedLatitude ?? this.inspectorSignedLatitude,
-      inspectorSignedLongitude:
-          inspectorSignedLongitude ?? this.inspectorSignedLongitude,
+      inspectorSignedLatitude: inspectorSignedLatitude ?? this.inspectorSignedLatitude,
+      inspectorSignedLongitude: inspectorSignedLongitude ?? this.inspectorSignedLongitude,
       customerSignerName: customerSignerName ?? this.customerSignerName,
       customerSignature: customerSignature ?? this.customerSignature,
       customerSignedDate: customerSignedDate ?? this.customerSignedDate,
-      customerSignedLatitude:
-          customerSignedLatitude ?? this.customerSignedLatitude,
-      customerSignedLongitude:
-          customerSignedLongitude ?? this.customerSignedLongitude,
+      customerSignedLatitude: customerSignedLatitude ?? this.customerSignedLatitude,
+      customerSignedLongitude: customerSignedLongitude ?? this.customerSignedLongitude,
     );
   }
 }
@@ -349,8 +336,7 @@ class DamageModel extends Equatable {
   factory DamageModel.fromMap(Map<String, dynamic> map) {
     return DamageModel(
       id: map['id'],
-      damageCombinationId: JobInspectionDamageCombinationModel.fromMap(
-          map['damageCombinationId']),
+      damageCombinationId: JobInspectionDamageCombinationModel.fromMap(map['damageCombinationId']),
       chargeable: map['chargeable'],
       contextImage: map['contextImage'],
       damageImage: map['damageImage'],
@@ -359,8 +345,7 @@ class DamageModel extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, damageCombinationId, chargeable, contextImage, damageImage, price];
+  List<Object?> get props => [id, damageCombinationId, chargeable, contextImage, damageImage, price];
 }
 
 @HiveType(typeId: 199)
@@ -383,8 +368,7 @@ class JobInspectionDamageCombinationModel extends Equatable {
     };
   }
 
-  factory JobInspectionDamageCombinationModel.fromMap(
-      Map<String, dynamic> map) {
+  factory JobInspectionDamageCombinationModel.fromMap(Map<String, dynamic> map) {
     return JobInspectionDamageCombinationModel(
       id: map['id'],
       damageStandards: List<int>.from(map['damageStandards']),

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ferrisfwt/feature/auth/data/models/user_model.dart';
 import 'package:ferrisfwt/feature/home/data/models/job_tracking_coordinates/tracking_coordinates_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item.dart';
 import 'package:ferrisfwt/feature/home/data/models/jobs/movement_type/feedback_input_availability.dart';
@@ -19,8 +18,8 @@ import 'package:ferrisfwt/product/state/base/model/post_models/jobs/start_job_po
 import 'package:ferrisfwt/product/state/base/model/post_models/jobs/update_job_status_post_model.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
 import 'package:ferrisfwt/product/utility/enums/view_status.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -40,6 +39,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     // _hiveStorageManager = ProductStateItems.hiveStorageManager;
     on<GetJobs>(onGetJobs);
     on<StartJob>(onStartJob);
+    on<ClearStartState>(onClearStartState);
     on<EndJob>(onEndJob);
     on<UpdateJob>(onUpdateJob);
     on<GetJob>(onGetJob);
@@ -76,42 +76,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     final id = _hiveDatabaseManager.getUserModel()?.currentJobId;
     if (id == null || id == "") {
-      // // İlk API çağrısı: Bugünkü jobları al
       final todayJobsResult = await _ucGetJob.getJob(
         status: "0",
         date:
             "${DateTime.now().year}-${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"}-${DateTime.now().day < 10 ? "0${DateTime.now().day}" : DateTime.now().day}",
       );
 
-      // İkinci API çağrısı: Tüm aktif jobları al (tarih filtresi olmadan)
       final activeJobsResult = await _ucGetJob.getJob(
         status: "1",
       );
 
-      // Her iki sonuç için de hata kontrolü yap
       if (todayJobsResult.isLeft() || activeJobsResult.isLeft()) {
-        final failure =
-            todayJobsResult.fold((failure) => failure, (_) => null) ??
-                activeJobsResult.fold((failure) => failure, (_) => null);
+        final failure = todayJobsResult.fold((failure) => failure, (_) => null) ??
+            activeJobsResult.fold((failure) => failure, (_) => null);
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
         return;
       }
 
-      // Sonuçları birleştir
       final todayJobs = todayJobsResult.getOrElse(() => []);
       final activeJobs = activeJobsResult.getOrElse(() => []);
 
-      // Eğer bugünkü joblar, tüm aktif jobların içinde varsa bu durumu kontrol edebilir veya bugünkü jobları diğer aktif joblarla birleştirebilirsiniz.
       final allJobs = [...todayJobs, ...activeJobs];
 
-      // Job'ları önce tarihe göre sıralayalım (eskiden yeniye doğru)
       allJobs.sort((a, b) => a.date!.compareTo(b.date ?? ""));
 
-      // Aktif olan jobları listenin başına getirelim
-      allJobs.sort((a, b) => b.status!.compareTo(a.status ??
-          1)); // Assuming status "1" is active, and status is a string
+      allJobs
+          .sort((a, b) => b.status!.compareTo(a.status ?? 1)); // Assuming status "1" is active, and status is a string
 
-      // Elde edilen jobları state'e aktar
       emit(state.copyWith(status: ViewStatus.success, jobs: allJobs));
 
       // final result = await _ucGetJob.getJob(
@@ -129,8 +120,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       return;
     }
 
-    final jobWorkingOn = await _hiveStorageManager
-        .getJobWorkingOnModel(int.parse(id.toString()));
+    final jobWorkingOn = await _hiveStorageManager.getJobWorkingOnModel(int.parse(id.toString()));
 
     final todayJobsResult = await _ucGetJob.getJob(
       status: "0",
@@ -179,35 +169,40 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(status: ViewStatus.loading, showJob: null));
     final result = await _ucGetJob.getJobShow(id: event.jobId.toString());
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+      (failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
       (data) => emit(state.copyWith(status: ViewStatus.success, showJob: data)),
     );
   }
 
   Future<void> onStartJob(StartJob event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    // Şu anki tarih ve zaman
-    DateTime now = DateTime.now();
+    try {
+      DateTime now = DateTime.now();
 
-    // UNIX zaman damgası (saniye cinsinden)
-    int unixTimestamp = now.millisecondsSinceEpoch ~/ 1000;
-    final result = await _ucGetJob.startJob(
-        data: StartJobPostModel(startDate: unixTimestamp),
-        jobId: event.jobShowModel.id);
-    result.fold((failure) {
-      emit(state.copyWith(status: ViewStatus.failure, failure: failure));
-    }, (data) async {
-      // _hiveDatabaseManager.saveUserModel(
-      //     UserModel(currentJobId: event.jobShowModel.id.toString()));
-      _hiveDatabaseManager.saveJob(event.jobShowModel.id.toString(),
-          event.jobShowModel.startDate.toString());
-      _hiveStorageManager.setJobWorkingOn(event.jobShowModel);
-      emit(state.copyWith(
-        status: ViewStatus.success,
-        isStarted: true,
-      ));
-    });
+      int unixTimestamp = now.millisecondsSinceEpoch ~/ 1000;
+      final result =
+          await _ucGetJob.startJob(data: StartJobPostModel(startDate: unixTimestamp), jobId: event.jobShowModel.id);
+      result.fold((failure) async {
+        emit(state.copyWith(status: ViewStatus.failure, failure: failure));
+      }, (data) async {
+        // _hiveDatabaseManager.saveUserModel(
+        //     UserModel(currentJobId: event.jobShowModel.id.toString()));
+        _hiveDatabaseManager.saveJob(event.jobShowModel.id.toString(), event.jobShowModel.startDate.toString());
+        _hiveStorageManager.setJobWorkingOn(event.jobShowModel);
+        emit(state.copyWith(
+          status: ViewStatus.success,
+          isStarted: true,
+        ));
+      });
+    } catch (e, s) {
+      await Sentry.captureException(e, stackTrace: s);
+    }
+  }
+
+  Future<void> onClearStartState(ClearStartState event, Emitter<HomeState> emit) async {
+    emit(state.copyWith(
+      isStarted: false,
+    ));
   }
 
   Future<void> onPriceJob(PriceJob event, Emitter<HomeState> emit) async {
@@ -238,10 +233,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         jobId: int.parse(event.id),
         data: event.data,
       );
-      result.fold(
-          (failure) => emit(
-              state.copyWith(status: ViewStatus.failure, failure: failure)),
-          (data) async {
+      result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) async {
         emit(state.copyWith(
           status: ViewStatus.success,
           isFinished: true,
@@ -252,8 +244,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       if (event.feedbackInputAvailability != null) {
         final result = ProductStateItems.hiveStorageManager.getJopUpdatePage();
         if (event.isFeedBackView) {
-          if (event.feedbackInputAvailability?.customer ==
-                      FeedbackInputAvailabilityEnum.required &&
+          if (event.feedbackInputAvailability?.customer == FeedbackInputAvailabilityEnum.required &&
                   result?.customerFeedback == null ||
               result?.customerFeedback == "") {
             emit(state.copyWith(
@@ -261,8 +252,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             ));
             BotToast.showText(text: "Please fill the feedback form");
             return;
-          } else if (event.feedbackInputAvailability?.vehicle ==
-                      FeedbackInputAvailabilityEnum.required &&
+          } else if (event.feedbackInputAvailability?.vehicle == FeedbackInputAvailabilityEnum.required &&
                   result?.vehicleFeedback == null ||
               result?.vehicleFeedback == "") {
             emit(state.copyWith(
@@ -299,10 +289,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         jobId: int.parse(event.id),
         updateJobStatusPostModel: event.data,
       );
-      result.fold(
-          (failure) => emit(
-              state.copyWith(status: ViewStatus.failure, failure: failure)),
-          (data) {
+      result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
         if (event.isAsync) {
           emit(state.copyWith(status: ViewStatus.success));
           return;
@@ -320,27 +307,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<void> onGetJobsValet(
-      GetJobsValet event, Emitter<HomeState> emit) async {
+  Future<void> onGetJobsValet(GetJobsValet event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJob.getJobValetStandards();
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
+    result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
       _hiveStorageManager.setValetStandards(data);
       emit(state.copyWith(status: ViewStatus.success, jobsValet: data));
     });
   }
 
-  Future<void> onGetJobShowValetByType(
-      GetJobShowValetByType event, Emitter<HomeState> emit) async {
+  Future<void> onGetJobShowValetByType(GetJobShowValetByType event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
-    final result = await _ucGetJob.showJobValetStandards(
-        id: event.movementTypeId.toString());
+    final result = await _ucGetJob.showJobValetStandards(id: event.movementTypeId.toString());
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
+      (failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
       (data) => emit(state.copyWith(
         status: ViewStatus.success,
         jobsValetByType: data,
@@ -348,16 +328,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  Future<void> onGetJobTracingCordinates(
-      GetJobTracingCordinates event, Emitter<HomeState> emit) async {
+  Future<void> onGetJobTracingCordinates(GetJobTracingCordinates event, Emitter<HomeState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
 
-    final result = await _ucGetJobTrackingCoordinates
-        .getJobTrackingCoordinatess(jobId: event.jobId);
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
+    final result = await _ucGetJobTrackingCoordinates.getJobTrackingCoordinatess(jobId: event.jobId);
+    result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
       emit(state.copyWith(
         status: ViewStatus.success,
         getTrackingCoordinatesResponse: data,
@@ -390,8 +365,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       status: ViewStatus.loading,
     ));
     await Future.delayed(const Duration(seconds: 1));
-    emit(state.copyWith(
-        status: ViewStatus.success, showJob: event.jobModel, isAsync: true));
+    emit(state.copyWith(status: ViewStatus.success, showJob: event.jobModel, isAsync: true));
   }
 
   void getJobTomorrow(GetJobTomorrow event, Emitter<HomeState> emit) async {
@@ -410,10 +384,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       date: formattedDate,
     );
 
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
+    result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
       emit(state.copyWith(status: ViewStatus.success, jobsTomorrow: data));
     });
   }
@@ -425,10 +396,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       status: "2",
     );
 
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
+    result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
       emit(state.copyWith(status: ViewStatus.success, jobsHistory: data));
     });
   }
@@ -445,10 +413,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ));
   }
 
-  void onSetTrackingCoordinate(
-      SetTrackingCoordinate event, Emitter<HomeState> emit) async {
-    final trackingCoordinate =
-        await _hiveStorageManager.getTrackingCoordinateModel();
+  void onSetTrackingCoordinate(SetTrackingCoordinate event, Emitter<HomeState> emit) async {
+    final trackingCoordinate = await _hiveStorageManager.getTrackingCoordinateModel();
 
     emit(state.copyWith(
       selectedTrackingCoordinate: trackingCoordinate,
@@ -467,8 +433,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ));
   }
 
-  Future<void> _onUpdateTrackingCoordinate(
-      UpdateTrackingCoordinate event, Emitter<HomeState> emit) async {
+  Future<void> _onUpdateTrackingCoordinate(UpdateTrackingCoordinate event, Emitter<HomeState> emit) async {
     final result = await hasNetwork();
     if (result) {
       await _ucGetJobTrackingCoordinates.updateTrackingCoordinate(
@@ -477,10 +442,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         longitude: event.longitude,
       );
     } else {}
-  } 
+  }
 
-  Future<void> _onUpdateTrackingCoordinateBulk(
-      UpdateTrackingCoordinateBulk event, Emitter<HomeState> emit) async {
+  Future<void> _onUpdateTrackingCoordinateBulk(UpdateTrackingCoordinateBulk event, Emitter<HomeState> emit) async {
     final result = await hasNetwork();
     if (result) {
       await _ucGetJobTrackingCoordinates.updateTrackingCoordinateBulk(
@@ -499,10 +463,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final result = await _ucGetJob.confirmJob(
         id: event.id,
       );
-      result.fold(
-          (failure) => emit(
-              state.copyWith(status: ViewStatus.failure, failure: failure)),
-          (data) {
+      result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
         add(const GetJobs());
         BotToast.showText(text: 'Job confirmed successfully');
       });
@@ -512,10 +473,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final result = await _ucGetJob.confirmJob(
       id: event.id,
     );
-    result.fold(
-        (failure) =>
-            emit(state.copyWith(status: ViewStatus.failure, failure: failure)),
-        (data) {
+    result.fold((failure) => emit(state.copyWith(status: ViewStatus.failure, failure: failure)), (data) {
       add(const GetJobs());
       BotToast.showText(text: 'Job confirmed successfully');
       emit(state.copyWith(status: ViewStatus.success));

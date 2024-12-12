@@ -36,11 +36,7 @@ class JobDetailPage extends StatefulWidget {
   final bool? isCameHomePage;
 
   const JobDetailPage(
-      {super.key,
-      required this.jobId,
-      this.asyncJob = false,
-      this.isSigned = false,
-      this.isCameHomePage = true});
+      {super.key, required this.jobId, this.asyncJob = false, this.isSigned = false, this.isCameHomePage = true});
 
   @override
   State<JobDetailPage> createState() => _JobDetailPageState();
@@ -51,7 +47,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
   TrackingCoordinatesResponseModelItem? _trackingCoordinate;
   ScrollController scrollController = ScrollController();
   bool showExtraButtons = false;
-  bool isStarted = false;
+  // bool isStarted = false;
   late HiveStorageManager _hiveStorageManager;
   HiveDatabaseManager? _hi;
 
@@ -60,7 +56,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
     super.initState();
 
     context.read<HomeBloc>().add(const ClearJob());
-    isStarted = false;
+    context.read<HomeBloc>().add(const ClearStartState());
+    // isStarted = false;
     _initializeJob();
     _hiveStorageManager = ProductStateItems.hiveStorageManager;
     _hi = ProductStateItems.hiveDatabaseManager;
@@ -85,8 +82,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   void _initializeJob() async {
-    job = await ProductStateItems.hiveStorageManager
-        .getJobWorkingOnModel(int.parse(widget.jobId));
+    job = await ProductStateItems.hiveStorageManager.getJobWorkingOnModel(int.parse(widget.jobId));
     if (widget.asyncJob == false) {
       context.read<HomeBloc>().add(GetJob(widget.jobId));
     } else if (job != null && job!.id.toString() == widget.jobId) {
@@ -94,16 +90,14 @@ class _JobDetailPageState extends State<JobDetailPage> {
     }
     if (job != null &&
         ProductStateItems.hiveDatabaseManager.getUserModel() != null &&
-        ProductStateItems.hiveDatabaseManager.getUserModel()!.isjobFinish ==
-            true) {
+        ProductStateItems.hiveDatabaseManager.getUserModel()!.isjobFinish == true) {
       showDialog(
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               icon: Image.asset('assets/images/fr_success_finish.png',
-                  height: context.dynamicHeight(0.09),
-                  width: context.dynamicWidth(0.09)),
+                  height: context.dynamicHeight(0.09), width: context.dynamicWidth(0.09)),
               title: Text(
                 'Finish job success, waiting for internet connection to sync job...',
                 style: context.textTheme.bodyMedium,
@@ -116,50 +110,32 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       final result = await hasNetwork();
 
                       if (result) {
-                        final jobToFinish = await ProductStateItems
-                            .hiveStorageManager
-                            .getJobToFinish();
+                        final jobToFinish = await ProductStateItems.hiveStorageManager.getJobToFinish();
                         if (jobToFinish == null) {
-                          BotToast.showText(
-                              text: 'No job to finish',
-                              contentColor: context.theme.colorScheme.error);
+                          BotToast.showText(text: 'No job to finish', contentColor: context.theme.colorScheme.error);
                           BotToast.closeAllLoading();
                           return;
                         }
 
                         context.read<HomeBloc>().add(EndJob(
-                            isViewFuel: job?.movementTypeId!
-                                        .availableFuelEvLevelInputs.isEmpty ==
-                                    false ||
-                                job?.movementTypeId!.feedbackInputs
-                                        ?.showAnyInput ==
-                                    true,
-                            isFeedBackView: job?.movementTypeId!.feedbackInputs
-                                    ?.showAnyInput ==
-                                true,
+                            isViewFuel: job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                                job?.movementTypeId!.feedbackInputs?.showAnyInput == true,
+                            isFeedBackView: job?.movementTypeId!.feedbackInputs?.showAnyInput == true,
                             feedbackInputAvailability:
-                                job?.movementTypeId!.feedbackInputs ??
-                                    job?.movementTypeId!.feedbackInputs,
-                            id: ProductStateItems.hiveDatabaseManager
-                                .getUserModel()!
-                                .currentJobId
-                                .toString(),
+                                job?.movementTypeId!.feedbackInputs ?? job?.movementTypeId!.feedbackInputs,
+                            id: ProductStateItems.hiveDatabaseManager.getUserModel()!.currentJobId.toString(),
                             data: jobToFinish));
                         context.pop();
                         await _hi?.deleteJob();
                         await _hiveStorageManager.deleteInspectionChecklist();
-                        await _hiveStorageManager
-                            .clearAllInspectionConditionImages();
-                        await _hiveStorageManager
-                            .clearAllConditionImagePostModels();
+                        await _hiveStorageManager.clearAllInspectionConditionImages();
+                        await _hiveStorageManager.clearAllConditionImagePostModels();
                         await _hiveStorageManager.clearAllInspectionDamages();
                         await _hiveStorageManager.clearAllDamagePostModels();
                         await _hiveStorageManager.clearAllInspectionDetails();
                         await _hiveStorageManager.clearAllInspectionSigns();
-                        await _hiveStorageManager
-                            .clearAllSignCustomerPostModels();
-                        await _hiveStorageManager
-                            .clearAllSignInspectorPostModels();
+                        await _hiveStorageManager.clearAllSignCustomerPostModels();
+                        await _hiveStorageManager.clearAllSignInspectorPostModels();
                         await _hiveStorageManager.deleteTrackingCoordinate();
                         await _hiveStorageManager.clearStops();
                         await _hiveStorageManager.deleteJobStopAsync();
@@ -170,24 +146,17 @@ class _JobDetailPageState extends State<JobDetailPage> {
                         await _hiveStorageManager.deleteJobExpenseAsync();
                         await _hiveStorageManager.clearItemCheckList();
                         await _hiveStorageManager.deleteExpensePostResponses();
-                        await _hiveStorageManager
-                            .deleteExpensePatchPostResponses();
+                        await _hiveStorageManager.deleteExpensePatchPostResponses();
                         await _hiveStorageManager.deleteDamageCategories();
                         await _hiveStorageManager.deleteAllRecordedDamage();
                         await _hiveStorageManager.clearAllConditionImages();
-                        await _hiveStorageManager
-                            .deleteAllInspectionListModel();
+                        await _hiveStorageManager.deleteAllInspectionListModel();
                         await _hiveStorageManager.deleteExpenses();
                         await _hiveStorageManager.clearItemCheckList();
-                        await _hiveStorageManager
-                            .clearAllPostExpenseSaveImages();
+                        await _hiveStorageManager.clearAllPostExpenseSaveImages();
                         context.read<StopJobBloc>().add(const ClearJobStops());
-                        context
-                            .read<JobExpenseBloc>()
-                            .add(const ClearExpensePost());
-                        context
-                            .read<InspectionsBloc>()
-                            .add(const ClearInspection());
+                        context.read<JobExpenseBloc>().add(const ClearExpensePost());
+                        context.read<InspectionsBloc>().add(const ClearInspection());
                         if (await LocationServiceManager().isServiceStarted()) {
                           await LocationServiceManager().stopService();
                         }
@@ -196,18 +165,14 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                icon: Image.asset(
-                                    'assets/images/fr_success_finish.png',
-                                    height: context.dynamicHeight(0.09),
-                                    width: context.dynamicWidth(0.09)),
+                                icon: Image.asset('assets/images/fr_success_finish.png',
+                                    height: context.dynamicHeight(0.09), width: context.dynamicWidth(0.09)),
                                 title: const Text('Finish job success'),
                                 actions: [
                                   CustomAppButton(
                                       text: 'Go Home Page',
                                       ontap: () {
-                                        context
-                                            .read<HomeBloc>()
-                                            .add(const GetJobs());
+                                        context.read<HomeBloc>().add(const GetJobs());
                                         context.go('/home_page');
                                       })
                                 ],
@@ -215,8 +180,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             });
                       } else {
                         BotToast.showText(
-                            text: 'No internet connection',
-                            contentColor: context.theme.colorScheme.error);
+                            text: 'No internet connection', contentColor: context.theme.colorScheme.error);
                       }
                       BotToast.closeAllLoading();
                     })
@@ -239,15 +203,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
     if (googleMapAvailable == true) {
       MapLauncher.showMarker(
         mapType: MapType.google,
-        coords: Coords(job!.endAddressCordinates!.latitude ?? 0.00,
-            job!.endAddressCordinates!.longitude ?? 0.00),
+        coords: Coords(job!.endAddressCordinates!.latitude ?? 0.00, job!.endAddressCordinates!.longitude ?? 0.00),
         title: job!.endAddress!,
       );
     } else if (appleMapAvailable == true) {
       MapLauncher.showMarker(
         mapType: MapType.apple,
-        coords: Coords(job!.endAddressCordinates?.latitude ?? 0.00,
-            job!.endAddressCordinates!.longitude ?? 0.00),
+        coords: Coords(job!.endAddressCordinates?.latitude ?? 0.00, job!.endAddressCordinates!.longitude ?? 0.00),
         title: job!.endAddress!,
       );
     } else {}
@@ -256,13 +218,12 @@ class _JobDetailPageState extends State<JobDetailPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeBloc, HomeState>(
-      listenWhen: (previous, current) =>
-          previous.isStarted != current.isStarted,
+      listenWhen: (previous, current) => previous.isStarted != current.isStarted,
       listener: (context, state) async {
         if (state.isStarted) {
-          setState(() {
-            isStarted = true;
-          });
+          // setState(() {
+          //   isStarted = true;
+          // });
           // context
           //     .read<HomeBloc>()
           //     .add(GetTrackingCoordinate(state.showJob!.id));
@@ -272,15 +233,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
                 jobId: state.showJob!.id,
               ));
           if (state.showJob?.isDriverConfirm != true) {
-            context
-                .read<HomeBloc>()
-                .add(ConfirmJob(state.showJob?.id ?? 0, true));
+            context.read<HomeBloc>().add(ConfirmJob(state.showJob?.id ?? 0, true));
           }
           PlatformNetworkCredentialsManager.setCredentials(
             jobId: state.showJob!.id,
-            token:
-                ProductStateItems.hiveDatabaseManager.getUserModel()!.token ??
-                    "",
+            token: ProductStateItems.hiveDatabaseManager.getUserModel()!.token ?? "",
             url: ServicePath.jobTrackings.value,
           );
 
@@ -441,12 +398,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
               ],
             ),
           ),
-          if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
-                      true &&
-                  ProductStateItems.hiveDatabaseManager
-                          .getUserModel()
-                          ?.currentJobId ==
-                      state.showJob?.id
+          if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted == true &&
+                  ProductStateItems.hiveDatabaseManager.getUserModel()?.currentJobId == state.showJob?.id
               ? true
               : state.showJob?.status != 2)
             Container(
@@ -460,102 +413,57 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   children: [
                     widget.isCameHomePage == true
                         ? CustomAppButton(
-                            isCustomColor: state.showJob?.status == 1 ||
-                                isStarted ||
-                                widget.asyncJob == true,
-                            text: state.showJob?.status == 1 ||
-                                    isStarted ||
-                                    widget.asyncJob == true
+                            isCustomColor: state.showJob?.status == 1 || state.isStarted || widget.asyncJob == true,
+                            text: state.showJob?.status == 1 || state.isStarted || widget.asyncJob == true
                                 ? "Finish Job"
                                 : "Start Job",
                             ontap: () {
-                              if (state.showJob?.status == 1 ||
-                                  isStarted ||
-                                  widget.asyncJob == true) {
+                              if (state.showJob?.status == 1 || state.isStarted || widget.asyncJob == true) {
                                 context.push("/finish_job_page", extra: {
-                                  "isFuelView": job
-                                                  ?.movementTypeId!
-                                                  .availableFuelEvLevelInputs
-                                                  .isEmpty ==
-                                              false ||
-                                          state
-                                                  .showJob
-                                                  ?.movementTypeId!
-                                                  .availableFuelEvLevelInputs
-                                                  .isEmpty ==
-                                              false
+                                  "isFuelView": job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                                          state.showJob?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false
                                       ? true
                                       : false,
-                                  "isFeedbackView": job?.movementTypeId!
-                                              .feedbackInputs?.showAnyInput ==
-                                          true ||
-                                      state.showJob?.movementTypeId!
-                                              .feedbackInputs?.showAnyInput ==
-                                          true,
-                                  "feedbackInputAvailability":
-                                      job?.movementTypeId!.feedbackInputs ??
-                                          state.showJob?.movementTypeId!
-                                              .feedbackInputs,
+                                  "isFeedbackView": job?.movementTypeId!.feedbackInputs?.showAnyInput == true ||
+                                      state.showJob?.movementTypeId!.feedbackInputs?.showAnyInput == true,
+                                  "feedbackInputAvailability": job?.movementTypeId!.feedbackInputs ??
+                                      state.showJob?.movementTypeId!.feedbackInputs,
                                 });
                               } else {
-                                if (state.showJob?.status == 1 ||
-                                    isStarted ||
-                                    widget.asyncJob == true) {
+                                if (state.showJob?.status == 1 || state.isStarted || widget.asyncJob == true) {
                                   context.push("/finish_job_page", extra: {
-                                    "isFuelView": job
-                                                    ?.movementTypeId!
-                                                    .availableFuelEvLevelInputs
-                                                    .isEmpty ==
-                                                false ||
-                                            state
-                                                    .showJob
-                                                    ?.movementTypeId!
-                                                    .availableFuelEvLevelInputs
-                                                    .isEmpty ==
-                                                false
+                                    "isFuelView": job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                                            state.showJob?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false
                                         ? true
                                         : false,
-                                    "isFeedbackView": job?.movementTypeId!
-                                                .feedbackInputs?.showAnyInput ==
-                                            true ||
-                                        state.showJob?.movementTypeId!
-                                                .feedbackInputs?.showAnyInput ==
-                                            true,
-                                    "feedbackInputAvailability":
-                                        job?.movementTypeId!.feedbackInputs ??
-                                            state.showJob?.movementTypeId!
-                                                .feedbackInputs,
+                                    "isFeedbackView": job?.movementTypeId!.feedbackInputs?.showAnyInput == true ||
+                                        state.showJob?.movementTypeId!.feedbackInputs?.showAnyInput == true,
+                                    "feedbackInputAvailability": job?.movementTypeId!.feedbackInputs ??
+                                        state.showJob?.movementTypeId!.feedbackInputs,
                                   });
                                 } else {
                                   context.read<HomeBloc>().add(StartJob(
                                         state.showJob!,
                                       ));
 
-                                  context
-                                      .read<HomeBloc>()
-                                      .add(PriceJob(state.showJob!.id));
+                                  context.read<HomeBloc>().add(PriceJob(state.showJob!.id));
                                 }
                               }
                             })
                         : const SizedBox.shrink(),
                     const VerticalSpace.small(),
-                    if (state.showJob?.status == 1 ||
-                        isStarted ||
-                        widget.asyncJob == true)
+                    if (state.showJob?.status == 1 || state.isStarted || widget.asyncJob == true)
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomGreyAppButton(
                             textColor: context.theme.colorScheme.primary,
                             text: "Inspect",
-                            containerColor:
-                                context.theme.colorScheme.onSurfaceVariant,
+                            containerColor: context.theme.colorScheme.onSurfaceVariant,
                             ontap: () async {
                               BotToast.showLoading();
                               final result = await hasNetwork();
-                              context
-                                  .read<InspectionsBloc>()
-                                  .add(GetJobInspections(
+                              context.read<InspectionsBloc>().add(GetJobInspections(
                                     jobId: state.showJob!.id,
                                   ));
                               context.push("/inspection_page", extra: {
@@ -568,16 +476,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           CustomGreyAppButton(
                             textColor: context.theme.colorScheme.primary,
                             text: "Open Map",
-                            containerColor:
-                                context.theme.colorScheme.onSurfaceVariant,
+                            containerColor: context.theme.colorScheme.onSurfaceVariant,
                             ontap: () {
                               if (state.showJob != null) {
                                 if (state.showJob?.startAddress != null &&
                                     state.showJob?.endAddress != null &&
-                                    state.showJob?.startAddressCordinates !=
-                                        null &&
-                                    state.showJob?.endAddressCordinates !=
-                                        null) {
+                                    state.showJob?.startAddressCordinates != null &&
+                                    state.showJob?.endAddressCordinates != null) {
                                   context.push("/map_view_page2");
                                 } else {
                                   BotToast.showText(text: "Address Not Found");
@@ -593,27 +498,22 @@ class _JobDetailPageState extends State<JobDetailPage> {
                               children: [
                                 CustomGreyAppButton(
                                     width: context.dynamicWidth(0.44),
-                                    textColor:
-                                        context.theme.colorScheme.primary,
+                                    textColor: context.theme.colorScheme.primary,
                                     text: "Add Stop",
-                                    containerColor: context
-                                        .theme.colorScheme.onSurfaceVariant,
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
                                       context.push("/add_stop_page");
                                     }),
                                 const HorizontalSpace.xxSmall(),
                                 CustomGreyAppButton(
                                     width: context.dynamicWidth(0.44),
-                                    textColor:
-                                        context.theme.colorScheme.primary,
+                                    textColor: context.theme.colorScheme.primary,
                                     text: "View Expenses",
-                                    containerColor: context
-                                        .theme.colorScheme.onSurfaceVariant,
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
                                     ontap: () async {
                                       BotToast.showLoading();
                                       final result = await hasNetwork();
-                                      context
-                                          .push("/view_expenses_page", extra: {
+                                      context.push("/view_expenses_page", extra: {
                                         "isAsync": !result,
                                         "jobId": state.showJob!.id,
                                       });
@@ -627,11 +527,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
                               children: [
                                 CustomGreyAppButton(
                                     width: context.dynamicWidth(0.44),
-                                    textColor:
-                                        context.theme.colorScheme.primary,
+                                    textColor: context.theme.colorScheme.primary,
                                     text: "Add Expense",
-                                    containerColor: context
-                                        .theme.colorScheme.onSurfaceVariant,
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
                                       context.push("/expense_details", extra: {
                                         "jobId": state.showJob!.id,
@@ -640,17 +538,12 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                 const HorizontalSpace.xxSmall(),
                                 CustomGreyAppButton(
                                     width: context.dynamicWidth(0.44),
-                                    textColor:
-                                        context.theme.colorScheme.primary,
+                                    textColor: context.theme.colorScheme.primary,
                                     text: "Navigation",
-                                    containerColor: context
-                                        .theme.colorScheme.onSurfaceVariant,
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
                                     ontap: () {
-                                      if (state.showJob
-                                                  ?.startAddressCordinates ==
-                                              null ||
-                                          state.showJob?.endAddressCordinates ==
-                                              null ||
+                                      if (state.showJob?.startAddressCordinates == null ||
+                                          state.showJob?.endAddressCordinates == null ||
                                           state.showJob?.startAddress == null ||
                                           state.showJob?.endAddress == null) {
                                         BotToast.showText(
@@ -663,66 +556,37 @@ class _JobDetailPageState extends State<JobDetailPage> {
                               ],
                             ),
                             const VerticalSpace.xSmall(),
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  if (job
-                                              ?.movementTypeId!
-                                              .availableFuelEvLevelInputs
-                                              .isEmpty ==
-                                          false ||
-                                      state
-                                              .showJob
-                                              ?.movementTypeId!
-                                              .availableFuelEvLevelInputs
-                                              .isEmpty ==
-                                          false)
-                                    CustomGreyAppButton(
-                                        width: context.dynamicWidth(0.44),
-                                        textColor:
-                                            context.theme.colorScheme.primary,
-                                        text: "Fuel/EV Level",
-                                        containerColor: context
-                                            .theme.colorScheme.onSurfaceVariant,
-                                        ontap: () {
-                                          context.push("/fuel_level_page",
-                                              extra: {
-                                                "jobId": job == null
-                                                    ? state.showJob?.id
-                                                    : job?.id
-                                              });
-                                        }),
-                                  if (job?.movementTypeId!.feedbackInputs
-                                              ?.showAnyInput ==
-                                          true ||
-                                      state.showJob?.movementTypeId!
-                                              .feedbackInputs?.showAnyInput ==
-                                          true)
-                                    CustomGreyAppButton(
-                                        width: context.dynamicWidth(0.44),
-                                        textColor:
-                                            context.theme.colorScheme.primary,
-                                        text: "Feedback",
-                                        containerColor: context
-                                            .theme.colorScheme.onSurfaceVariant,
-                                        ontap: () {
-                                          context
-                                              .push("/feedback_page", extra: {
-                                            "feedbackInputAvailability": job
-                                                    ?.movementTypeId
-                                                    ?.feedbackInputs ??
-                                                state.showJob?.movementTypeId
-                                                    ?.feedbackInputs
-                                          });
-                                        }),
-                                ]),
+                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                              if (job?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false ||
+                                  state.showJob?.movementTypeId!.availableFuelEvLevelInputs.isEmpty == false)
+                                CustomGreyAppButton(
+                                    width: context.dynamicWidth(0.44),
+                                    textColor: context.theme.colorScheme.primary,
+                                    text: "Fuel/EV Level",
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
+                                    ontap: () {
+                                      context.push("/fuel_level_page",
+                                          extra: {"jobId": job == null ? state.showJob?.id : job?.id});
+                                    }),
+                              if (job?.movementTypeId!.feedbackInputs?.showAnyInput == true ||
+                                  state.showJob?.movementTypeId!.feedbackInputs?.showAnyInput == true)
+                                CustomGreyAppButton(
+                                    width: context.dynamicWidth(0.44),
+                                    textColor: context.theme.colorScheme.primary,
+                                    text: "Feedback",
+                                    containerColor: context.theme.colorScheme.onSurfaceVariant,
+                                    ontap: () {
+                                      context.push("/feedback_page", extra: {
+                                        "feedbackInputAvailability": job?.movementTypeId?.feedbackInputs ??
+                                            state.showJob?.movementTypeId?.feedbackInputs
+                                      });
+                                    }),
+                            ]),
                             const VerticalSpace.xSmall(),
                           ],
                           const VerticalSpace.xxSmall(),
                           CustomGreyAppButton(
-                            containerColor:
-                                context.theme.colorScheme.onSurfaceVariant,
+                            containerColor: context.theme.colorScheme.onSurfaceVariant,
                             textColor: context.theme.colorScheme.primary,
                             text: showExtraButtons ? "Less" : "More",
                             ontap: () {
@@ -730,10 +594,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                 showExtraButtons = !showExtraButtons;
                               });
                               final targetExtent = showExtraButtons
-                                  ? scrollController.position.maxScrollExtent +
-                                      context.dynamicHeight(0.25)
-                                  : scrollController.position.minScrollExtent -
-                                      context.dynamicHeight(0.1);
+                                  ? scrollController.position.maxScrollExtent + context.dynamicHeight(0.25)
+                                  : scrollController.position.minScrollExtent - context.dynamicHeight(0.1);
 
                               scrollController.animateTo(
                                 targetExtent,

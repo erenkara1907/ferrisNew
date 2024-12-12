@@ -139,7 +139,7 @@ class _InspectionPageState extends State<InspectionPage> {
                           style: context.textTheme.bodyLarge,
                         )
                       ],
-                    ),
+                    ), 
                   )
                 : ListView.builder(
                     itemCount: state.inspections.length,

@@ -375,15 +375,6 @@ class _AddStopState extends State<AddStop> {
                       textSpanEnable: true,
                     ),
                     const VerticalSpace.small(),
-                    // SizedBox(
-                    //   height: context.dynamicHeight(0.15),
-                    //   width: context.dynamicWidth(0.90),
-                    //   child: CustomJobTextfield(
-                    //       controller: _reasonController,
-                    //       text: "Reason for stop ",
-                    //       hintText: "Enter the reason for stop"),
-                    // ),
-                    // const VerticalSpace.small(),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

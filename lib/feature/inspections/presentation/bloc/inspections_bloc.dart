@@ -1510,6 +1510,9 @@ class InspectionsBloc extends Bloc<InspectionsEvent, InspectionsState> {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _hiveStorageManager.getDamageAssetsByIds(event.standardIds);
 
+    print('standarIds : ${event.standardIds}');
+    print("RESULT : $result");
+
     // result içindeki tüm kategorileri tek bir listeye toplama
     List<Categories> combinedCategories = [];
     for (var item in result) {

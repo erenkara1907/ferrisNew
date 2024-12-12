@@ -42,8 +42,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
   final UCGetJobDamage _ucGetJobDamage;
   late final HiveStorageManager _hiveStorageManager;
 
-  Future<void> _onGetAllDamageAssets(
-      GetAllDamageAssets event, Emitter<JobDamageState> emit) async {
+  Future<void> _onGetAllDamageAssets(GetAllDamageAssets event, Emitter<JobDamageState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getAllDamageAssets();
     result.fold(
@@ -51,6 +50,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
       },
       (data) {
+        print('data: $data');
         _hiveStorageManager.addDamageAssetsToTable(data);
         emit(state.copyWith(
           status: ViewStatus.success,
@@ -60,8 +60,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onGetAllDamageCombination(
-      GetAllDamageCombination event, Emitter<JobDamageState> emit) async {
+  Future<void> _onGetAllDamageCombination(GetAllDamageCombination event, Emitter<JobDamageState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getAllDamageCombination();
     result.fold(
@@ -78,8 +77,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onGetAllGrade(
-      GetAllGrade event, Emitter<JobDamageState> emit) async {
+  Future<void> _onGetAllGrade(GetAllGrade event, Emitter<JobDamageState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getAllGrade();
     result.fold(
@@ -96,8 +94,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onGetAllGradeRule(
-      GetAllGradeRule event, Emitter<JobDamageState> emit) async {
+  Future<void> _onGetAllGradeRule(GetAllGradeRule event, Emitter<JobDamageState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getAllGradeRule();
     result.fold(
@@ -114,8 +111,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onGetAllGradeRuleUplift(
-      GetAllGradeRuleUplift event, Emitter<JobDamageState> emit) async {
+  Future<void> _onGetAllGradeRuleUplift(GetAllGradeRuleUplift event, Emitter<JobDamageState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobDamage.getAllGradeRuleUplift();
     result.fold(
@@ -132,8 +128,7 @@ class JobDamageBloc extends Bloc<JobDamageEvent, JobDamageState> {
     );
   }
 
-  Future<void> _onSetDamageRepairs(
-      SetDamageCategories event, Emitter<JobDamageState> emit) async {
+  Future<void> _onSetDamageRepairs(SetDamageCategories event, Emitter<JobDamageState> emit) async {
     final data = await _hiveStorageManager.getDamageCategories();
 
     emit(state.copyWith(getDamageCategoriesResponse: data));

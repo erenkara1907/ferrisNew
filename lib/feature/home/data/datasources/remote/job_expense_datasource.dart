@@ -29,11 +29,8 @@ abstract interface class JobExpenseRemoteDataSource {
   Future<List<ExpenseCategoriesResponseModelItem>> getExpenseCategories();
 }
 
-final class JobExpenseRemoteDataSourceImpl
-    with HandleRequestMixin
-    implements JobExpenseRemoteDataSource {
-  JobExpenseRemoteDataSourceImpl({required NetworkClient networkClient})
-      : _networkClient = networkClient;
+final class JobExpenseRemoteDataSourceImpl with HandleRequestMixin implements JobExpenseRemoteDataSource {
+  JobExpenseRemoteDataSourceImpl({required NetworkClient networkClient}) : _networkClient = networkClient;
 
   final NetworkClient _networkClient;
 
@@ -46,28 +43,22 @@ final class JobExpenseRemoteDataSourceImpl
         "${ServicePath.jobExpenses.value}?jobId=$jobId",
         options: Options(headers: {
           'Accept': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       final List<dynamic> productData = response.data["data"];
-      return productData
-          .map((e) => ExpensesResponseModelItem.fromMap(e))
-          .toList();
+      return productData.map((e) => ExpensesResponseModelItem.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
@@ -86,15 +77,11 @@ final class JobExpenseRemoteDataSourceImpl
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
       formData.fields.add(MapEntry('price', data.price.toString()));
       formData.fields.add(MapEntry('jobId', data.jobId.toString()));
-      data.reasonNoReceipt != null
-          ? formData.fields
-              .add(MapEntry('reasonNoReceipt', data.reasonNoReceipt!))
-          : null;
+      data.reasonNoReceipt != null ? formData.fields.add(MapEntry('reasonNoReceipt', data.reasonNoReceipt!)) : null;
       if (data.receipt != null) {
         final documentPath = (await getApplicationDocumentsDirectory()).path;
         int documentsIndex = data.receipt!.path.indexOf("Documents/");
-        String result =
-            data.receipt!.path.substring(documentsIndex + "Documents/".length);
+        String result = data.receipt!.path.substring(documentsIndex + "Documents/".length);
 
         final path = '$documentPath/$result';
         formData.files.add(MapEntry(
@@ -107,8 +94,7 @@ final class JobExpenseRemoteDataSourceImpl
         options: Options(headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
         data: formData,
       );
@@ -116,17 +102,14 @@ final class JobExpenseRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return ExpensesResponseModelItem.fromMap(response.data["data"]);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
@@ -144,15 +127,11 @@ final class JobExpenseRemoteDataSourceImpl
       final formData = FormData(); // Create a FormData instance
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
       formData.fields.add(MapEntry('price', data.price.toString()));
-      data.reasonNoReceipt != null
-          ? formData.fields
-              .add(MapEntry('reasonNoReceipt', data.reasonNoReceipt!))
-          : null;
+      data.reasonNoReceipt != null ? formData.fields.add(MapEntry('reasonNoReceipt', data.reasonNoReceipt!)) : null;
       if (data.receipt != null) {
         final documentPath = (await getApplicationDocumentsDirectory()).path;
         int documentsIndex = data.receipt!.path.indexOf("Documents/");
-        String result =
-            data.receipt!.path.substring(documentsIndex + "Documents/".length);
+        String result = data.receipt!.path.substring(documentsIndex + "Documents/".length);
 
         final path = '$documentPath/$result';
         formData.files.add(MapEntry(
@@ -166,8 +145,7 @@ final class JobExpenseRemoteDataSourceImpl
         options: Options(headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
         data: formData,
       );
@@ -175,17 +153,14 @@ final class JobExpenseRemoteDataSourceImpl
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       return ExpensePatchResponseModel.fromMap(response.data["data"]);
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
@@ -195,35 +170,28 @@ final class JobExpenseRemoteDataSourceImpl
   }
 
   @override
-  Future<List<ExpenseCategoriesResponseModelItem>>
-      getExpenseCategories() async {
+  Future<List<ExpenseCategoriesResponseModelItem>> getExpenseCategories() async {
     try {
       final response = await _networkClient.get(
         ServicePath.jobExpenseCategories.value,
         options: Options(headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
+          'Authorization': 'Bearer ${ProductStateItems.hiveDatabaseManager.getUserModel()?.token}',
         }),
       );
       if (response.data == null || response.data == null) {
         throw NullResponseException();
       }
       if (response.data['newAccessToken'] != null) {
-        ProductStateItems.hiveDatabaseManager
-            .setToken(response.data['newAccessToken']);
+        ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
       final List<dynamic> productData = response.data["data"];
-      return productData
-          .map((e) => ExpenseCategoriesResponseModelItem.fromMap(e))
-          .toList();
+      return productData.map((e) => ExpenseCategoriesResponseModelItem.fromMap(e)).toList();
     } on DioException catch (e, s) {
       await SentryErrorHandler.instance.capture(e, stackTrace: s);
       if (e.response?.data["message"] == "Not authenticated") {
         ProductStateItems.hiveDatabaseManager.deleteUserToken();
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/sign_in_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
