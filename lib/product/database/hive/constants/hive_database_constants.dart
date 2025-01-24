@@ -36,4 +36,5 @@ final class HiveDatabaseConstants {
   static const String postExpenseSaveImage = 'postExpenseSaveImage';
   static const String inspectEditDetail = 'inspectEditDetail';
   static const String location = 'location';
+  static const String locationPermission = 'locationPermission';
 }

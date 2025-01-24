@@ -206,6 +206,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Expanded(
+                                  flex: 2,
                                   child: CheckboxListTile(
                                     activeColor: Colors.green,
                                     checkColor: Colors.white,
@@ -220,6 +221,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                   ),
                                 ),
                                 Expanded(
+                                  flex: 2,
                                   child: CheckboxListTile(
                                     activeColor: Colors.red,
                                     checkColor: Colors.white,
@@ -234,6 +236,7 @@ class _ItemCheckListPageState extends State<ItemCheckListPage> {
                                   ),
                                 ),
                                 Expanded(
+                                  flex: 2,
                                   child: CheckboxListTile(
                                     activeColor: Colors.black,
                                     checkColor: Colors.white,

@@ -53,18 +53,17 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
         emit(state.copyWith(status: ViewStatus.failure, failure: failure));
       },
       (data) {
-        emit(
-            state.copyWith(status: ViewStatus.failure, getStopsResponse: data));
+        emit(state.copyWith(status: ViewStatus.failure, getStopsResponse: data));
       },
     );
   }
 
-  void _onPostJobStopsControl(
-      PostJobStopsControl event, Emitter<StopJobState> emit) async {
+  void _onPostJobStopsControl(PostJobStopsControl event, Emitter<StopJobState> emit) async {
     emit(state.copyWith(status: ViewStatus.failure, isError: true));
   }
 
   void _onPostJobStops(PostJobStops event, Emitter<StopJobState> emit) async {
+    print('GİRDİ KRAL');
     emit(state.copyWith(status: ViewStatus.loading));
     final resultHasNetwork = await hasNetwork();
     if (resultHasNetwork) {
@@ -89,10 +88,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
             return;
           }
           emit(state.copyWith(
-              status: ViewStatus.success,
-              isError: false,
-              selectedStop: data,
-              totalStop: state.totalStop + 1));
+              status: ViewStatus.success, isError: false, selectedStop: data, totalStop: state.totalStop + 1));
 
           _hiveDatabaseManager.saveTotalStop(state.totalStop);
         },
@@ -117,8 +113,7 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
     }
   }
 
-  void _onGetJobStopsCategories(
-      GetJobStopsCategories event, Emitter<StopJobState> emit) async {
+  void _onGetJobStopsCategories(GetJobStopsCategories event, Emitter<StopJobState> emit) async {
     emit(state.copyWith(status: ViewStatus.loading));
     final result = await _ucGetJobStop.getStopCategories();
     result.fold(
@@ -127,17 +122,14 @@ class StopJobBloc extends Bloc<StopJobEvent, StopJobState> {
       },
       (data) {
         _hiveStorageManager.setStopCategories(data);
-        emit(state.copyWith(
-            status: ViewStatus.success, getStopCategoriesResponse: data));
+        emit(state.copyWith(status: ViewStatus.success, getStopCategoriesResponse: data));
       },
     );
   }
 
-  void _onSetJobStopCategories(
-      SetJobStopCategories event, Emitter<StopJobState> emit) async {
+  void _onSetJobStopCategories(SetJobStopCategories event, Emitter<StopJobState> emit) async {
     final data = _hiveStorageManager.getStopCategories();
-    emit(state.copyWith(
-        status: ViewStatus.success, getStopCategoriesResponse: data));
+    emit(state.copyWith(status: ViewStatus.success, getStopCategoriesResponse: data));
   }
 
   void _onSetJobStop(SetJobStop event, Emitter<StopJobState> emit) async {

@@ -51,7 +51,8 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
       int documentsIndex = data.imageFile!.path.indexOf("Documents/");
       String result = data.imageFile!.path.substring(documentsIndex + "Documents/".length);
 
-      final path = '$documentPath/$result';
+      // final path = '$documentPath/$result';
+      final path = data.imageFile!.path;
       formData.files.add(MapEntry(
         'image',
         MultipartFile.fromFileSync(path),
@@ -91,7 +92,7 @@ class JobInspectionsConditionImagesRemoteDataSourceImpl
   }) async {
     try {
       final response = await http.delete(
-        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
+        Uri.parse("https://fwtsolutions.co.uk/api/v1/job-inspection-condition-images/$imageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',

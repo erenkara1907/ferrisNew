@@ -72,6 +72,7 @@ class HiveDatabaseManager {
     await Hive.openBox<GradeRuleModel>(HiveDatabaseConstants.gradeRuleBox);
     await Hive.openBox<GradeRuleUpliftModel>(HiveDatabaseConstants.gradeRuleUpliftBox);
     await Hive.openBox(HiveDatabaseConstants.location);
+    await Hive.openBox(HiveDatabaseConstants.locationPermission);
 
     await Hive.openBox<DamagesIssue>(HiveDatabaseConstants.damageIssueBox);
     await Hive.openBox<DamagesFailure>(HiveDatabaseConstants.damageFailureBox);

@@ -1,4 +1,3 @@
-
 import 'package:ferrisfwt/feature/bottom_nav/widget/bottom_nav_builder_widget.dart';
 import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,8 @@ class _BottomNavPageState extends State<BottomNavPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CubitPermissions>().checkPermissions();
+
+    context.read<CubitPermissions>().checkPermissions(context);
   }
 
   @override

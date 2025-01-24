@@ -56,6 +56,7 @@ class _AddStopState extends State<AddStop> {
   Future<void> compressImage(File image) async {
     final documentPath = (await getApplicationDocumentsDirectory()).path;
     final newFile = await image.copy('$documentPath/${path.basename(image.path)}');
+    print("New file path: ${newFile.path}");
     File compressedImage = await _resizeImage(newFile);
     setState(() {
       _evidences.add(compressedImage);
@@ -66,74 +67,6 @@ class _AddStopState extends State<AddStop> {
     final picker = ImagePicker();
 
     if (source == ImageSource.camera) {
-      // PermissionStatus permissionStatus = await Permission.camera.status;
-      // if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-      //   final result = await showDialog(
-      //     context: context,
-      //     builder: (BuildContext context) {
-      //       return AlertDialog(
-      //         title: const Text('Camera Permission'),
-      //         content: const Text(
-      //             'This app needs camera access to take pictures. Please allow camera access in settings.'),
-      //         actions: [
-      //           TextButton(
-      //             onPressed: () {
-      //               Navigator.of(context).pop(false);
-      //             },
-      //             child: const Text('Cancel'),
-      //           ),
-      //           TextButton(
-      //             onPressed: () async {
-      //               context.read<CubitPermissions>().requestCamera();
-      //               final permissionStatus = await Permission.camera.status;
-      //               if (permissionStatus.isDenied ||
-      //                   permissionStatus.isPermanentlyDenied) {
-      //                 await openAppSettings();
-      //               }
-      //               context.pop();
-      //             },
-      //             child: const Text('Open Settings'),
-      //           ),
-      //         ],
-      //       );
-      //     },
-      //   );
-
-      //   if (result == true) {
-      //     await openAppSettings();
-      //     permissionStatus = await Permission.camera.status;
-      //   } else {
-      //     return;
-      //   }
-      // }
-
-      // if (permissionStatus.isGranted) {
-      //   final result = await Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => CameraPage(
-      //         evidences: _evidences,
-      //         limit: limit,
-      //         onCapture: (File image) async {
-      //           if (_evidences.length < 12) {
-      //             await compressImage(image);
-      //           } else {
-      //             BotToast.showText(
-      //                 text: 'You can only select 12 images in total');
-      //           }
-      //         },
-      //       ),
-      //     ),
-      //   );
-
-      //   if (result != null && result is List<File>) {
-      //     setState(() {
-      //       _evidences = result;
-      //     });
-      //   }
-      // } else {
-      //   BotToast.showText(text: 'Camera access denied');
-      // }
       PermissionStatus permissionStatus = await Permission.camera.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
         final result = await showDialog(
@@ -289,6 +222,7 @@ class _AddStopState extends State<AddStop> {
     String fName = path.basenameWithoutExtension(imageFile.path);
 
     Directory appDocDir = await getApplicationDocumentsDirectory();
+    print("Application Documents Path: ${appDocDir.path}");
     String appDocPath = appDocDir.path;
     String compressedImagePath = '$appDocPath/$fName.jpg';
     await File(compressedImagePath).writeAsBytes(imageBytes);

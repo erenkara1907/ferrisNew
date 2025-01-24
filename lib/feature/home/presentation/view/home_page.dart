@@ -6,6 +6,7 @@ import 'package:ferrisfwt/feature/home/data/models/jobs/jobs_response_model_item
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/home/presentation/view/tab_view/today_jobs_view.dart';
 import 'package:ferrisfwt/feature/home/presentation/view/tab_view/tomorrow_jobs_view.dart';
+import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
 import 'package:ferrisfwt/product/database/hive/core/hive_database_manager.dart';
 import 'package:ferrisfwt/product/database/hive_operation/hive_storage_manager.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
@@ -48,6 +49,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    context.read<CubitPermissions>().checkPermissions(context);
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state.status == ViewStatus.loading) {

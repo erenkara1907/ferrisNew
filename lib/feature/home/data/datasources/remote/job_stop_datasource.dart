@@ -72,6 +72,7 @@ final class JobStopRemoteDataSourceImpl with HandleRequestMixin implements JobSt
     required int jobId,
     required StopPostModel data,
   }) async {
+    print('GİRDİ KRAL 2');
     try {
       final formData = FormData(); // Create a FormData instance
       formData.fields.add(MapEntry('categoryId', data.categoryId.toString()));
@@ -86,7 +87,7 @@ final class JobStopRemoteDataSourceImpl with HandleRequestMixin implements JobSt
         int documentsIndex = evidence.path.indexOf("Documents/");
         String result = evidence.path.substring(documentsIndex + "Documents/".length);
 
-        final path = '$documentPath/$result';
+        final path = evidence.path;
 
         formData.files.add(MapEntry(
           'evidence',
@@ -103,7 +104,6 @@ final class JobStopRemoteDataSourceImpl with HandleRequestMixin implements JobSt
         }),
         data: formData,
       );
-      print('response.data: ${response.data}');
 
       if (response.data == null || response.data == null) {
         throw Exception('No data found');
@@ -121,8 +121,10 @@ final class JobStopRemoteDataSourceImpl with HandleRequestMixin implements JobSt
         ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/sign_in_page');
       }
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
+      print('HATA: ${e.response?.data['message'].toString()}');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
+      print('HATA CATCH: $e');
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
       throw UnknownException();
     }

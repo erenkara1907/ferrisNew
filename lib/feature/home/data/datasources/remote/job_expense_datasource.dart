@@ -83,7 +83,8 @@ final class JobExpenseRemoteDataSourceImpl with HandleRequestMixin implements Jo
         int documentsIndex = data.receipt!.path.indexOf("Documents/");
         String result = data.receipt!.path.substring(documentsIndex + "Documents/".length);
 
-        final path = '$documentPath/$result';
+        // final path = '$documentPath/$result';
+        final path = data.receipt!.path;
         formData.files.add(MapEntry(
           'receipt',
           MultipartFile.fromFileSync(path),

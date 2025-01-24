@@ -1,6 +1,7 @@
 import 'package:ferrisfwt/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:ferrisfwt/feature/landing/presentation/bloc/landing_bloc.dart';
 import 'package:ferrisfwt/feature/landing/presentation/mixin/landing_mixin.dart';
+import 'package:ferrisfwt/feature/profile/presantation/cubit/permissions_cubit.dart';
 import 'package:ferrisfwt/product/extensions/context_extensions.dart';
 import 'package:ferrisfwt/product/firebase/notification/firebaseMessaging/firebase_messaging_service.dart';
 import 'package:ferrisfwt/product/state/base/mixin/base_mixin.dart';
@@ -18,8 +19,7 @@ class LandingPage extends StatefulWidget {
   State<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends BaseMixin<LandingPage>
-    with WidgetsBindingObserver, LandingMixin {
+class _LandingPageState extends BaseMixin<LandingPage> with WidgetsBindingObserver, LandingMixin {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -49,22 +49,17 @@ class _LandingPageState extends BaseMixin<LandingPage>
     return MultiBlocListener(
       listeners: [
         BlocListener<LandingBloc, LandingState>(
-          listenWhen: (previous, current) =>
-              current.status == ViewStatus.success,
-          listener: (context, state) async {
-            if (state.status == ViewStatus.success &&
-                state.networkResult == true) {
-              await checkUserLogin();
-            } else if (state.status != ViewStatus.loading &&
-                state.networkResult == false) {
+          listenWhen: (previous, current) => current.status == ViewStatus.success,
+          listener: (contextA, state) async {
+            if (state.status == ViewStatus.success && state.networkResult == true) {
+              await checkUserLogin(context);
+            } else if (state.status != ViewStatus.loading && state.networkResult == false) {
               checkJobModule();
             }
           },
         ),
         BlocListener<HomeBloc, HomeState>(
-          listenWhen: (previous, current) =>
-              previous.status == current.status &&
-              current.status == ViewStatus.success,
+          listenWhen: (previous, current) => previous.status == current.status && current.status == ViewStatus.success,
           listener: (context, state) {
             context.go("/home_page");
           },

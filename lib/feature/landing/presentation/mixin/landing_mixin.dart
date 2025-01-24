@@ -11,6 +11,7 @@ import 'package:ferrisfwt/product/manager/location/location_service_manager.dart
 import 'package:ferrisfwt/product/mixin/network_mixin.dart';
 import 'package:ferrisfwt/product/state/base/mixin/base_mixin.dart';
 import 'package:ferrisfwt/product/state/container/product_state_items.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,8 +23,9 @@ mixin LandingMixin on BaseMixin<LandingPage> {
 
   bool checkedLogin = false;
 
-  Future<void> checkUserLogin() async {
-    context.read<CubitPermissions>().checkPermissions();
+  Future<void> checkUserLogin(BuildContext contextA) async {
+    print("Girdi 1");
+
     if (!checkedLogin) {
       final user = ProductStateItems.hiveDatabaseManager.getUserModel()?.token;
       if (user != null && user != "") {
@@ -32,6 +34,9 @@ mixin LandingMixin on BaseMixin<LandingPage> {
         }
         await checkLoginStatus();
       } else {
+        print("GİRDİ KRAL");
+        // context.read<CubitPermissions>().checkPermissions(contextA);
+
         context.go('/sign_in_page');
       }
       checkedLogin = true; // Marking login as checked
@@ -40,7 +45,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
 
   Future<void> checkLoginStatus() async {
     final user = userHiveOperation.getUserModel();
-    context.read<CubitPermissions>().checkPermissions();
+    context.read<CubitPermissions>().checkPermissions(context);
     await checkInternetConnection();
 
     context.read<AuthBloc>().add(const SetDeviceIdEvent());
@@ -63,14 +68,10 @@ mixin LandingMixin on BaseMixin<LandingPage> {
       // context
       //     .read<HomeBloc>()
       //     .add(PriceJob(int.parse(user?.currentJobId ?? "0")));
-      context
-          .read<JobExpenseBloc>()
-          .add(GetJobExpenses(jobId: int.parse(user?.currentJobId ?? "0")));
+      context.read<JobExpenseBloc>().add(GetJobExpenses(jobId: int.parse(user?.currentJobId ?? "0")));
       context.read<InspectionsBloc>().add(GetJobInspections(
           jobId: int.parse(user?.currentJobId ?? "0"),
-          regnNumber: ProductStateItems.hiveDatabaseManager
-              .getUserModel()!
-              .regnNumber));
+          regnNumber: ProductStateItems.hiveDatabaseManager.getUserModel()!.regnNumber));
     }
 
     // context.read<JobDamageBloc>().add(const GetDamageCategories(1));
@@ -83,8 +84,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
   Future<void> checkInternetConnection() async {
     final userHiveOperation = ProductStateItems.hiveStorageManager;
     final userHiveDatabase = ProductStateItems.hiveDatabaseManager;
-    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted ==
-        false) return;
+    if (ProductStateItems.hiveDatabaseManager.getUserModel()?.isStarted == false) return;
     var connectivityResult = await hasNetwork();
     if (connectivityResult) {
       final result = await userHiveOperation.getJobExpenseAsync();
@@ -116,17 +116,11 @@ mixin LandingMixin on BaseMixin<LandingPage> {
         userHiveOperation.deleteJobExpenseAsync();
       }
 
-      if (resultStop != [] &&
-          resultStop.isNotEmpty &&
-          resultStop != {} &&
-          userHiveDatabase.getUserModel() != null) {
+      if (resultStop != [] && resultStop.isNotEmpty && resultStop != {} && userHiveDatabase.getUserModel() != null) {
         for (var item in resultStop) {
           if (context.mounted) {
             context.read<StopJobBloc>().add(PostJobStops(
-                isAsync: true,
-                jobId: int.parse(
-                    userHiveDatabase.getUserModel()!.currentJobId ?? ""),
-                data: item!));
+                isAsync: true, jobId: int.parse(userHiveDatabase.getUserModel()!.currentJobId ?? ""), data: item!));
           }
           await Future.delayed(const Duration(seconds: 2));
         }
@@ -138,29 +132,20 @@ mixin LandingMixin on BaseMixin<LandingPage> {
           resultJobUpdate != [] &&
           userHiveDatabase.getUserModel() != null) {
         for (var item in resultJobUpdate) {
-          context.read<HomeBloc>().add(UpdateJob(
-              userHiveDatabase.getUserModel()!.currentJobId ?? "",
-              item!,
-              true));
+          context.read<HomeBloc>().add(UpdateJob(userHiveDatabase.getUserModel()!.currentJobId ?? "", item!, true));
           await Future.delayed(const Duration(seconds: 2));
         }
 
         userHiveOperation.deleteJobUpdates();
       }
-      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager
-              .getUserModel()
-              ?.inspectionsJobId ??
-          [];
+      final List<int> jobInspectionsId = ProductStateItems.hiveDatabaseManager.getUserModel()?.inspectionsJobId ?? [];
 
       for (var id in jobInspectionsId) {
         try {
-          final resultInspection =
-              await userHiveOperation.getChecklistPostModel(id);
+          final resultInspection = await userHiveOperation.getChecklistPostModel(id);
           if (resultInspection.isNotEmpty) {
             await Future.forEach(resultInspection, (item) async {
-              context
-                  .read<InspectionsBloc>()
-                  .add(PostJobInspectionsCheckList(item!, true, false, null));
+              context.read<InspectionsBloc>().add(PostJobInspectionsCheckList(item!, true, false, null));
               await Future.delayed(const Duration(seconds: 2));
             });
             await userHiveOperation.deleteChecklistPostModel(id);
@@ -178,8 +163,7 @@ mixin LandingMixin on BaseMixin<LandingPage> {
             await _userHiveOperation.deleteConditionImagePostModel(id);
           }
 */
-          final resultInspectionEditDetail =
-              await userHiveOperation.getInspectionDetails(id);
+          final resultInspectionEditDetail = await userHiveOperation.getInspectionDetails(id);
           if (resultInspectionEditDetail.isNotEmpty) {
             await Future.forEach(resultInspectionEditDetail, (item) async {
               context.read<InspectionsBloc>().add(InspectionsItemDetail(
@@ -193,21 +177,17 @@ mixin LandingMixin on BaseMixin<LandingPage> {
             await userHiveOperation.removeInspectionDetailsRecord(id);
           }
 
-          final resultInspectionEdit =
-              await userHiveOperation.getDamagePostModel(id);
+          final resultInspectionEdit = await userHiveOperation.getDamagePostModel(id);
           if (resultInspectionEdit.isNotEmpty) {
             await Future.forEach(resultInspectionEdit, (item) async {
-              context.read<InspectionsBloc>().add(
-                  PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
+              context.read<InspectionsBloc>().add(PostJobInspectionsDamagesRemote(data: item!, isAsync: true));
               await Future.delayed(const Duration(seconds: 2));
             });
             await userHiveOperation.deleteDamagePostModel(id);
           }
 
-          final resultInspectionCustomerSign =
-              await userHiveOperation.getSignCustomerPostModel(id);
-          final resultInspectionSign =
-              await userHiveOperation.getSignInspectorPostModel(id);
+          final resultInspectionCustomerSign = await userHiveOperation.getSignCustomerPostModel(id);
+          final resultInspectionSign = await userHiveOperation.getSignInspectorPostModel(id);
 
           if (resultInspectionCustomerSign != null) {
             context.read<InspectionsBloc>().add(PostJobInspectionsCustomerSign(
@@ -243,12 +223,9 @@ mixin LandingMixin on BaseMixin<LandingPage> {
       context.go('/sign_in_page');
       return;
     }
-    if (userHiveOperation.getUserModel()?.isStarted == true &&
-        userHiveOperation.getUserModel()?.currentJobId != null) {
-      context.go('/job_detail_page', extra: {
-        'jobId': userHiveOperation.getUserModel()?.currentJobId,
-        'asyncJob': true
-      });
+    if (userHiveOperation.getUserModel()?.isStarted == true && userHiveOperation.getUserModel()?.currentJobId != null) {
+      context
+          .go('/job_detail_page', extra: {'jobId': userHiveOperation.getUserModel()?.currentJobId, 'asyncJob': true});
       context.read<HomeBloc>().add(const SetTrackingCoordinate());
       context.read<StopJobBloc>().add(const SetJobStopCategories());
       context.read<JobExpenseBloc>().add(const SetExpenseCategories());

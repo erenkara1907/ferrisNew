@@ -56,7 +56,7 @@ final class ApplicationInitialize {
   }
 
   Future<void> _productEnvironmentWithContainer() async {
-    await Locator.locateServices(baseUrl: 'https://dev.fwtsolutions.co.uk');
+    await Locator.locateServices(baseUrl: 'https://fwtsolutions.co.uk');
   }
 
   Future<void> _crashlyticsInitialize() async {

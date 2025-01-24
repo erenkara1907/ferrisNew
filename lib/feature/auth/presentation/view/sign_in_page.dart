@@ -4,6 +4,7 @@ import 'package:ferrisfwt/product/widget/spacer/dynamic_vertical_spacer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:go_router/go_router.dart';
 
 class SignInPage extends StatelessWidget {
@@ -25,9 +26,7 @@ class SignInPage extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: context.theme.colorScheme.onSecondary,
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
               ),
               width: context.dynamicWidth(1),
               height: context.dynamicHeight(0.5),

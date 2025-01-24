@@ -55,6 +55,9 @@ class JobInspectionsDamagesRemoteDataSourceImpl
   Future<DamageResponseModel> postDamage({
     required InspectionDamagePostModel data,
   }) async {
+    print("will post damage with data: $data");
+    print("damage image path: ${data.damageImage?.path}");
+    print("context image path: ${data.contextImage?.path}");
     try {
       final formData = FormData(); // Create a FormData instance
       formData.fields.add(MapEntry('jobInspectionId', data.jobInspectionId.toString()));
@@ -68,7 +71,8 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       int documentsIndex = data.contextImage!.path.indexOf("Documents/");
       String result = data.contextImage!.path.substring(documentsIndex + "Documents/".length);
 
-      final _path = '$documentPath/$result';
+      // final _path = '$documentPath/$result';
+      final _path = data.contextImage!.path;
 
       formData.files.add(MapEntry(
         'contextImage',
@@ -79,7 +83,8 @@ class JobInspectionsDamagesRemoteDataSourceImpl
         int documentsIndex = data.damageImage!.path.indexOf("Documents/");
         String result = data.damageImage!.path.substring(documentsIndex + "Documents/".length);
 
-        final path = '$documentPath/$result';
+        // final path = '$documentPath/$result';
+        final path = data.damageImage!.path;
         formData.files.add(MapEntry(
           'damageImage',
           MultipartFile.fromFileSync(path),
@@ -87,7 +92,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       }
 
       final response = await _networkClient.post(
-        "https://dev.fwtsolutions.co.uk/api/v1/damages",
+        "https://fwtsolutions.co.uk/api/v1/damages",
         options: Options(headers: headers),
         data: formData,
       );
@@ -95,6 +100,9 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       if (response.data == null) {
         throw NullResponseException();
       }
+
+      print("response: ${response.data}");
+
       if (response.data['newAccessToken'] != null) {
         ProductStateItems.hiveDatabaseManager.setToken(response.data['newAccessToken']);
       }
@@ -105,8 +113,10 @@ class JobInspectionsDamagesRemoteDataSourceImpl
       // BotToast.showText(text: e.response?.data['message'].toString() ?? '');
       throw DioException(requestOptions: e.requestOptions, message: e.message);
     } catch (e, stackTrace) {
+      print("Caught an unknown error: $e");
+      print("Stack trace: $stackTrace");
       await SentryErrorHandler.instance.capture(e, stackTrace: stackTrace);
-      throw UnknownException();
+      throw UnknownException('An unknown error occurred: $e');
     }
   }
 
@@ -116,7 +126,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
   }) async {
     try {
       final response = await _networkClient.get(
-        "https://dev.fwtsolutions.co.uk/api/v1/damages",
+        "https://fwtsolutions.co.uk/api/v1/damages",
         options: Options(headers: headers),
         queryParameters: {
           'jobInspectionId': jobInspectionId.toString(),
@@ -158,7 +168,7 @@ class JobInspectionsDamagesRemoteDataSourceImpl
     print("will delete damage with id: $damageId");
     try {
       final response = await http.delete(
-        Uri.parse("https://dev.fwtsolutions.co.uk/api/v1/damages/$damageId"),
+        Uri.parse("https://fwtsolutions.co.uk/api/v1/damages/$damageId"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',

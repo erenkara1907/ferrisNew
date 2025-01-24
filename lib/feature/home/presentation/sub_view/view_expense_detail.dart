@@ -38,6 +38,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
   final ScrollController _scrollController = ScrollController();
   String? _selectedLevelAtHub;
   File? _imageFile;
+
   String? filePath;
   bool? imageSelected = false;
   final TextEditingController _priceController = TextEditingController();
@@ -170,6 +171,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
 
   @override
   Widget build(BuildContext context) {
+    print('PATH : ${widget.expense.receiptPath}');
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -211,7 +213,7 @@ class _ViewExpenseDetailState extends State<ViewExpenseDetail> {
             int documentsIndex = pathImage.indexOf("Documents/");
             String result = pathImage.substring(documentsIndex + "Documents/".length);
 
-            final path = '$filePath/$result';
+            final path = pathImage;
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: context.theme.colorScheme.surface,

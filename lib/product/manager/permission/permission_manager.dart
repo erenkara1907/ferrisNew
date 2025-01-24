@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHandlerManager {
@@ -11,14 +12,16 @@ class PermissionHandlerManager {
   //   }
   // }
 
-  Future<bool> requestLocationPermission() async {
+  Future<bool> requestLocationPermission(BuildContext context) async {
     // İlk önce location izni isteyin (when in use).
     PermissionStatus status = await Permission.locationWhenInUse.request();
 
     if (status.isGranted || status.isLimited || status.isRestricted) {
+      print("Acceptded");
       // Eğer izin verildiyse, always iznini istemek için bir kontrol yapın.
       return await requestLocationAlwaysPermission();
     } else {
+      print("Denied");
       return false;
     }
   }
@@ -85,8 +88,7 @@ class PermissionHandlerManager {
         result.authorizationStatus == AuthorizationStatus.authorized;
   }
 
-  static final PermissionHandlerManager _instance =
-      PermissionHandlerManager._internal();
+  static final PermissionHandlerManager _instance = PermissionHandlerManager._internal();
 
   factory PermissionHandlerManager() => _instance;
 

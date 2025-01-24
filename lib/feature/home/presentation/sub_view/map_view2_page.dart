@@ -15,8 +15,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as google;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
-import 'package:permission_handler/permission_handler.dart'
-    as permissionhandler;
+import 'package:permission_handler/permission_handler.dart' as permissionhandler;
 
 import '../../../../product/state/container/product_state_items.dart';
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
@@ -37,20 +36,18 @@ class _MapViewPage2State extends State<MapViewPage2> {
   google.LatLng? checkpoint3Coordinates;
   google.LatLng? currentLocation;
   List<Polyline> polylines = [];
-  String googleApiKey = Platform.isIOS
-      ? 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4'
-      : 'AIzaSyAxE2RP4vyKyE4RnFc6wJpXIfauNw';
+  String googleApiKey = 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4';
+  // String googleApiKey = Platform.isIOS
+  //     ? 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4'
+  //     : 'AIzaSyAxE2RP4vyKyE4RnFc6wJpXIfauNw';
   late Location location;
   google.Marker? currentLocationMarker;
   google.GoogleMapController? _mapController;
   final ValueNotifier<String> _duration = ValueNotifier<String>("");
 
-  ValueNotifier<BitmapDescriptor> sourceIcon =
-      ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
-  ValueNotifier<BitmapDescriptor> destinationIcon =
-      ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
-  ValueNotifier<BitmapDescriptor> currentIcon =
-      ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
+  ValueNotifier<BitmapDescriptor> sourceIcon = ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
+  ValueNotifier<BitmapDescriptor> destinationIcon = ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
+  ValueNotifier<BitmapDescriptor> currentIcon = ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
 
   StreamSubscription<LocationData>? _locationSubscription;
 
@@ -87,9 +84,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
         ));
       } else {
         BotToast.showText(text: "Address Not Found");
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/job_detail_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/job_detail_page');
       }
     }
 
@@ -122,18 +117,13 @@ class _MapViewPage2State extends State<MapViewPage2> {
         ));
       } else {
         BotToast.showText(text: "Address Not Found");
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/job_detail_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/job_detail_page');
       }
     }
 
     for (int i = 0; i < points.length - 1; i++) {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        request: PolylineRequest(
-            origin: points[i],
-            destination: points[i + 1],
-            mode: TravelMode.driving),
+        request: PolylineRequest(origin: points[i], destination: points[i + 1], mode: TravelMode.driving),
         googleApiKey: googleApiKey,
       );
 
@@ -187,8 +177,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
 
   Future<void> fetchTravelTime() async {
     try {
-      String baseUrl =
-          "https://maps.googleapis.com/maps/api/distancematrix/json";
+      String baseUrl = "https://maps.googleapis.com/maps/api/distancematrix/json";
       if (job != null) {
         if (job!.startAddress != null &&
             job!.startAddressCordinates != null &&
@@ -197,13 +186,10 @@ class _MapViewPage2State extends State<MapViewPage2> {
           String parameters =
               "units=imperial&origins=${job!.startAddressCordinates!.latitude},${job!.startAddressCordinates!.longitude}&destinations=${job!.endAddressCordinates!.latitude},${job!.endAddressCordinates!.longitude}&key=$googleApiKey";
           Response response = await Dio().get("$baseUrl?$parameters");
-          _duration.value =
-              response.data['rows'][0]['elements'][0]['duration']['text'];
+          _duration.value = response.data['rows'][0]['elements'][0]['duration']['text'];
         } else {
           BotToast.showText(text: "Address Not Found");
-          ProductStateItems
-              .appRouter.router.routerDelegate.navigatorKey.currentContext
-              ?.go('/job_detail_page');
+          ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/job_detail_page');
         }
       }
 
@@ -226,9 +212,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
         );
       } else {
         BotToast.showText(text: "Address Not Found");
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/job_detail_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/job_detail_page');
       }
 
       if (job!.startAddress != null && job!.startAddressCordinates != null) {
@@ -238,9 +222,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
         );
       } else {
         BotToast.showText(text: "Address Not Found");
-        ProductStateItems
-            .appRouter.router.routerDelegate.navigatorKey.currentContext
-            ?.go('/job_detail_page');
+        ProductStateItems.appRouter.router.routerDelegate.navigatorKey.currentContext?.go('/job_detail_page');
       }
     }
 
@@ -289,8 +271,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
     final locationData = await location.getLocation();
     _updateCurrentLocation(locationData);
 
-    _locationSubscription =
-        location.onLocationChanged.listen((LocationData currentLocation) {
+    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
       _updateCurrentLocation(currentLocation);
     });
   }
@@ -298,8 +279,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
   void _updateCurrentLocation(LocationData locationData) {
     if (!mounted) return;
     setState(() {
-      currentLocation =
-          google.LatLng(locationData.latitude!, locationData.longitude!);
+      currentLocation = google.LatLng(locationData.latitude!, locationData.longitude!);
       currentLocationMarker = google.Marker(
         markerId: const google.MarkerId('current_location'),
         position: currentLocation!,
@@ -346,8 +326,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
             ),
           ),
           body: Padding(
-            padding:
-                context.paddingHorizontalHigh + context.paddingHorizontalHigh,
+            padding: context.paddingHorizontalHigh + context.paddingHorizontalHigh,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -407,8 +386,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     title: 'Checkpoint 1',
                     snippet: 'Address: ${job!.checkpoint1Address}',
                   ),
-                  icon: google.BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueBlue),
+                  icon: google.BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
                 ),
               if (checkpoint2Coordinates != null)
                 google.Marker(
@@ -418,8 +396,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     title: 'Checkpoint 2',
                     snippet: 'Address: ${job!.checkpoint2Address}',
                   ),
-                  icon: google.BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueGreen),
+                  icon: google.BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
                 ),
               if (checkpoint3Coordinates != null)
                 google.Marker(
@@ -429,8 +406,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
                     title: 'Checkpoint 3',
                     snippet: 'Address: ${job!.checkpoint3Address}',
                   ),
-                  icon: google.BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueRed),
+                  icon: google.BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
                 ),
               google.Marker(
                 markerId: const google.MarkerId('destination'),
@@ -446,8 +422,7 @@ class _MapViewPage2State extends State<MapViewPage2> {
             polylines: Set<Polyline>.of(polylines),
             onMapCreated: (controller) {
               _mapController = controller;
-              _mapController
-                  ?.showMarkerInfoWindow(const MarkerId('destination'));
+              _mapController?.showMarkerInfoWindow(const MarkerId('destination'));
             },
           ),
           Positioned(
@@ -543,8 +518,7 @@ class _LocationSettingsPageState extends State<LocationSettingsPage> {
     _locationStream = widget.location.onLocationChanged;
     _locationSubscription = _locationStream.listen((locationData) async {
       bool serviceEnabled = await widget.location.serviceEnabled();
-      PermissionStatus permissionGranted =
-          await widget.location.hasPermission();
+      PermissionStatus permissionGranted = await widget.location.hasPermission();
 
       if (serviceEnabled && permissionGranted == PermissionStatus.granted) {
         if (mounted) {
@@ -576,8 +550,7 @@ class _LocationSettingsPageState extends State<LocationSettingsPage> {
               height: context.lowValue,
             ),
             Padding(
-              padding: context.paddingHorizontalHigh +
-                  context.paddingVerticalDefault,
+              padding: context.paddingHorizontalHigh + context.paddingVerticalDefault,
               child: const Text(
                 textAlign: TextAlign.center,
                 'To see your location, turn on location permission in settings.',

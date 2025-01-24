@@ -58,6 +58,8 @@ part 'operation_mixins/damage/grade_rule_uplift_operation_mixin.dart';
 
 part 'operation_mixins/location/location_operation_mixin.dart';
 
+part 'operation_mixins/location/location_permission_operation_mixin.dart';
+
 part 'operation_mixins/stop_operations_mixin.dart';
 
 part 'operation_mixins/job_update_operation_mixin.dart';
@@ -141,6 +143,7 @@ class HiveStorageManager
         DamageAssetsOperationMixin,
         DamageCombinationOperationMixin,
         GradeOperationMixin,
+        LocationPermissionOperationMixin,
         GradeRuleOperationMixin,
         GradeRuleUpliftOperationMixin,
         LocationOperationMixin,

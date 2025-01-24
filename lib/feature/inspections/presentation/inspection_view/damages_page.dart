@@ -93,6 +93,9 @@ class _DamagesPageState extends State<DamagesPage> {
       return;
     }
 
+    print("selectedImage: ${_selectedImage!.path}");
+    print("selectedContextImage ${_selectedContextImage!.path}");
+
     context.read<InspectionsBloc>().add(
           PostJobInspectionsDamages(
             isAsync: false,
@@ -515,14 +518,14 @@ class _DamagesPageState extends State<DamagesPage> {
     String appDocPath = appDocDir.path;
     String compressedImagePath = '$appDocPath/$fName.jpg';
     await File(compressedImagePath).writeAsBytes(imageBytes);
-    return File(compressedImagePath); 
+    return File(compressedImagePath);
   }
 
   @override
   void initState() {
     super.initState();
     context.read<InspectionsBloc>().add(GetInspectionsDamageAssets(standardIds: widget.standarIds));
-    // context 
+    // context
     //     .read<JobDamageBloc>()
     //     .add(GetDamageCategories(widget.jobInspectionId));
   }
@@ -534,7 +537,7 @@ class _DamagesPageState extends State<DamagesPage> {
         if (state.status == ViewStatus.loading || state.getDamageCategoriesResponse.isEmpty) {
           return const Scaffold(
             body: Center(
-              child: LoadingProgress(), 
+              child: LoadingProgress(),
             ),
           );
         }

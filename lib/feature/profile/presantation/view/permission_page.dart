@@ -57,7 +57,7 @@ class _PermissionsPageState extends State<PermissionsPage> {
                             if (!state.location) {
                               context
                                   .read<CubitPermissions>()
-                                  .requestLocation();
+                                  .requestLocation(context);
                               final permissionStatus =
                                   await Permission.location.status;
                               if (permissionStatus.isDenied ||

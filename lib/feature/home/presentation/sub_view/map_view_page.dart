@@ -15,8 +15,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:lottie/lottie.dart' as lot;
-import 'package:permission_handler/permission_handler.dart'
-    as permission_handler;
+import 'package:permission_handler/permission_handler.dart' as permission_handler;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../product/utility/error_handler/sentry_error_handler.dart';
@@ -29,19 +28,14 @@ class MapViewPage extends StatefulWidget {
 }
 
 class _MapViewPageState extends State<MapViewPage> {
-  final ValueNotifier<BitmapDescriptor> sourceIcon =
-      ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
+  final ValueNotifier<BitmapDescriptor> sourceIcon = ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
   final ValueNotifier<BitmapDescriptor> destinationIcon =
       ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
-  final ValueNotifier<BitmapDescriptor> currentIcon =
-      ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
-  final ValueNotifier<List<LatLng>> polyLineCoordinates =
-      ValueNotifier<List<LatLng>>([]);
-  final ValueNotifier<LocationData?> currentLocation =
-      ValueNotifier<LocationData?>(null);
+  final ValueNotifier<BitmapDescriptor> currentIcon = ValueNotifier<BitmapDescriptor>(BitmapDescriptor.defaultMarker);
+  final ValueNotifier<List<LatLng>> polyLineCoordinates = ValueNotifier<List<LatLng>>([]);
+  final ValueNotifier<LocationData?> currentLocation = ValueNotifier<LocationData?>(null);
   final Completer<GoogleMapController> _controller = Completer();
-  final ValueNotifier<TrackingCoordinatesResponseModelItem?>
-      _trackingCoordinateNotifier =
+  final ValueNotifier<TrackingCoordinatesResponseModelItem?> _trackingCoordinateNotifier =
       ValueNotifier<TrackingCoordinatesResponseModelItem?>(null);
   final Dio dio = Dio();
   final ValueNotifier<String?> _duration = ValueNotifier<String?>(null);
@@ -50,9 +44,10 @@ class _MapViewPageState extends State<MapViewPage> {
   final ValueNotifier<bool> _isTracking = ValueNotifier<bool>(false);
   LatLng? initialPosition; // Sabit başlangıç konumu
 
-  String googleApiKey = Platform.isIOS
-      ? 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4'
-      : 'AIzaSyAxE2RP4vyKyE4RnFc6wJpXIfauNw';
+  String googleApiKey = 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4';
+  // String googleApiKey = Platform.isIOS
+  //     ? 'AIzaSyAeliVFiosa6wUWV4F_tbF2LcPf2FiFFi4'
+  //     : 'AIzaSyAxE2RP4vyKyE4RnFc6wJpXIfauNw';
 
   @override
   void initState() {
@@ -72,10 +67,8 @@ class _MapViewPageState extends State<MapViewPage> {
     super.dispose();
   }
 
-  Future<void> checkPermission(
-      Permission permission, BuildContext context) async {
-    final permission_handler.PermissionStatus status =
-        await permission.request();
+  Future<void> checkPermission(Permission permission, BuildContext context) async {
+    final permission_handler.PermissionStatus status = await permission.request();
     if (status.isGranted) {
       BotToast.showText(text: 'Permission is Granted');
     } else {
@@ -85,8 +78,7 @@ class _MapViewPageState extends State<MapViewPage> {
           return AlertDialog(
             title: const Text('Permission Required'),
             content: const Text(
-                textAlign: TextAlign.center,
-                'To use this feature, please enable location permissions in settings.'),
+                textAlign: TextAlign.center, 'To use this feature, please enable location permissions in settings.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('Go to Settings'),
@@ -121,8 +113,7 @@ class _MapViewPageState extends State<MapViewPage> {
       body: ValueListenableBuilder<TrackingCoordinatesResponseModelItem?>(
         valueListenable: _trackingCoordinateNotifier,
         builder: (context, value, child) {
-          if (currentLocation.value == null ||
-              _trackingCoordinateNotifier.value == null) {
+          if (currentLocation.value == null || _trackingCoordinateNotifier.value == null) {
             return FutureBuilder<permission_handler.PermissionStatus>(
               future: permission_handler.Permission.location.status,
               builder: (context, snapshot) {
@@ -138,14 +129,12 @@ class _MapViewPageState extends State<MapViewPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        lot.Lottie.asset('assets/lottie/fr_pin2.json',
-                            height: 150, width: 150),
+                        lot.Lottie.asset('assets/lottie/fr_pin2.json', height: 150, width: 150),
                         SizedBox(
                           height: context.lowValue,
                         ),
                         Padding(
-                          padding: context.paddingHorizontalHigh +
-                              context.paddingVerticalDefault,
+                          padding: context.paddingHorizontalHigh + context.paddingVerticalDefault,
                           child: const Text(
                               textAlign: TextAlign.center,
                               'To see your location, turn on location permission in settings.'),
@@ -159,8 +148,7 @@ class _MapViewPageState extends State<MapViewPage> {
                             },
                             child: const Text(
                               'Check Permission',
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline),
+                              style: TextStyle(decoration: TextDecoration.underline),
                             )),
                       ],
                     ),
@@ -173,8 +161,7 @@ class _MapViewPageState extends State<MapViewPage> {
               children: [
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: LatLng(currentLocation.value!.latitude!,
-                        currentLocation.value!.longitude!),
+                    target: LatLng(currentLocation.value!.latitude!, currentLocation.value!.longitude!),
                     zoom: 14.5,
                   ),
                   onMapCreated: (mapController) {
@@ -197,8 +184,7 @@ class _MapViewPageState extends State<MapViewPage> {
                       icon: sourceIcon.value,
                       markerId: const MarkerId('source'),
                       position: initialPosition ??
-                          LatLng(currentLocation.value!.latitude!,
-                              currentLocation.value!.longitude!),
+                          LatLng(currentLocation.value!.latitude!, currentLocation.value!.longitude!),
                     ),
                     Marker(
                       infoWindow: InfoWindow(
@@ -215,8 +201,7 @@ class _MapViewPageState extends State<MapViewPage> {
                     Marker(
                       icon: currentIcon.value,
                       markerId: const MarkerId('currentLocation'),
-                      position: LatLng(currentLocation.value!.latitude!,
-                          currentLocation.value!.longitude!),
+                      position: LatLng(currentLocation.value!.latitude!, currentLocation.value!.longitude!),
                     ),
                   },
                 ),
@@ -230,9 +215,7 @@ class _MapViewPageState extends State<MapViewPage> {
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _isTracking,
                       builder: (context, isTracking, child) {
-                        return Icon(isTracking
-                            ? Icons.location_searching
-                            : Icons.location_disabled);
+                        return Icon(isTracking ? Icons.location_searching : Icons.location_disabled);
                       },
                     ),
                   ),
@@ -251,15 +234,12 @@ class _MapViewPageState extends State<MapViewPage> {
   }
 
   void _initializeMap() async {
-    _trackingCoordinateNotifier.value =
-        await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
+    _trackingCoordinateNotifier.value = await ProductStateItems.hiveStorageManager.getTrackingCoordinateModel();
 
     if (context.read<HomeBloc>().state.selectedTrackingCoordinate != null) {
       LatLng selectedCoordinate = LatLng(
-        context.read<HomeBloc>().state.selectedTrackingCoordinate!.latitude ??
-            0.0,
-        context.read<HomeBloc>().state.selectedTrackingCoordinate!.longitude ??
-            0.0,
+        context.read<HomeBloc>().state.selectedTrackingCoordinate!.latitude ?? 0.0,
+        context.read<HomeBloc>().state.selectedTrackingCoordinate!.longitude ?? 0.0,
       );
     }
 
@@ -275,8 +255,7 @@ class _MapViewPageState extends State<MapViewPage> {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleApiKey: googleApiKey,
         request: PolylineRequest(
-            origin: PointLatLng(currentLocation.value!.latitude!,
-                currentLocation.value!.longitude!),
+            origin: PointLatLng(currentLocation.value!.latitude!, currentLocation.value!.longitude!),
             destination: PointLatLng(
               _trackingCoordinateNotifier.value!.latitude!,
               _trackingCoordinateNotifier.value!.longitude!,
@@ -308,8 +287,7 @@ class _MapViewPageState extends State<MapViewPage> {
         currentLocation.value!.longitude!,
       );
 
-      _locationSubscription =
-          location.onLocationChanged.listen((LocationData newLoc) {
+      _locationSubscription = location.onLocationChanged.listen((LocationData newLoc) {
         if (!mounted) return;
         currentLocation.value = newLoc;
         _updateCurrentLocationMarker();
@@ -324,8 +302,7 @@ class _MapViewPageState extends State<MapViewPage> {
     if (_isTracking.value) {
       _mapController?.animateCamera(
         CameraUpdate.newLatLng(
-          LatLng(currentLocation.value!.latitude!,
-              currentLocation.value!.longitude!),
+          LatLng(currentLocation.value!.latitude!, currentLocation.value!.longitude!),
         ),
       );
     }
@@ -337,13 +314,11 @@ class _MapViewPageState extends State<MapViewPage> {
 
   Future<void> fetchTravelTime() async {
     try {
-      String baseUrl =
-          "https://maps.googleapis.com/maps/api/distancematrix/json";
+      String baseUrl = "https://maps.googleapis.com/maps/api/distancematrix/json";
       String parameters =
           "units=imperial&origins=${currentLocation.value!.latitude},${currentLocation.value!.longitude}&destinations=${_trackingCoordinateNotifier.value!.latitude},${_trackingCoordinateNotifier.value!.longitude}&key=$googleApiKey";
       Response response = await dio.get("$baseUrl?$parameters");
-      _duration.value =
-          response.data['rows'][0]['elements'][0]['duration']['text'];
+      _duration.value = response.data['rows'][0]['elements'][0]['duration']['text'];
       setState(() {
         if (_mapController != null) {
           _mapController?.showMarkerInfoWindow(const MarkerId('destination'));

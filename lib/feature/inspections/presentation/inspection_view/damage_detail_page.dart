@@ -74,7 +74,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
       String result = pathImage.substring(documentsIndex + "Documents/".length);
 
       final path = '$directory/$result';
-      _selectedImage = path;
+      // _selectedImage = path;
+      _selectedImage = pathImage;
     } else {
       final String path = ProductStateItems.hiveStorageManager
           .getRecordedDamageById(
@@ -85,7 +86,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
 
       String result = path.substring(documentsIndex + "Documents/".length);
       final pathLast = '$directory/$result';
-      _selectedImage = pathLast;
+      // _selectedImage = pathLast;
+      _selectedImage = path;
     }
     if (ProductStateItems.hiveStorageManager
             .getRecordedDamageById(
@@ -95,7 +97,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
       int documentsIndex = pathContextImage.indexOf("Documents/");
       String result = pathContextImage.substring(documentsIndex + "Documents/".length);
       final path = '$directory/$result';
-      _selectedContextImage = path;
+      // _selectedContextImage = path;
+      _selectedContextImage = pathContextImage;
     } else {
       final String path = ProductStateItems.hiveStorageManager
           .getRecordedDamageById(
@@ -105,7 +108,8 @@ class _DamageDetailPageState extends State<DamageDetailPage> {
       int documentsIndex = path.indexOf("Documents/");
       String result = path.substring(documentsIndex + "Documents/".length);
       final pathLast = '$directory/$result';
-      _selectedContextImage = pathLast;
+      // _selectedContextImage = pathLast;
+      _selectedContextImage = path;
     }
 
     setState(() {});

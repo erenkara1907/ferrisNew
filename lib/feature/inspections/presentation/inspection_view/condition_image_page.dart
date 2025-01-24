@@ -290,6 +290,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
     String appDocPath = appDocDir.path;
     String compressedImagePath = '$appDocPath/$fName.jpg';
     await File(compressedImagePath).writeAsBytes(imageBytes);
+
+    print("RESIZE PATH : $compressedImagePath");
     return File(compressedImagePath);
   }
 
@@ -452,7 +454,8 @@ class _ConditionImagePageState extends State<ConditionImagePage> {
                                           ClipRRect(
                                             borderRadius: BorderRadius.circular(12),
                                             child: Image.file(
-                                              File(path),
+                                              // File(path),
+                                              File(pathImage),
                                               fit: BoxFit.cover,
                                               // height: context.dynamicHeight(0.15),
                                               // width: context.dynamicWidth(0.35),
