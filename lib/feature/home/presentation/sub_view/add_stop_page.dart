@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -38,7 +40,7 @@ class AddStop extends StatefulWidget {
 
 class _AddStopState extends State<AddStop> {
   String? _selectedLevelAtHub;
-  List<File> _evidences = [];
+  final List<File> _evidences = [];
   final TextEditingController _reasonController = TextEditingController();
   int limit = 12;
 
@@ -63,10 +65,113 @@ class _AddStopState extends State<AddStop> {
     });
   }
 
+  // Future<void> _getImages(ImageSource source, StopJobState state) async {
+  //   final picker = ImagePicker();
+
+  //   if (source == ImageSource.camera) {
+  //     PermissionStatus permissionStatus = await Permission.camera.status;
+  //     if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //       final result = await showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Camera Permission'),
+  //             content:
+  //                 const Text('This app needs camera access to take pictures. Please allow camera access in settings.'),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(false);
+  //                 },
+  //                 child: const Text('Cancel'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   context.read<CubitPermissions>().requestCamera();
+  //                   final permissionStatus = await Permission.camera.status;
+  //                   if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+  //                     await openAppSettings();
+  //                   }
+  //                   context.pop();
+  //                 },
+  //                 child: const Text('Open Settings'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+
+  //       if (result == true) {
+  //         await openAppSettings();
+  //         permissionStatus = await Permission.camera.status;
+  //       } else {
+  //         return;
+  //       }
+  //     }
+
+  //     if (permissionStatus.isGranted) {
+  //       final result = await Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => CameraPage(
+  //             evidences: _evidences,
+  //             limit: 1, // Sadece bir resim çekmek için limit 1 olmalı
+  //             onCapture: (File image) async {
+  //               if (_evidences.isEmpty) {
+  //                 await compressImage(image);
+  //                 // setState(() {
+  //                 //   _evidences.add(image);
+  //                 // });
+  //                 // Resim çekildikten sonra işlemleri başlat
+  //                 await handleImageSelectionAndSubmit(context, state);
+  //                 context.pop();
+  //               } else {
+  //                 BotToast.showText(text: 'You can only select 1 images in total');
+  //               }
+  //             },
+  //           ),
+  //         ),
+  //       );
+
+  //       if (result != null && result is List<File>) {
+  //         setState(() {
+  //           _evidences = result;
+  //         });
+  //       }
+  //     } else {
+  //       BotToast.showText(text: 'Camera access denied');
+  //     }
+  //   } else {
+  //     final pickedImage = await picker.pickImage(imageQuality: 90, source: source);
+
+  //     if (pickedImage != null) {
+  //       if (_evidences.isNotEmpty) {
+  //         BotToast.showText(text: 'You can only select 1 images in total');
+  //         return;
+  //       }
+
+  //       File file = File(pickedImage.path);
+
+  //       final documentPath = (await getApplicationDocumentsDirectory()).path;
+  //       final newFile = await file.copy('$documentPath/${path.basename(file.path)}');
+  //       File compressedImage = await _resizeImage(newFile);
+
+  //       setState(() {
+  //         _evidences.add(compressedImage);
+  //       });
+
+  //       await handleImageSelectionAndSubmit(context, state);
+  //     } else {
+  //       BotToast.showText(text: 'No image selected');
+  //     }
+  //   }
+  // }
+
   Future<void> _getImages(ImageSource source, StopJobState state) async {
     final picker = ImagePicker();
 
     if (source == ImageSource.camera) {
+      // Kamera izinlerini kontrol et
       PermissionStatus permissionStatus = await Permission.camera.status;
       if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
         final result = await showDialog(
@@ -107,44 +212,48 @@ class _AddStopState extends State<AddStop> {
         }
       }
 
+      // Eğer izin verilmişse, varsayılan kamerayı aç
       if (permissionStatus.isGranted) {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CameraPage(
-              evidences: _evidences,
-              limit: 1, // Sadece bir resim çekmek için limit 1 olmalı
-              onCapture: (File image) async {
-                if (_evidences.isEmpty) {
-                  await compressImage(image);
-                  // setState(() {
-                  //   _evidences.add(image);
-                  // });
-                  // Resim çekildikten sonra işlemleri başlat
-                  await handleImageSelectionAndSubmit(context, state);
-                  context.pop();
-                } else {
-                  BotToast.showText(text: 'You can only select 1 images in total');
-                }
-              },
-            ),
-          ),
+        final pickedImage = await picker.pickImage(
+          source: ImageSource.camera,
+          imageQuality: 90, // İsteğe bağlı: Resim kalitesi
         );
 
-        if (result != null && result is List<File>) {
+        if (pickedImage != null) {
+          if (_evidences.isNotEmpty) {
+            BotToast.showText(text: 'You can only select 1 image in total');
+            return;
+          }
+
+          File file = File(pickedImage.path);
+
+          // Resmi sıkıştır ve işle
+          final documentPath = (await getApplicationDocumentsDirectory()).path;
+          final newFile = await file.copy('$documentPath/${path.basename(file.path)}');
+          File compressedImage = await _resizeImage(newFile);
+
           setState(() {
-            _evidences = result;
+            _evidences.add(compressedImage);
           });
+
+          // Resim seçildikten sonra işlemleri başlat
+          await handleImageSelectionAndSubmit(context, state);
+        } else {
+          BotToast.showText(text: 'No image captured');
         }
       } else {
         BotToast.showText(text: 'Camera access denied');
       }
     } else {
-      final pickedImage = await picker.pickImage(imageQuality: 90, source: source);
+      // Galeriden resim seçme işlemi
+      final pickedImage = await picker.pickImage(
+        imageQuality: 90,
+        source: source,
+      );
 
       if (pickedImage != null) {
         if (_evidences.isNotEmpty) {
-          BotToast.showText(text: 'You can only select 1 images in total');
+          BotToast.showText(text: 'You can only select 1 image in total');
           return;
         }
 

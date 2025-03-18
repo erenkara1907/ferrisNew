@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first, no_leading_underscores_for_local_identifiers
+// ignore_for_file: public_member_api_docs, sort_constructors_first, no_leading_underscores_for_local_identifiers, use_build_context_synchronously
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -47,7 +47,7 @@ class _ExpenseDetailsState extends State<ExpenseDetails> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   FocusNode focusNode = FocusNode();
-
+ 
   Future<void> _getImage(ImageSource source) async {
     try {
       if (source == ImageSource.camera) {

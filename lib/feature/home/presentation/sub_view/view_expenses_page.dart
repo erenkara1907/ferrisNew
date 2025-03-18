@@ -34,15 +34,11 @@ class _ViewExpensesState extends State<ViewExpenses> {
     super.initState();
 
     _initializeJob();
-    if (widget.isAsync &&
-        ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
+    if (widget.isAsync && ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
       context.read<JobExpenseBloc>().add(
             SetExpensePost(
               int.parse(
-                ProductStateItems.hiveDatabaseManager
-                    .getUserModel()!
-                    .currentJobId
-                    .toString(),
+                ProductStateItems.hiveDatabaseManager.getUserModel()!.currentJobId.toString(),
               ),
             ),
           );
@@ -51,16 +47,12 @@ class _ViewExpensesState extends State<ViewExpenses> {
       String? _currentJobId = "";
       // ignore: unused_local_variable
       if (ProductStateItems.hiveDatabaseManager.getUserModel() != null) {
-        _currentJobId = ProductStateItems.hiveDatabaseManager
-            .getUserModel()!
-            .currentJobId
-            .toString();
+        _currentJobId = ProductStateItems.hiveDatabaseManager.getUserModel()!.currentJobId.toString();
       }
 
       context.read<JobExpenseBloc>().add(
             GetJobExpenses(
-              jobId:
-                  _currentJobId != "" ? int.parse(_currentJobId) : widget.jobId,
+              jobId: _currentJobId != "" ? int.parse(_currentJobId) : widget.jobId,
             ),
           );
     }
@@ -74,8 +66,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
     if (context.read<JobExpenseBloc>().state.status == ViewStatus.loading) {
       return;
     }
-    final result =
-        await ProductStateItems.hiveStorageManager.getJobExpenseAsync();
+    final result = await ProductStateItems.hiveStorageManager.getJobExpenseAsync();
     if (result != [] && result.isNotEmpty && result != {}) {
       setState(() {
         isSyncing = true;
@@ -94,8 +85,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
 
       ProductStateItems.hiveStorageManager.deleteJobExpenseAsync();
     }
-    final resultPatch =
-        await ProductStateItems.hiveStorageManager.getJobExpensePatchAsync();
+    final resultPatch = await ProductStateItems.hiveStorageManager.getJobExpensePatchAsync();
 
     if (resultPatch.isNotEmpty &&
         resultPatch != {} &&
@@ -163,8 +153,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                   const VerticalSpace.standard(),
                   Text(
                     "View Expenses",
-                    style: context.textTheme.headlineMedium
-                        ?.copyWith(fontWeight: FontWeight.w500),
+                    style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500),
                   ),
                   const VerticalSpace.small(),
                   if (uniqueExpenseList.isEmpty)
@@ -200,9 +189,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                         itemBuilder: (BuildContext context, int index) {
                           return Container(
                             decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: context.theme.colorScheme.primary
-                                      .withOpacity(0.4)),
+                              border: Border.all(color: context.theme.colorScheme.primary.withOpacity(0.4)),
                               color: context.theme.colorScheme.onSurfaceVariant,
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -210,8 +197,7 @@ class _ViewExpensesState extends State<ViewExpenses> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    context
-                                        .push('/view_expense_detail', extra: {
+                                    context.push('/view_expense_detail', extra: {
                                       'expense': uniqueExpenseList[index],
                                       'index': index,
                                     });
@@ -219,35 +205,25 @@ class _ViewExpensesState extends State<ViewExpenses> {
                                   child: Padding(
                                     padding: context.paddingAllDefault,
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              uniqueExpenseList[index]
-                                                  .categoryId
-                                                  .name,
-                                              style: context
-                                                  .textTheme.bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w500),
+                                              uniqueExpenseList[index].categoryId.name,
+                                              style:
+                                                  context.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                                             ),
                                             Text(
                                               "Price: £ ${uniqueExpenseList[index].price?.toStringAsFixed(2) ?? '0.00'}",
-                                              style:
-                                                  context.textTheme.bodySmall,
+                                              style: context.textTheme.bodySmall,
                                             ),
                                           ],
                                         ),
                                         Icon(
                                           Icons.arrow_forward_ios,
-                                          color: context
-                                              .theme.colorScheme.primary
-                                              .withOpacity(0.7),
+                                          color: context.theme.colorScheme.primary.withOpacity(0.7),
                                         ),
                                       ],
                                     ),
